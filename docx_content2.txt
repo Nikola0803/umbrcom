@@ -1,0 +1,202 @@
+Mashiach
+1. Checkout Page Redesign
+Redesign the checkout page according to the Pelecard requirements and specifications.
+2. Product Contents Section with Linked Products
+On every product page, there is currently a free-text field for the product contents.
+I would like an additional option in the WordPress product editor to link products that are included in or make up the main product.
+In the Product Contents section on the product page:
+- The existing custom text should still be displayed.
+- In addition, display the images and names of all linked products.
+- The linked products should be managed directly from the product editor in WordPress.
+- This should work independently from the existing free-text contents field.
+3. Bundle Image Background Design
+The images used to build the bundle preview on the Bundle page currently have a gray background.
+Please change the gray background to a pure white background.
+The goal is that when a customer builds a bundle with 5–6 products, the final bundle image looks like one unique custom image created specifically for that customer, rather than a collage made from multiple separate product images.
+4. Permanent Product Reviews
+I want the product reviews on the product pages to be our own reviews, not loaded from Alpha Site.
+Right now, customers can see the Alpha Site code, so it is clear that the reviews come from Alpha Site and not from our website.
+Please create a proper review solution that looks native to our website and does not expose Alpha Site branding or code to customers.
+5. Search Function Improvement
+The website search is not accurate enough.
+For example, when I search for “משחזת”, the search currently shows products that contain the word “משחזת” anywhere in the product name.
+I want the search logic to work like this:
+First priority:Show products that start with the exact word or words the customer typed.
+For example:If the customer searches “משחזת 3”, first show products that start with “משחזת 3”.
+Second priority:Only if there are not enough exact beginning matches, show products that contain those words anywhere in the product name.
+The goal is to make the search results more accurate and more relevant to what the customer actually typed.
+6. Gift Card Functionality
+Please add gift card functionality to the website.
+You can choose the best technical solution and implementation method based on what you think is most correct for WooCommerce and the website structure.
+7. Products Without Prices – Quote Request
+For products that do not have a price, I want customers to be able to leave their details and request a quote from a representative.
+The goal is to upload products that we do not actively sell yet, mainly for SEO purposes, and give customers an option to submit their details so we can check the price and update them manually.
+8. Complementary Products Scroll Section
+Add a scrollable complementary products section under the “Add to Cart” button.
+The customer should be able to scroll through recommended/add-on products directly from the product page, in a clean horizontal scroll layout.
+9. Product Upgrade Options on Mobile
+Add product upgrade options on the mobile product page, similar to the screenshot I sent.
+The upgrades should appear clearly and allow the customer to easily choose add-ons or upgraded options before adding the product to the cart.
+10. Video Management Interface
+There is already a videos page on the Mashiach website.
+I want a back-office page in the website admin where I can add video links and connect each video to a specific product SKU from the website.
+After I add the video link and select the product SKU, the video should automatically appear on the videos page.
+Next to each video, there should be a purchase button that automatically links to the product I selected in the back office.
+11. Order Source Issue
+The order source is still not being received correctly.
+It used to work properly before, but after we made changes related to the new server and the new front-end, the order source stopped coming through correctly.
+Please investigate what changed and restore the order source tracking so it works like before.
+12. Product Series Field and Series Logo
+I want to add a product series field, similar to a brand field.
+In the product editor, I should be able to choose the product series from a predefined list, similar to ACF.
+For example:Milwaukee is the brand, but M18 is the series.
+If I select “M18” for a product, the product page should display the M18 series logo near the brand logo.
+Also, each series should have its own archive page on the website, showing all products that belong to that series.
+13. Shareable Filtered Category Links
+For example, if I enter the “Drills / Impact Drivers” category and apply filters such as Makita and Body Only, I want the selected filters to appear in the URL.
+This way, I can copy the filtered URL and send it to a customer, and the customer will open the category page with the same filters already applied.
+14. Product Assignment Interface for Articles
+You already built an interface that displays products inside articles.
+Now I need a clear way to assign products to each article.
+Please add a back-office interface where I can select which products should be connected to each article, so the correct products will appear inside the relevant article.
+15. Quote Request from Cart to App
+I want an option on the website that allows customers to generate a quote request from the products currently in their shopping cart.
+In practice:
+The cart products, together with the customer details, should be sent to the system of the application we are building.
+The application should generate a quote document for the customer and display it inside the customer’s personal area.
+16. Document Sync from Our App to the Customer Account
+The system we are building is also an accounting system.
+I want the system to generate customer documents, identify the logged-in customer by email, and sync those documents to the website.
+The documents should appear inside the customer’s personal account area on the website.
+17. ID / Company Number Field for Orders Above ₪5,000
+For orders above ₪5,000, automatically display an additional required field on the checkout page:
+"ID Number / Company Number / VAT Number"
+This field must be mandatory before the order can be completed.
+The reason is that, according to the new tax requirements in Israel, invoices for transactions above this amount must include the customer's identification number. Therefore, the customer must provide this information during checkout.
+18. Update Shipping Cost
+Increase the standard shipping cost from ₪24.90 to ₪28.00 across the website.
+Please make sure the new shipping rate is applied consistently wherever the shipping cost is displayed or calculated.
+Update Shipping Cost
+Increase the standard shipping cost from ₪24.90 to ₪28.00 across the website.
+Please make sure the new shipping rate is applied consistently wherever the shipping cost is displayed or calculated.
+19. Website Translation Button
+Add a website translation button that allows customers to translate the website into:
+RussianEnglishArabicFrench
+20. Future App Integration and Website Management
+In the future, we want all website forms to be sent directly to the app.
+I also want to manage the entire website from the app, including products, categories, and general website data.
+Any changes made in the app should update the WordPress back office.
+Important: I must keep WordPress as the backend. I cannot replace it with a custom backend.
+umbrcom 1. UMBRCOM Multi-Brand Header Structure
+We need to build the UMBRCOM header according to brands.
+When the customer clicks on a specific brand, they should enter that brand’s own store area.
+For example:
+Waterfall is one brand.Under Waterfall, the customer should see Waterfall-related categories such as kitchen faucets, bathroom faucets, and a homepage that matches Waterfall products.
+In the future, we may add a power tools brand. Its logo should also appear in the header.
+When the customer clicks that logo, they should enter that brand’s own “mini-store” inside UMBRCOM, with its own homepage, menu, categories, and products.
+2. Current Homepage as Waterfall Brand Homepage
+For now, I consider the current UMBRCOM homepage to be the homepage of the Waterfall brand.
+Please structure it and design it accordingly.
+Also, change the Hebrew font to the same font that you previously used on the WFL website, so both websites have a consistent visual identity.
+3. Remove Statistics Section
+Please remove the statistics section that displays:
+4,200 Products
+12 Years of Experience
+100% Warranty
+This section is no longer needed and should be completely removed from the homepage.
+4. Update Benefits and Payment Icons
+Update the benefits section as follows:
+Free shipping over ₪200, not ₪299.Warranty: 7 years for kitchen faucets and bathroom sink faucets.Returns: up to 14 days.
+Keep the human support and secure payment items.
+Remove the PayPal icon.
+5. Replace Homepage Category Images
+Please replace the category images on the homepage for the following categories:
+Kitchen Faucets
+Bathroom Sink Faucets
+Cold Water Faucets
+The current images should be replaced with the new images that were prepared for these categories.
+6. Product Card Redesign
+I do not like the current product card design on the homepage and category/archive pages.
+Please redesign it with a cleaner, more elegant, and classic look that feels premium and professional.
+You can use your own design judgment, but the goal is to create a product card that looks modern, trustworthy, and visually appealing.
+7. Accessibility Button
+Add an accessibility button to the UMBRCOM website, similar to the one on the Mashiach website.
+8. WhatsApp and Phone Buttons
+Add floating WhatsApp and phone buttons to the UMBRCOM website, similar to the Mashiach website.
+9. Remove Footer Text
+Please remove the following text from the footer:
+"Your premium bathroom and kitchen brand — design, quality, and service under one roof."
+This text is no longer needed and should be removed completely.
+10. Move Floating Cart to the Left Side
+The floating cart is currently displayed on the right side of the website.
+Please move it to the left side so it remains visible and accessible throughout the site.11. Add "Pampering Sets" Category to Footer Catalog
+Please add a new category called "ערכות פינוק" to the footer catalog section.
+It should appear together with the other product categories in the footer navigation.12. Product Page Redesign
+I do not like the current product page design at all.
+I want a cleaner, more classic, and more premium design.
+The page should feel professional, elegant, and easy to use, with a better visual hierarchy and a stronger focus on the product itself.
+You can use your own design judgment, but the goal is to create a timeless and high-quality shopping experience rather than a flashy or overly modern design.
+13. Product Image Gallery Carousel
+On the product page, I want the image gallery to appear above the long description.
+The gallery should be designed as a carousel, where the center image is raised higher like a floating card, while the two side images appear slightly lower.
+The goal is to make the product page look more premium, clean, and visually interesting.
+14. Category Page Header Section
+On every category page, please add a category header section similar to the Mashiach website.
+The section should include:
+Category title
+Short category description
+Optional hero / atmosphere image at the top of the page
+The goal is to make category pages look richer, improve SEO, and provide a better user experience.wfl1. Warranty Activation Redirect
+Create a redirect for this URL:
+https://wfl.co.il/PAGE15.asp
+This link must redirect customers to the new Warranty Activation page that you are building.
+2. Remove Top Blue Strip
+Please remove the blue strip/banner that appears at the top of the homepage.
+It is no longer needed and should be completely removed from the website.
+3. Center the Main Navigation Menu
+Please center the main navigation menu horizontally in the header.
+The menu should be positioned in the middle of the header rather than aligned to the side.
+4. Add "Pampering Sets" to Footer Catalog
+Please add the "Pampering Sets" category to the footer catalog navigation as well.
+It should appear in the footer catalog exactly like it appears in the main header menu.5. Accessibility Features
+Please add accessibility features to the WFL website similar to the implementation used on the Mashiach website.
+Use the same accessibility solution, functionality, and user experience so both websites remain consistent.
+6. WhatsApp and Phone Buttons
+Please add floating WhatsApp and phone buttons to the WFL website.
+The buttons should remain visible throughout the website and provide quick contact options for customers.
+7. Replace "Leading Series" Images
+Please replace the images used in the "Leading Series" section.
+The current images should be updated with the new images that were prepared for this section, while maintaining the existing layout and functionality.
+8. PDF Catalog Upload
+Please upload the PDF catalog that I will provide and connect it to the "Browse Catalog" button.
+When customers click the button, the PDF catalog should open or download directly.
+9. Update Available Finishes
+Please update the "Available Finishes" section to display the following finishes:
+Brushed Nickel
+Brushed Gold
+Rose Gold
+Black
+Gold
+Chrome
+These should be the only finishes displayed in this section
+10. Remove Homepage Feature Texts
+Please remove the following texts completely:
+Lifetime Warranty
+Free Shipping
+30-Day Returns
+24/7 Support
+These items should no longer be displayed on the website.
+11. Update the 6 Benefits Section
+Please replace the current 6 benefits with the new text that I will provide.
+Keep the existing layout and design, but update all titles and descriptions according to the new content I send.
+ברזים מעוצבים בקווים נקיים ומודרניים המשתלבים בכל סגנון מטבח וחדר רחצה.
+אחריות מקיפה
+אחריות מלאה ושירות מקצועי המעניקים שקט נפשי לאורך שנים.
+חומרים איכותיים
+ייצור מחומרים איכותים ורכיבים עמידים לשמירה על מראה וביצועים לאורך זמן.
+טכנולוגיית חיסכון במים
+מערכות מתקדמות המסייעות לצמצם את צריכת המים ללא פגיעה בנוחות השימוש.
+מגוון גימורים יוקרתיים
+בחירה בין ניקל מוברש, שחור מט, זהב מוברש, רוז גולד וגימורים נוספים להתאמה מושלמת לעיצוב הבית.
+שירות ותמיכה בישראל
+זמינות מלאה, מענה מקצועי ואספקת חלקי חילוף ושירות מקומי ללקוחות בישראל.
