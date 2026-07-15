@@ -48,7 +48,7 @@ export default function CartDrawer() {
         <div className="flex items-center justify-between px-6 py-5 border-b border-[#ede9e1]">
           <button
             onClick={closeCart}
-            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#faf8f5] transition-colors cursor-pointer text-[#6a5e52]"
+            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white transition-colors cursor-pointer text-[#6a5e52]"
           >
             <i className="ri-close-line text-lg"></i>
           </button>
@@ -66,7 +66,7 @@ export default function CartDrawer() {
         <div className="flex-1 overflow-y-auto px-6 py-4">
           {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center gap-4 py-16">
-              <div className="w-16 h-16 flex items-center justify-center rounded-full bg-[#faf8f5]">
+              <div className="w-16 h-16 flex items-center justify-center rounded-full bg-white">
                 <i className="ri-shopping-bag-line text-2xl text-[#1a1a1a]"></i>
               </div>
               <p className="text-sm text-[#9a8a7a]">הסל שלך ריק</p>
@@ -82,7 +82,7 @@ export default function CartDrawer() {
               {items.map(({ product, qty }) => (
                 <li
                   key={product.id}
-                  className="flex gap-4 items-start bg-[#faf8f5] rounded-2xl p-4"
+                  className="flex gap-4 items-start bg-white rounded-2xl p-4"
                 >
                   {/* Image */}
                   <Link
@@ -114,7 +114,7 @@ export default function CartDrawer() {
                       <div className="flex items-center gap-0 border border-[#ede9e1] rounded-lg overflow-hidden bg-white">
                         <button
                           onClick={() => updateQty(product.id, qty - 1)}
-                          className="w-7 h-7 flex items-center justify-center text-[#6a5e52] hover:bg-[#faf8f5] transition-colors cursor-pointer text-sm"
+                          className="w-7 h-7 flex items-center justify-center text-[#6a5e52] hover:bg-white transition-colors cursor-pointer text-sm"
                         >
                           <i className="ri-subtract-line"></i>
                         </button>
@@ -123,7 +123,7 @@ export default function CartDrawer() {
                         </span>
                         <button
                           onClick={() => updateQty(product.id, qty + 1)}
-                          className="w-7 h-7 flex items-center justify-center text-[#6a5e52] hover:bg-[#faf8f5] transition-colors cursor-pointer text-sm"
+                          className="w-7 h-7 flex items-center justify-center text-[#6a5e52] hover:bg-white transition-colors cursor-pointer text-sm"
                         >
                           <i className="ri-add-line"></i>
                         </button>
@@ -162,7 +162,7 @@ export default function CartDrawer() {
 
             {/* Free shipping nudge */}
             {totalPrice < 200 && (
-              <div className="bg-[#faf8f5] rounded-xl px-4 py-2.5 text-right">
+              <div className="bg-white rounded-xl px-4 py-2.5 text-right">
                 <p className="text-xs text-[#9a8a7a]">
                   הוסף עוד{" "}
                   <span className="font-semibold text-[#1a1a1a]">

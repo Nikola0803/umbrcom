@@ -4,11 +4,11 @@ import { Link } from "react-router-dom";
 export default function WarrantyActivationPage() {
   return (
     <PageLayout>
-      <section className="min-h-[70vh] w-full bg-[#faf8f5] flex items-center justify-center py-20 px-6">
+      <section className="min-h-[70vh] w-full bg-white flex items-center justify-center py-20 px-6">
         <div className="max-w-xl w-full text-right">
           {/* Icon */}
           <div className="flex justify-end mb-6">
-            <div className="w-16 h-16 bg-[#fdf8f2] rounded-2xl flex items-center justify-center border border-[#ede9e1]">
+            <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center border border-[#ede9e1]">
               <i className="ri-shield-check-line text-3xl text-[#1a1a1a]"></i>
             </div>
           </div>

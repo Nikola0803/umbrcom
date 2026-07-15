@@ -40,3 +40,15 @@
   from { opacity: 0; }
   to   { opacity: 1; }
 }
+
+/* ── Accessibility widget modes ─────────────────────────────────────────── */
+body.high-contrast { filter: contrast(1.35); }
+body.grayscale-mode { filter: grayscale(1); }
+body.invert-mode { filter: invert(1) hue-rotate(180deg); }
+body.high-contrast.grayscale-mode { filter: contrast(1.35) grayscale(1); }
+body.underline-links a { text-decoration: underline !important; }
+body.readable-font, body.readable-font * { font-family: Arial, 'Arial Hebrew', sans-serif !important; letter-spacing: 0.02em; }
+body.no-motion *, body.no-motion *::before, body.no-motion *::after {
+  animation: none !important;
+  transition: none !important;
+}

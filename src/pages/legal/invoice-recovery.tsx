@@ -6,7 +6,7 @@ export default function InvoiceRecoveryPage() {
       <section className="min-h-[70vh] w-full bg-white flex items-center justify-center py-20 px-6">
         <div className="max-w-lg w-full text-right" dir="rtl">
           <div className="flex justify-end mb-6">
-            <div className="w-14 h-14 bg-[#faf8f5] rounded-2xl flex items-center justify-center border border-[#ede9e1]">
+            <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center border border-[#ede9e1]">
               <i className="ri-file-text-line text-2xl text-[#1a1a1a]"></i>
             </div>
           </div>
@@ -39,7 +39,7 @@ export default function InvoiceRecoveryPage() {
             </button>
           </form>
 
-          <div className="mt-8 p-4 bg-[#faf8f5] rounded-xl border border-[#ede9e1] text-xs text-[#9a8a7a] leading-relaxed text-center">
+          <div className="mt-8 p-4 bg-white rounded-xl border border-[#ede9e1] text-xs text-[#9a8a7a] leading-relaxed text-center">
             לא מצאתם? צרו איתנו קשר ב-
             <a href="tel:+97236208197" className="text-[#1a1a1a] font-semibold mx-1">03-620-8197</a>
             ונסייע ישירות.

@@ -70,7 +70,7 @@ export default function ModelViewer3D({ productName, productSku }: ModelViewer3D
   return (
     <div className="w-full" dir="rtl">
       {/* 3D Viewer */}
-      <div className="relative bg-[#f5f2ed] overflow-hidden" style={{ height: 480 }}>
+      <div className="relative bg-[#f2f2f2] overflow-hidden" style={{ height: 480 }}>
         {!scriptLoaded && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
             <div className="w-8 h-8 border-2 border-[#1a1a1a] border-t-transparent rounded-full animate-spin" />
@@ -116,7 +116,7 @@ export default function ModelViewer3D({ productName, productSku }: ModelViewer3D
       </div>
 
       {/* Controls hint bar */}
-      <div className="bg-[#faf8f5] border border-[#ede9e1] border-t-0 px-6 py-3 flex items-center justify-between flex-wrap gap-3">
+      <div className="bg-white border border-[#ede9e1] border-t-0 px-6 py-3 flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-5 text-[11px] text-[#9a8a7a]">
           <span className="flex items-center gap-1.5">
             <i className="ri-cursor-line text-[#1a1a1a]"></i>
@@ -172,7 +172,7 @@ export default function ModelViewer3D({ productName, productSku }: ModelViewer3D
           {/* QR Code */}
           {qrVisible && (
             <div className="flex flex-col items-center gap-3">
-              <div className="bg-[#faf8f5] p-4 border border-[#ede9e1] rounded-xl">
+              <div className="bg-white p-4 border border-[#ede9e1] rounded-xl">
                 <img
                   src={qrApiUrl}
                   alt="QR code לצפייה ב-AR"

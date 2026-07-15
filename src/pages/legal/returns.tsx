@@ -58,7 +58,7 @@ export default function ReturnsPage() {
           <p>קיבלת מוצר פגום? נשמח לטפל בכך מיידית — נחליף את המוצר ללא עלות, כולל איסוף. אנא צלם את הפגם ושלח לנו בהקדם.</p>
         </section>
 
-        <div className="bg-[#faf8f5] border border-[#ede9e1] rounded-2xl p-5">
+        <div className="bg-white border border-[#ede9e1] rounded-2xl p-5">
           <p className="font-semibold text-[#1a1410] mb-1">צריך עזרה?</p>
           <p>📧 <a href="mailto:office@umbrcom.co.il" className="text-[#1a1a1a] underline">office@umbrcom.co.il</a></p>
           <p>📞 <a href="tel:+97236208197" className="text-[#1a1a1a]">03-620-8197</a></p>

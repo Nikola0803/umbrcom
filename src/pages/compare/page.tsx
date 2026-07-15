@@ -42,7 +42,7 @@ export default function ComparePage() {
                     {compareProducts.map((p) => (
                       <th key={p.id} className="text-center pb-6 px-4">
                         <Link to={`/product/${p.id}`} className="group block">
-                          <div className="mx-auto w-24 h-24 bg-[#f7f5f2] rounded-xl overflow-hidden mb-3 group-hover:shadow-md transition-shadow">
+                          <div className="mx-auto w-24 h-24 bg-[#f6f6f6] rounded-xl overflow-hidden mb-3 group-hover:shadow-md transition-shadow">
                             <img src={p.image} alt={p.name} className="w-full h-full object-contain p-2" />
                           </div>
                           <p className="text-xs font-medium text-[#1a1410] leading-snug group-hover:underline">{p.name}</p>
@@ -56,7 +56,7 @@ export default function ComparePage() {
                 {/* Specs */}
                 <tbody>
                   {SPECS.map((spec, idx) => (
-                    <tr key={spec.key} className={idx % 2 === 0 ? "bg-[#faf8f5]" : "bg-white"}>
+                    <tr key={spec.key} className={idx % 2 === 0 ? "bg-white" : "bg-white"}>
                       <td className="text-xs text-[#9a8a7a] font-medium py-3 pr-3 rounded-r-lg">{spec.label}</td>
                       {compareProducts.map((p) => (
                         <td key={p.id} className="text-center text-sm text-[#1a1410] py-3 px-4">

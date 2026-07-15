@@ -56,7 +56,7 @@ export default function AccessibilityStatementPage() {
               <p>
                 גילינו תקלה? יש לכם הצעה לשיפור? נשמח לשמוע.
               </p>
-              <div className="mt-3 p-4 bg-[#faf8f5] rounded-xl border border-[#ede9e1] text-sm">
+              <div className="mt-3 p-4 bg-white rounded-xl border border-[#ede9e1] text-sm">
                 <p className="font-semibold text-[#1a1410] mb-1">רכז נגישות: אמברקום בע״מ</p>
                 <p>טל: <a href="tel:+97236208197" className="text-[#3ab4f2]">03-620-8197</a></p>
                 <p>דוא"ל: <a href="mailto:info@umbrcom.co.il" className="text-[#3ab4f2]">info@umbrcom.co.il</a></p>

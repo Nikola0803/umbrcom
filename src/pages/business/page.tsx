@@ -27,7 +27,7 @@ export default function BusinessPage() {
               { icon: "ri-customer-service-2-line", title: "נציג אישי", desc: "נציג מכירות ייעודי לכל לקוח עסקי" },
               { icon: "ri-truck-line", title: "לוגיסטיקה מותאמת", desc: "אספקה לאתר הבנייה, זמנים גמישים" },
             ].map((b) => (
-              <div key={b.title} className="bg-[#faf8f5] rounded-2xl p-5 border border-[#ede9e1] text-right">
+              <div key={b.title} className="bg-white rounded-2xl p-5 border border-[#ede9e1] text-right">
                 <i className={`${b.icon} text-2xl text-[#1a1a1a] mb-3 block`}></i>
                 <p className="text-sm font-semibold text-[#1a1410] mb-1">{b.title}</p>
                 <p className="text-xs text-[#9a8a7a] leading-relaxed">{b.desc}</p>

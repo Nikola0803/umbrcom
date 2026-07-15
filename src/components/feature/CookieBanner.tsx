@@ -48,7 +48,7 @@ export default function CookieBanner() {
 
           {/* Text */}
           <div className="flex items-start gap-3 flex-1">
-            <div className="w-9 h-9 rounded-xl bg-[#fdf8f2] border border-[#ede9e1] flex items-center justify-center flex-shrink-0 mt-0.5">
+            <div className="w-9 h-9 rounded-xl bg-white border border-[#ede9e1] flex items-center justify-center flex-shrink-0 mt-0.5">
               <i className="ri-cookie-line text-[#1a1a1a] text-lg"></i>
             </div>
             <div className="text-right">

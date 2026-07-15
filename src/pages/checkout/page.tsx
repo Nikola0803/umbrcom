@@ -39,6 +39,23 @@ export default function CheckoutPage() {
   const [cardName, setCardName] = useState("");
   const [ordered, setOrdered] = useState(false);
 
+  // Item 21 — account options on the order page
+  const [createAccount, setCreateAccount] = useState(false);
+  const [accountPassword, setAccountPassword] = useState("");
+  const [showLogin, setShowLogin] = useState(false);
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [loggedInAs, setLoggedInAs] = useState<string | null>(null);
+
+  const handleInlineLogin = () => {
+    if (!loginEmail || !loginPassword) return;
+    // TODO: wire to the real auth endpoint. Demo: mark as logged in and
+    // pre-fill the order email.
+    setLoggedInAs(loginEmail);
+    setDetails((d) => ({ ...d, email: d.email || loginEmail }));
+    setShowLogin(false);
+  };
+
   const shippingCost = (() => {
     const opt = SHIPPING_OPTIONS.find((o) => o.id === shipping);
     if (!opt) return 0;
@@ -118,7 +135,7 @@ export default function CheckoutPage() {
       </div>
 
       {/* Step indicator */}
-      <div className="w-full bg-[#faf8f5] border-b border-[#ede9e1] py-4">
+      <div className="w-full bg-white border-b border-[#ede9e1] py-4">
         <div className="max-w-4xl mx-auto px-4 sm:px-8">
           <div className="flex items-center justify-center gap-0">
             {STEPS.map((s, i) => (
@@ -169,22 +186,64 @@ export default function CheckoutPage() {
                 <p className="text-xs text-[#9a8a7a] mb-4 leading-relaxed">
                   התחברות ממלאת את הפרטים אוטומטית, שומרת את ההזמנה בהיסטוריה שלכם ומאפשרת מעקב קל.
                 </p>
-                <div className="flex flex-wrap gap-3">
-                  <Link
-                    to="/auth"
-                    className="flex items-center gap-2 text-xs font-semibold text-white bg-[#3ab4f2] hover:bg-[#2da0d8] px-5 py-2.5 rounded-full transition-colors cursor-pointer"
-                  >
-                    <i className="ri-login-box-line text-sm"></i>
-                    התחברות לחשבון
-                  </Link>
-                  <Link
-                    to="/auth"
-                    className="flex items-center gap-2 text-xs font-semibold text-[#3ab4f2] border border-[#3ab4f2] hover:bg-[#3ab4f2] hover:text-white px-5 py-2.5 rounded-full transition-colors cursor-pointer"
-                  >
-                    הרשמה בחינם
-                  </Link>
-                  <span className="self-center text-xs text-[#bbb]">או המשיכו ללא חשבון ↓</span>
-                </div>
+                {loggedInAs ? (
+                  <div className="flex items-center gap-2 text-xs font-semibold text-[#2d7a3a] bg-[#eef8f0] border border-[#cfe8d4] rounded-xl px-4 py-3">
+                    <i className="ri-checkbox-circle-fill"></i>
+                    מחוברים כ-{loggedInAs}
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex flex-wrap gap-3">
+                      <button
+                        onClick={() => setShowLogin((v) => !v)}
+                        className="flex items-center gap-2 text-xs font-semibold text-white bg-[#3ab4f2] hover:bg-[#2da0d8] px-5 py-2.5 rounded-full transition-colors cursor-pointer"
+                      >
+                        <i className="ri-login-box-line text-sm"></i>
+                        התחברות לחשבון קיים
+                      </button>
+                      <Link
+                        to="/auth"
+                        className="flex items-center gap-2 text-xs font-semibold text-[#3ab4f2] border border-[#3ab4f2] hover:bg-[#3ab4f2] hover:text-white px-5 py-2.5 rounded-full transition-colors cursor-pointer"
+                      >
+                        הרשמה בחינם
+                      </Link>
+                      <span className="self-center text-xs text-[#bbb]">או המשיכו ללא חשבון ↓</span>
+                    </div>
+
+                    {/* Inline login form — connect an existing account from the order page */}
+                    {showLogin && (
+                      <div className="mt-4 grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-3 items-end">
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-xs font-semibold text-[#1a1410]">אימייל</label>
+                          <input
+                            type="email"
+                            value={loginEmail}
+                            onChange={(e) => setLoginEmail(e.target.value)}
+                            placeholder="you@example.com"
+                            className="border border-[#d4e8f8] rounded-xl px-4 py-2.5 text-sm text-right outline-none focus:border-[#3ab4f2] transition-colors bg-white"
+                          />
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-xs font-semibold text-[#1a1410]">סיסמה</label>
+                          <input
+                            type="password"
+                            value={loginPassword}
+                            onChange={(e) => setLoginPassword(e.target.value)}
+                            placeholder="••••••••"
+                            className="border border-[#d4e8f8] rounded-xl px-4 py-2.5 text-sm text-right outline-none focus:border-[#3ab4f2] transition-colors bg-white"
+                          />
+                        </div>
+                        <button
+                          onClick={handleInlineLogin}
+                          disabled={!loginEmail || !loginPassword}
+                          className="h-[42px] px-6 text-xs font-semibold text-white bg-[#3ab4f2] hover:bg-[#2da0d8] rounded-xl transition-colors cursor-pointer disabled:opacity-40 whitespace-nowrap"
+                        >
+                          התחברות
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
 
               <div className="bg-white rounded-2xl border border-[#ede9e1] p-6 sm:p-8 space-y-5">
@@ -212,10 +271,43 @@ export default function CheckoutPage() {
                     className="border border-[#ede9e1] rounded-xl px-4 py-3 text-sm text-right text-[#1a1410] placeholder-[#ccc] outline-none focus:border-[#1a1a1a] transition-colors resize-none bg-white"
                   />
                 </div>
+
+                {/* Item 21 — create a user account with the order details */}
+                {!loggedInAs && (
+                  <div className="rounded-xl border border-[#d4e8f8] bg-[#fafcff] p-4">
+                    <label className="flex items-center justify-end gap-3 cursor-pointer select-none">
+                      <span className="text-sm font-medium text-[#1a1410]">
+                        צרו לי חשבון עם פרטי ההזמנה
+                        <span className="block text-[11px] font-normal text-[#9a8a7a] mt-0.5">
+                          נשתמש בשם, באימייל ובכתובת שמילאתם — רק בחרו סיסמה.
+                        </span>
+                      </span>
+                      <input
+                        type="checkbox"
+                        checked={createAccount}
+                        onChange={(e) => setCreateAccount(e.target.checked)}
+                        className="w-4 h-4 accent-[#3ab4f2] cursor-pointer"
+                      />
+                    </label>
+                    {createAccount && (
+                      <div className="flex flex-col gap-1.5 mt-3">
+                        <label className="text-xs font-semibold text-[#1a1410]">בחרו סיסמה לחשבון</label>
+                        <input
+                          type="password"
+                          value={accountPassword}
+                          onChange={(e) => setAccountPassword(e.target.value)}
+                          placeholder="לפחות 8 תווים"
+                          className="border border-[#d4e8f8] rounded-xl px-4 py-2.5 text-sm text-right outline-none focus:border-[#3ab4f2] transition-colors bg-white"
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <button
                   onClick={next}
-                  disabled={!details.firstName || !details.email || !details.phone || !details.address || !details.city}
-                  className="w-full py-4 bg-[#1a1410] text-white text-sm font-semibold tracking-widest rounded-xl hover:bg-[#1a1a1a] transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+                  disabled={!details.firstName || !details.email || !details.phone || !details.address || !details.city || (createAccount && accountPassword.length < 8)}
+                  className="w-full py-4 bg-[#3ab4f2] text-white text-sm font-semibold tracking-widest rounded-xl hover:bg-[#2da0d8] transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
                 >
                   המשך לאפשרויות משלוח ←
                 </button>
@@ -235,7 +327,7 @@ export default function CheckoutPage() {
                         key={opt.id}
                         className={`flex items-center justify-between gap-4 p-4 rounded-xl border cursor-pointer transition-all ${
                           shipping === opt.id && !disabled
-                            ? "border-[#1a1a1a] bg-[#fdf8f2]"
+                            ? "border-[#1a1a1a] bg-white"
                             : disabled
                             ? "border-[#f0ece5] bg-[#f9f9f9] opacity-50 cursor-not-allowed"
                             : "border-[#ede9e1] hover:border-[#1a1a1a]"
@@ -360,7 +452,7 @@ export default function CheckoutPage() {
                 <h2 className="font-serif text-xl font-light text-[#1a1410] text-right">סיכום הזמנה</h2>
 
                 {/* Details summary */}
-                <div className="bg-[#faf8f5] rounded-xl p-4 text-right space-y-1 text-sm text-[#6a5e52]">
+                <div className="bg-white rounded-xl p-4 text-right space-y-1 text-sm text-[#6a5e52]">
                   <p className="font-semibold text-[#1a1410]">{details.firstName} {details.lastName}</p>
                   <p>{details.address}, {details.city}</p>
                   <p>{details.email} | {details.phone}</p>
@@ -379,7 +471,7 @@ export default function CheckoutPage() {
                           <p className="text-sm text-[#1a1410] leading-snug line-clamp-1">{product.name}</p>
                           <p className="text-xs text-[#aaa]">כמות: {qty}</p>
                         </div>
-                        <img src={product.image} alt={product.name} className="w-12 h-12 object-contain bg-[#faf8f5] rounded-lg p-1" />
+                        <img src={product.image} alt={product.name} className="w-12 h-12 object-contain bg-white rounded-lg p-1" />
                       </div>
                     </div>
                   ))}
@@ -418,7 +510,7 @@ export default function CheckoutPage() {
                     <div className="flex items-center gap-2">
                       <span className="text-[#6a5e52] line-clamp-1 max-w-[120px] text-right">{product.name}</span>
                       <span className="text-[10px] text-white bg-[#1a1a1a] rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0">{qty}</span>
-                      <img src={product.image} alt="" className="w-10 h-10 object-contain bg-[#faf8f5] rounded-lg p-1 flex-shrink-0" />
+                      <img src={product.image} alt="" className="w-10 h-10 object-contain bg-white rounded-lg p-1 flex-shrink-0" />
                     </div>
                   </div>
                 ))}
@@ -447,7 +539,7 @@ export default function CheckoutPage() {
             </div>
 
             {/* Trust badges */}
-            <div className="bg-[#faf8f5] rounded-2xl border border-[#ede9e1] p-4 space-y-2">
+            <div className="bg-white rounded-2xl border border-[#ede9e1] p-4 space-y-2">
               {[
                 { icon: "ri-lock-line", text: "תשלום מאובטח ב-SSL" },
                 { icon: "ri-shield-check-line", text: "אחריות 7 שנים" },

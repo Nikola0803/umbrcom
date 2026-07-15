@@ -60,7 +60,7 @@ function GalleryCarousel({ images, name }: { images: string[]; name: string }) {
           <button
             key={i}
             onClick={() => setActive(i)}
-            className="relative bg-[#f9f7f4] rounded-2xl overflow-hidden flex-shrink-0 cursor-pointer transition-all duration-500"
+            className="relative bg-[#f6f6f6] rounded-2xl overflow-hidden flex-shrink-0 cursor-pointer transition-all duration-500"
             style={{
               width: i === active ? 260 : 180,
               height: i === active ? 260 : 190,
@@ -143,20 +143,34 @@ export default function ProductPage() {
         </div>
       </div>
 
-      {/* ── Gallery Carousel ── */}
-      <section className="w-full bg-white border-b border-[#ede9e1]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-8">
-          <GalleryCarousel images={galleryImages} name={product.name} />
-        </div>
-      </section>
-
       {/* ── Main Product Info ── */}
       <section className="w-full bg-white border-b border-[#ede9e1]">
         <div className="max-w-5xl mx-auto px-4 sm:px-8 py-10">
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-10 lg:gap-16 items-start">
+          <div dir="ltr" className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-10 lg:gap-14 items-start">
 
-            {/* LEFT — highlights + features */}
-            <div className="space-y-5">
+            {/* ── LEFT (physical): main product image + thumbnails (item 19) ── */}
+            <div dir="rtl" className="space-y-4 lg:sticky lg:top-56">
+              <div className="w-full aspect-square rounded-2xl bg-[#f6f6f6] overflow-hidden flex items-center justify-center">
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="w-full h-full object-contain p-10"
+                />
+              </div>
+              <div className="grid grid-cols-4 gap-3">
+                {galleryImages.map((img, i) => (
+                  <div
+                    key={i}
+                    className="aspect-square rounded-xl bg-[#f6f6f6] overflow-hidden cursor-pointer hover:ring-1 hover:ring-[#1a1a1a]/30 transition-all"
+                  >
+                    <img src={img} alt={`${product.name} ${i + 1}`} className="w-full h-full object-contain p-3" />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* ── RIGHT (physical): name, highlights + purchase panel ── */}
+            <div dir="rtl" className="space-y-5">
               {/* Product name + badge */}
               <div className="text-right">
                 <span className="inline-block text-[9px] font-semibold tracking-[0.4em] text-[#888] uppercase mb-3">
@@ -181,7 +195,7 @@ export default function ProductPage() {
                   { icon: "ri-truck-line", title: "משלוח חינם", sub: "הזמנות מעל ₪200" },
                   { icon: "ri-medal-line", title: "ציפוי PVD", sub: "עמיד לאורך שנים" },
                 ].map((f) => (
-                  <div key={f.title} className="flex flex-col items-end text-right bg-[#faf8f5] rounded-xl p-4 border border-[#ede9e1]">
+                  <div key={f.title} className="flex flex-col items-end text-right bg-white rounded-xl p-4 border border-[#eaeaea]">
                     <i className={`${f.icon} text-[#1a1a1a] text-xl mb-2`}></i>
                     <p className="text-xs font-semibold text-[#1a1410]">{f.title}</p>
                     <p className="text-[10px] text-[#9a8a7a] mt-0.5">{f.sub}</p>
@@ -197,10 +211,9 @@ export default function ProductPage() {
 
               {/* SKU */}
               <p className="text-[10px] text-[#ccc] text-right">מק״ט: {product.sku}</p>
-            </div>
 
-            {/* RIGHT — purchase panel */}
-            <div className="bg-[#faf8f5] rounded-2xl border border-[#ede9e1] p-6 text-right space-y-5 lg:sticky lg:top-28">
+              {/* Purchase panel — white (item 11) */}
+              <div className="bg-white rounded-2xl border border-[#eaeaea] p-6 text-right space-y-5">
               {/* Price */}
               <div className="flex items-start justify-between flex-row-reverse">
                 <div>
@@ -257,7 +270,7 @@ export default function ProductPage() {
                 <div className="inline-flex items-center rounded-xl border border-[#e0dbd4] bg-white overflow-hidden">
                   <button
                     onClick={() => setQty((q) => Math.max(1, q - 1))}
-                    className="w-10 h-10 flex items-center justify-center text-[#1a1410] hover:bg-[#f5f2ed] transition-colors cursor-pointer"
+                    className="w-10 h-10 flex items-center justify-center text-[#1a1410] hover:bg-[#f2f2f2] transition-colors cursor-pointer"
                   >
                     <i className="ri-subtract-line text-sm"></i>
                   </button>
@@ -266,7 +279,7 @@ export default function ProductPage() {
                   </span>
                   <button
                     onClick={() => setQty((q) => q + 1)}
-                    className="w-10 h-10 flex items-center justify-center text-[#1a1410] hover:bg-[#f5f2ed] transition-colors cursor-pointer"
+                    className="w-10 h-10 flex items-center justify-center text-[#1a1410] hover:bg-[#f2f2f2] transition-colors cursor-pointer"
                   >
                     <i className="ri-add-line text-sm"></i>
                   </button>
@@ -280,7 +293,7 @@ export default function ProductPage() {
                   className={`w-full py-4 text-sm font-semibold tracking-widest rounded-xl transition-all duration-300 whitespace-nowrap cursor-pointer shadow-sm ${
                     added
                       ? "bg-[#2d7a3a] text-white"
-                      : "bg-[#1a1410] text-white hover:bg-[#000] hover:shadow-md"
+                      : "bg-[#3ab4f2] text-white hover:bg-[#2da0d8] hover:shadow-md"
                   }`}
                 >
                   {added ? "✓ נוסף לסל בהצלחה" : "הוספה לסל"}
@@ -305,9 +318,20 @@ export default function ProductPage() {
                   הזמן דרך WhatsApp
                 </a>
               </div>
+              </div>
             </div>
 
           </div>
+        </div>
+      </section>
+
+      {/* ── Secondary image gallery carousel — ABOVE the long description (items 5+6) ── */}
+      <section className="w-full bg-white border-t border-[#eee]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-8">
+          <div className="text-center pt-10">
+            <p className="text-[10px] font-semibold tracking-[0.35em] text-[#999] uppercase">גלריית תמונות</p>
+          </div>
+          <GalleryCarousel images={galleryImages} name={product.name} />
         </div>
       </section>
 

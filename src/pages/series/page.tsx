@@ -65,73 +65,96 @@ const SERIES = [
 ];
 
 export default function SeriesPage() {
+  const [featured, ...rest] = SERIES;
+
   return (
     <PageLayout>
-      {/* Hero banner */}
-      <div className="w-full bg-[#0f0f0f] py-20 text-center relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10"
-          style={{ backgroundImage: "radial-gradient(circle at 50% 50%, #3ab4f2 0%, transparent 70%)" }}
-        />
-        <div className="relative z-10 max-w-2xl mx-auto px-8">
+      {/* Page intro — white, quiet (item 11) */}
+      <div className="w-full bg-white pt-14 pb-10 text-center">
+        <div className="max-w-2xl mx-auto px-8">
           <p className="text-[10px] font-semibold tracking-[0.5em] text-[#3ab4f2] uppercase mb-4">
             Waterfall — אוסף הסדרות
           </p>
-          <h1 className="font-serif text-4xl sm:text-5xl font-light text-white mb-4">
+          <h1 className="font-serif text-4xl sm:text-5xl font-light text-[#0d0d0d] mb-4">
             הסדרות שלנו
           </h1>
-          <p className="text-sm text-white/50 leading-relaxed">
+          <p className="text-sm text-[#888] leading-relaxed">
             כל סדרה מגלמת פילוסופיית עיצוב ייחודית. גלו את הסדרה שמדברת אליכם.
           </p>
         </div>
       </div>
 
-      {/* Series grid */}
-      <div className="w-full bg-white py-16">
-        <div className="max-w-6xl mx-auto px-4 sm:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {SERIES.map((s) => (
+      {/* ── Series banners (item 16): big image, series name overlaid ── */}
+      <div className="w-full bg-white pb-20">
+        <div className="max-w-6xl mx-auto px-4 sm:px-8 flex flex-col gap-6">
+
+          {/* Featured — full-width hero banner */}
+          {featured && (
+            <Link
+              key={featured.name}
+              to={featured.path}
+              className="group relative block overflow-hidden rounded-3xl cursor-pointer"
+              style={{ height: 440 }}
+            >
+              <img
+                src={featured.image}
+                alt={`${featured.nameHe} — ${featured.name}`}
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-l from-black/70 via-black/25 to-transparent" />
+              <div className="absolute inset-0 flex items-center">
+                <div className="pr-10 sm:pr-16 text-right max-w-md">
+                  <p className="text-[10px] font-semibold tracking-[0.45em] uppercase text-white/70 mb-3">
+                    Series
+                  </p>
+                  <h2 className="font-serif text-5xl sm:text-6xl font-light text-white leading-none mb-2">
+                    {featured.name}
+                  </h2>
+                  <p className="text-lg text-white/85 font-light mb-3">{featured.nameHe} · {featured.tagline}</p>
+                  <p className="hidden sm:block text-sm text-white/60 leading-relaxed mb-6">{featured.description}</p>
+                  <span
+                    className="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.2em] text-white px-7 py-3 rounded-full transition-transform duration-300 group-hover:-translate-x-1"
+                    style={{ backgroundColor: featured.color }}
+                  >
+                    לצפייה בסדרה
+                    <i className="ri-arrow-left-line text-sm"></i>
+                  </span>
+                </div>
+              </div>
+              <span className="absolute bottom-5 left-6 text-[10px] font-medium text-white/70 bg-black/40 backdrop-blur-sm px-3 py-1 rounded-full">
+                {featured.products} מוצרים
+              </span>
+            </Link>
+          )}
+
+          {/* Remaining series — 2-up banner tiles */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {rest.map((s) => (
               <Link
                 key={s.name}
                 to={s.path}
-                className="group cursor-pointer flex flex-col overflow-hidden rounded-2xl border border-[#eaeaea] hover:border-[#c8c4be] transition-all duration-300 hover:shadow-[0_12px_40px_rgba(0,0,0,0.10)] bg-white"
+                className="group relative block overflow-hidden rounded-3xl cursor-pointer"
+                style={{ height: 320 }}
               >
-                {/* Image */}
-                <div className="relative overflow-hidden bg-[#f7f5f2]" style={{ height: 320 }}>
-                  <img
-                    src={s.image}
-                    alt={`${s.nameHe} — ${s.name}`}
-                    className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
-                  />
-                  {/* Color tag */}
-                  <div className="absolute top-4 right-4">
-                    <span
-                      className="text-[9px] font-bold tracking-[0.3em] uppercase text-white px-3 py-1.5 rounded-full"
-                      style={{ backgroundColor: s.color }}
-                    >
-                      {s.name}
-                    </span>
-                  </div>
-                  {/* Product count */}
-                  <div className="absolute bottom-4 left-4">
-                    <span className="text-[10px] font-medium text-white/80 bg-black/40 backdrop-blur-sm px-2.5 py-1 rounded-full">
+                <img
+                  src={s.image}
+                  alt={`${s.nameHe} — ${s.name}`}
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+                <div className="absolute bottom-0 right-0 left-0 p-7 text-right">
+                  <h2 className="font-serif text-4xl font-light text-white leading-none mb-1.5">
+                    {s.name}
+                  </h2>
+                  <p className="text-sm text-white/80 mb-4">{s.nameHe} · {s.tagline}</p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-medium text-white/60 bg-black/40 backdrop-blur-sm px-3 py-1 rounded-full">
                       {s.products} מוצרים
                     </span>
-                  </div>
-                </div>
-
-                {/* Info */}
-                <div className="p-5 text-right flex flex-col gap-2 flex-1">
-                  <div className="flex items-baseline justify-between flex-row-reverse">
-                    <h2 className="font-serif text-2xl font-light text-[#1a1410]">{s.nameHe}</h2>
-                    <span className="text-xs text-[#aaa] tracking-widest uppercase">{s.name}</span>
-                  </div>
-                  <p className="text-xs font-semibold tracking-wide text-[#3ab4f2]">{s.tagline}</p>
-                  <p className="text-sm text-[#6a5e52] leading-relaxed flex-1">{s.description}</p>
-                  <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#f0ece6] mt-1">
-                    <span className="text-xs font-medium text-[#1a1a1a] group-hover:gap-2 transition-all">
+                    <span className="inline-flex items-center gap-2 text-xs font-medium tracking-widest text-white border-b border-white/40 group-hover:border-white pb-0.5 transition-all">
                       לצפייה בסדרה
+                      <i className="ri-arrow-left-line text-xs"></i>
                     </span>
-                    <i className="ri-arrow-left-line text-xs text-[#1a1a1a]" />
                   </div>
                 </div>
               </Link>

@@ -1,7 +1,14 @@
 import { Link } from "react-router-dom";
 import PageLayout from "../../components/feature/PageLayout";
+import TikTokSection from "../home/components/TikTokSection";
 
 const AMBERCOM_COLOR = "#e8a030"; // Ambercom brand amber/gold
+
+// ── ITEM 17: replace with the real Ambercom brand video (.mp4 URL) ─────────
+const VIDEO_SRC =
+  "https://assets.mixkit.co/videos/preview/mixkit-hands-adjusting-a-modern-bathroom-faucet-40413-large.mp4";
+const POSTER =
+  "https://readdy.ai/api/search-image?query=luxury+bathroom+interior+warm+amber+golden+tones+premium+brass+faucet+marble+dark+moody+elegant+photography+soft+warm+light&width=1920&height=1080&seq=ambercom-hero-poster-v1&orientation=landscape";
 
 const AMBERCOM_PRODUCTS = [
   {
@@ -26,42 +33,82 @@ const AMBERCOM_PRODUCTS = [
 
 export default function AmbercomPage() {
   return (
-    <PageLayout>
-      {/* Hero */}
-      <div
-        className="relative w-full overflow-hidden py-28 flex items-center justify-center text-center"
-        style={{ background: "linear-gradient(135deg, #1a1210 0%, #2a1e14 50%, #1a1210 100%)" }}
+    <PageLayout overlayHeader>
+      {/* ── Video hero — transparent header floats above (items 1+7+17) ── */}
+      <section
+        className="relative w-full overflow-hidden"
+        style={{ height: "100vh", minHeight: "640px" }}
       >
-        <div
-          className="absolute inset-0 opacity-20"
-          style={{ backgroundImage: "radial-gradient(circle at 60% 40%, #e8a030 0%, transparent 65%)" }}
+        <video
+          className="absolute inset-0 w-full h-full object-cover"
+          src={VIDEO_SRC}
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster={POSTER}
         />
-        <div className="relative z-10 max-w-2xl mx-auto px-8">
-          <div className="inline-flex items-center gap-3 mb-6">
-            <span className="w-8 h-px bg-[#e8a030]/50" />
-            <span className="text-[10px] font-semibold tracking-[0.5em] uppercase" style={{ color: AMBERCOM_COLOR }}>
-              The Amber Collection
-            </span>
-            <span className="w-8 h-px bg-[#e8a030]/50" />
-          </div>
-          <h1 className="font-serif text-5xl sm:text-6xl font-light text-white leading-tight mb-4">
-            Ambercom
-          </h1>
-          <p className="text-sm text-white/60 leading-relaxed max-w-lg mx-auto mb-8">
-            הקולקציה האמברית — חמימות, יוקרה ועיצוב נצחי.
-            מוצרי Ambercom מבית UMBRCOM, מעוצבים לאלה שמסרבים להתפשר.
-          </p>
-          <Link
-            to="/shop"
-            className="inline-flex items-center gap-2 text-sm font-semibold tracking-[0.2em] text-[#1a1210] px-8 py-4 rounded-full transition-all duration-300 cursor-pointer shadow-lg"
-            style={{ backgroundColor: AMBERCOM_COLOR }}
-          >
-            לחנות Ambercom
-          </Link>
-        </div>
-      </div>
+        {/* Warm amber grade */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-black/10" />
+        <div
+          className="absolute inset-0 opacity-25"
+          style={{ backgroundImage: "radial-gradient(circle at 70% 30%, #e8a030 0%, transparent 60%)" }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
-      {/* Story */}
+        <div className="relative h-full flex items-center" style={{ zIndex: 2 }}>
+          <div className="w-full max-w-7xl mx-auto px-6 sm:px-12">
+            <div className="max-w-xl text-right">
+              <div className="flex items-center justify-end gap-3 mb-6">
+                <span className="text-[10px] font-semibold tracking-[0.45em] uppercase" style={{ color: AMBERCOM_COLOR }}>
+                  The Amber Collection
+                </span>
+                <span className="block w-8 h-px" style={{ backgroundColor: AMBERCOM_COLOR }} />
+              </div>
+
+              <h1 className="font-serif text-4xl sm:text-6xl font-light text-white leading-[1.1] mb-5">
+                Ambercom
+                <br />
+                <em className="not-italic font-semibold text-white">חמימות שנוגעת בכל פרט.</em>
+              </h1>
+
+              <div className="flex justify-end mb-5">
+                <span className="block w-14 h-[1.5px] bg-white/40" />
+              </div>
+
+              <p className="text-white/75 text-base font-light leading-relaxed mb-10">
+                הקולקציה האמברית — יוקרה, עיצוב נצחי וציפוי Amber Gold ייחודי.
+                <br />
+                בלעדי ל-UMBRCOM בישראל.
+              </p>
+
+              <div className="flex items-center justify-end gap-4">
+                <Link
+                  to="/about"
+                  className="border border-white/50 hover:border-white text-white text-xs font-medium tracking-[0.2em] px-7 py-3.5 rounded-full transition-all duration-300 whitespace-nowrap cursor-pointer"
+                >
+                  סיפור המותג
+                </Link>
+                <Link
+                  to="/shop"
+                  className="text-white text-xs font-semibold tracking-[0.2em] px-8 py-3.5 rounded-full transition-colors duration-300 whitespace-nowrap cursor-pointer shadow-lg hover:opacity-90"
+                  style={{ backgroundColor: AMBERCOM_COLOR }}
+                >
+                  לחנות Ambercom
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2" style={{ zIndex: 2 }}>
+          <div className="w-5 h-8 rounded-full border border-white/40 flex items-start justify-center pt-1.5">
+            <div className="w-0.5 h-2 bg-white/60 rounded-full animate-bounce" />
+          </div>
+        </div>
+      </section>
+
+      {/* ── Story ── */}
       <section className="w-full bg-white py-20">
         <div className="max-w-4xl mx-auto px-8 text-right" dir="rtl">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-12 items-center">
@@ -82,7 +129,7 @@ export default function AmbercomPage() {
                 אוסף Ambercom הוא בלעדי ל-UMBRCOM בישראל — עם אחריות מלאה ושירות אישי.
               </p>
             </div>
-            <div className="rounded-2xl overflow-hidden aspect-square bg-[#f7f0e8]">
+            <div className="rounded-2xl overflow-hidden aspect-square bg-white">
               <img
                 src="https://readdy.ai/api/search-image?query=luxury+bathroom+interior+warm+amber+golden+tones+premium+faucet+marble+elegant+photography+soft+warm+light&width=800&height=800&seq=ambercom-story&orientation=squarish"
                 alt="Ambercom story"
@@ -93,7 +140,7 @@ export default function AmbercomPage() {
         </div>
       </section>
 
-      {/* Products */}
+      {/* ── Collection ── */}
       <section className="w-full bg-white py-16">
         <div className="max-w-5xl mx-auto px-8">
           <div className="text-right mb-10" dir="rtl">
@@ -107,25 +154,22 @@ export default function AmbercomPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6" dir="rtl">
             {AMBERCOM_PRODUCTS.map((p) => (
-              <Link
-                key={p.name}
-                to="/shop"
-                className="group cursor-pointer flex flex-col bg-white border border-[#eaeaea] hover:border-[#c8a060] rounded-xl overflow-hidden transition-all duration-300 hover:shadow-[0_8px_32px_rgba(232,160,48,0.15)]"
-              >
-                <div className="relative overflow-hidden bg-[#f7f0e8]" style={{ aspectRatio: "1" }}>
+              <Link key={p.name} to="/shop" className="group cursor-pointer flex flex-col">
+                {/* Clean card — matches the new site-wide card style (item 3) */}
+                <div className="relative overflow-hidden rounded-2xl bg-[#f6f6f6]" style={{ aspectRatio: "1" }}>
+                  <span className="absolute top-4 right-4 z-10 text-[10px] font-semibold tracking-[0.15em] uppercase text-[#1a1410] bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-full">
+                    Ambercom
+                  </span>
                   <img
                     src={p.image}
                     alt={p.name}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 </div>
-                <div className="p-4 text-right">
-                  <p className="text-[9px] font-bold tracking-[0.35em] uppercase mb-1" style={{ color: AMBERCOM_COLOR }}>
-                    Ambercom
-                  </p>
+                <div className="pt-4 text-right">
                   <h3 className="text-sm font-medium text-[#1a1410] mb-1">{p.name}</h3>
-                  <p className="text-xs text-[#9a8a7a] mb-3 leading-snug line-clamp-2">{p.desc}</p>
-                  <span className="text-base font-bold text-[#1a1410]">
+                  <p className="text-xs text-[#9a8a7a] mb-2 leading-snug line-clamp-2">{p.desc}</p>
+                  <span className="text-base font-semibold text-[#1a1410]">
                     ₪{p.price.toLocaleString("he-IL")}
                   </span>
                 </div>
@@ -136,7 +180,7 @@ export default function AmbercomPage() {
           <div className="text-center mt-10">
             <Link
               to="/shop"
-              className="inline-flex items-center gap-2 text-sm font-semibold tracking-[0.2em] text-white px-8 py-3.5 rounded-full transition-colors cursor-pointer"
+              className="inline-flex items-center gap-2 text-sm font-semibold tracking-[0.2em] text-white px-8 py-3.5 rounded-full transition-colors cursor-pointer hover:opacity-90"
               style={{ backgroundColor: AMBERCOM_COLOR }}
             >
               לכל מוצרי Ambercom
@@ -145,6 +189,18 @@ export default function AmbercomPage() {
           </div>
         </div>
       </section>
+
+      {/* ── TikTok template — shared with the Waterfall homepage (item 20) ── */}
+      <TikTokSection
+        brandName="Ambercom"
+        handle="1umbrcom"
+        accent={AMBERCOM_COLOR}
+        videos={[
+          { id: "7448000000000000004", caption: "ציפוי Amber Gold מקרוב" },
+          { id: "7448000000000000005", caption: "EMBER Pro במטבח אמיתי" },
+          { id: "7448000000000000006", caption: "מאחורי הקלעים — Ambercom" },
+        ]}
+      />
     </PageLayout>
   );
 }

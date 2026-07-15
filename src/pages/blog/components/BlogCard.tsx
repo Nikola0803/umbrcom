@@ -24,7 +24,7 @@ export default function BlogCard({ post, featured = false }: BlogCardProps) {
       className="group flex flex-col cursor-pointer overflow-hidden rounded-2xl border border-[#ede9e1] hover:border-[#1a1a1a]/30 transition-all duration-300 bg-white"
     >
       {/* Image */}
-      <div className="relative overflow-hidden bg-[#faf8f5] w-full h-52">
+      <div className="relative overflow-hidden bg-white w-full h-52">
         <img
           src={post.coverImage}
           alt={post.title}
