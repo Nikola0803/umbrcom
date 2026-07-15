@@ -81,7 +81,7 @@ export default function CheckoutPage() {
   if (items.length === 0 && !ordered) {
     return (
       <PageLayout>
-        <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-8 py-20">
+        <div className="min-h-[60vh] flex flex-col items-start justify-center text-right px-10 py-20">
           <i className="ri-shopping-bag-line text-5xl text-[#1a1a1a] mb-4"></i>
           <h2 className="font-serif text-2xl text-[#1a1410] mb-3">הסל ריק</h2>
           <p className="text-sm text-[#9a8a7a] mb-8">הוסף מוצרים לסל כדי להמשיך לתשלום.</p>
@@ -97,7 +97,7 @@ export default function CheckoutPage() {
   if (ordered) {
     return (
       <PageLayout>
-        <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-8 py-20">
+        <div className="min-h-[60vh] flex flex-col items-start justify-center text-right px-10 py-20">
           <div className="w-20 h-20 rounded-full bg-[#f0faf2] flex items-center justify-center mb-6">
             <i className="ri-check-line text-4xl text-[#2d7a3a]"></i>
           </div>
@@ -130,7 +130,7 @@ export default function CheckoutPage() {
   return (
     <PageLayout>
       {/* Banner */}
-      <div className="w-full bg-[#0f0f0f] py-10 text-center">
+      <div className="w-full bg-[#0f0f0f] py-10 text-right">
         <h1 className="font-serif text-3xl font-light text-white">קופה</h1>
       </div>
 

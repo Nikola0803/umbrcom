@@ -4,7 +4,7 @@ export default function NotFound() {
   const location = useLocation();
   
   return (
-    <div className="relative flex flex-col items-center justify-center h-screen text-center px-4">
+    <div dir="rtl" className="relative flex flex-col items-start justify-center h-screen text-right px-8">
       <h1 className="absolute bottom-0 text-9xl md:text-[12rem] font-black text-gray-50 select-none pointer-events-none z-0">
         404
       </h1>

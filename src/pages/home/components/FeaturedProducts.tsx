@@ -10,7 +10,7 @@ export default function FeaturedProducts() {
     <section className="w-full bg-white py-16">
       {/* Header */}
       <div className="max-w-6xl mx-auto px-8 flex items-end justify-between mb-8">
-        <div className="text-left">
+        <div className="text-right">
           <p className="text-[10px] font-medium tracking-[0.35em] text-[#1a1a1a] uppercase mb-2">
             מובחרים
           </p>
@@ -37,7 +37,7 @@ export default function FeaturedProducts() {
       </div>
 
       {/* Mobile CTA */}
-      <div className="text-center mt-8 md:hidden">
+      <div className="text-right mt-8 md:hidden">
         <Link
           to="/shop"
           className="inline-flex items-center gap-2 text-sm font-medium text-[#0d0d0d] border border-[#0d0d0d] px-8 py-3 cursor-pointer whitespace-nowrap"

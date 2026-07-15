@@ -12,7 +12,7 @@ export default function TrustStrip() {
       <div className="max-w-7xl mx-auto px-8 py-6">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
           {PERKS.map((p) => (
-            <div key={p.title} className="flex flex-col items-center text-center gap-2 px-3">
+            <div key={p.title} className="flex flex-col items-start text-right gap-2 px-3">
               <div className="w-10 h-10 flex items-center justify-center">
                 <i className={`${p.icon} text-[22px] text-[#1a1a1a]`}></i>
               </div>

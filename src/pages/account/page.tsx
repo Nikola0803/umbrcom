@@ -77,7 +77,7 @@ export default function AccountPage() {
                 </div>
               ))}
               {MOCK_ORDERS.length === 0 && (
-                <div className="text-center py-16 text-[#bbb]">
+                <div className="text-right py-16 text-[#bbb]">
                   <i className="ri-shopping-bag-line text-4xl mb-3 block"></i>
                   <p className="text-sm">עדיין לא ביצעתם הזמנות</p>
                   <Link to="/shop" className="mt-4 inline-block text-xs font-semibold text-[#1a1a1a] border border-[#1a1a1a] px-6 py-2.5 rounded-full hover:bg-[#1a1a1a] hover:text-white transition-colors cursor-pointer">
@@ -117,7 +117,7 @@ export default function AccountPage() {
 
           {/* Wishlist tab */}
           {tab === "wishlist" && (
-            <div className="text-center py-16 text-[#bbb]">
+            <div className="text-right py-16 text-[#bbb]">
               <i className="ri-heart-line text-4xl mb-3 block"></i>
               <p className="text-sm">רשימת המועדפים שלכם ריקה</p>
               <Link to="/shop" className="mt-4 inline-block text-xs font-semibold text-[#1a1a1a] border border-[#1a1a1a] px-6 py-2.5 rounded-full hover:bg-[#1a1a1a] hover:text-white transition-colors cursor-pointer">

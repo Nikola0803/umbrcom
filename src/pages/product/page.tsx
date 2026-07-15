@@ -101,7 +101,7 @@ export default function ProductPage() {
   if (!product) {
     return (
       <PageLayout>
-        <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-8 py-20">
+        <div className="min-h-[60vh] flex flex-col items-start justify-center text-right px-10 py-20">
           <i className="ri-error-warning-line text-5xl text-[#888888] mb-4"></i>
           <h2 className="font-serif text-2xl text-[#1a1410] mb-3">מוצר לא נמצא</h2>
           <p className="text-sm text-[#9a8a7a] mb-8">המוצר שחיפשת אינו קיים או הוסר.</p>
@@ -328,7 +328,7 @@ export default function ProductPage() {
       {/* ── Secondary image gallery carousel — ABOVE the long description (items 5+6) ── */}
       <section className="w-full bg-white border-t border-[#eee]">
         <div className="max-w-6xl mx-auto px-4 sm:px-8">
-          <div className="text-center pt-10">
+          <div className="text-right pt-10">
             <p className="text-[10px] font-semibold tracking-[0.35em] text-[#999] uppercase">גלריית תמונות</p>
           </div>
           <GalleryCarousel images={galleryImages} name={product.name} />

@@ -3,7 +3,7 @@ import PageLayout from "../../components/feature/PageLayout";
 export default function ReturnsPage() {
   return (
     <PageLayout>
-      <div className="w-full bg-[#0f0f0f] py-10 text-center">
+      <div className="w-full bg-[#0f0f0f] py-10 text-right">
         <h1 className="font-serif text-3xl font-light text-white">ביטולים והחזרות</h1>
       </div>
 

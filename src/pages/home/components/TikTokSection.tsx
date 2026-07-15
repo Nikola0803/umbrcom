@@ -45,7 +45,7 @@ export default function TikTokSection({
     <section className="w-full bg-[#0a0a0a] py-20 overflow-hidden" dir="rtl">
       <div className="max-w-6xl mx-auto px-8">
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-right mb-12">
           <div className="inline-flex items-center gap-3 mb-4">
             <span className="w-8 h-px" style={{ backgroundColor: `${accent}44` }} />
             <i className="ri-tiktok-line text-white text-xl"></i>
@@ -82,14 +82,14 @@ export default function TikTokSection({
                 style={{ maxWidth: 320, minWidth: 280 }}
               >
                 <section>
-                  <p className="text-sm text-white/60 mt-3 text-center">{v.caption}</p>
+                  <p className="text-sm text-white/60 mt-3 text-right">{v.caption}</p>
                 </section>
               </blockquote>
             </div>
           ))}
         </div>
 
-        <p className="text-center text-xs text-white/20 mt-8">
+        <p className="text-right text-xs text-white/20 mt-8">
           * להחלפת הסרטונים — עדכנו את מזהי הווידאו ב-TikTokSection.tsx
         </p>
       </div>

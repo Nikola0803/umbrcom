@@ -95,7 +95,7 @@ export default function WarrantyActivationPage() {
             </div>
           </div>
 
-          <div className="mt-6 text-center">
+          <div className="mt-6 text-right">
             <Link to="/contact" className="text-xs text-[#1a1a1a] hover:underline">
               לשאלות נוספות — צרו קשר
             </Link>

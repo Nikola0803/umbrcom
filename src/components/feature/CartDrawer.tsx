@@ -65,7 +65,7 @@ export default function CartDrawer() {
         {/* Items */}
         <div className="flex-1 overflow-y-auto px-6 py-4">
           {items.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center gap-4 py-16">
+            <div className="flex flex-col items-start justify-center h-full text-right gap-4 py-16 px-6">
               <div className="w-16 h-16 flex items-center justify-center rounded-full bg-white">
                 <i className="ri-shopping-bag-line text-2xl text-[#1a1a1a]"></i>
               </div>

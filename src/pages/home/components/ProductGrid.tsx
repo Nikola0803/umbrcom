@@ -37,7 +37,7 @@ export default function ProductGrid() {
   return (
     <section className="w-full bg-white py-16">
       {/* Section header */}
-      <div className="max-w-5xl mx-auto px-8 text-center mb-10">
+      <div className="max-w-5xl mx-auto px-8 text-right mb-10">
         <p className="text-xs font-medium tracking-[0.3em] text-[#1a1a1a] uppercase mb-3">
           גלריה
         </p>
@@ -73,7 +73,7 @@ export default function ProductGrid() {
       </div>
 
       {/* View all */}
-      <div className="text-center mt-10">
+      <div className="text-right mt-10">
         <Link
           to="/shop"
           className="inline-flex items-center gap-2 text-sm font-medium text-[#0d0d0d] border border-[#0d0d0d] px-8 py-3 hover:bg-[#0d0d0d] hover:text-white transition-all duration-200 cursor-pointer whitespace-nowrap"

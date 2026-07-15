@@ -33,7 +33,7 @@ export default function TestimonialsSection() {
     <section className="w-full bg-white py-20">
       <div className="max-w-6xl mx-auto px-8">
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-right mb-12">
           <p className="text-[10px] font-medium tracking-[0.4em] text-[#1a1a1a] uppercase mb-3">
             לקוחות מספרים
           </p>

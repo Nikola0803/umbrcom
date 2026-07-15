@@ -31,7 +31,7 @@ export default function ContactPage() {
   return (
     <PageLayout>
       {/* Banner */}
-      <div className="w-full bg-[#0f0f0f] py-20 text-center">
+      <div className="w-full bg-[#0f0f0f] py-20 text-right">
         <p className="text-xs font-medium tracking-[0.35em] text-[#1a1a1a] uppercase mb-4">
           נשמח לשמוע מכם
         </p>
@@ -50,7 +50,7 @@ export default function ContactPage() {
             <p className="text-sm text-[#888] mb-8">נציג יחזור אליכם בהקדם האפשרי.</p>
 
             {status === "success" ? (
-              <div className="py-12 text-center">
+              <div className="py-12 text-right">
                 <div className="w-16 h-16 rounded-full border border-[#1a1a1a] flex items-center justify-center mx-auto mb-4">
                   <i className="ri-check-line text-2xl text-[#1a1a1a]"></i>
                 </div>
@@ -92,7 +92,7 @@ export default function ContactPage() {
                     placeholder="כתבו את הודעתכם כאן..."
                     className="w-full border-b border-[#ddd] bg-transparent pb-3 text-right text-sm text-[#0d0d0d] placeholder-[#ccc] outline-none focus:border-[#1a1a1a] transition-colors resize-none"
                   />
-                  <p className="text-[10px] text-[#bbb] mt-1 text-left">{charCount}/500</p>
+                  <p className="text-[10px] text-[#bbb] mt-1 text-right">{charCount}/500</p>
                 </div>
                 <div className="flex items-start gap-3 pt-1">
                   <input

@@ -34,7 +34,7 @@ export default function CategoriesSection() {
   return (
     <section className="w-full bg-white py-16">
       {/* Header */}
-      <div className="max-w-6xl mx-auto px-8 text-center mb-10">
+      <div className="max-w-6xl mx-auto px-8 text-right mb-10">
         <div className="inline-flex items-center gap-2 mb-4">
           <span className="w-2 h-2 rounded-full bg-[#3ab4f2]" />
           <p className="text-[10px] font-semibold tracking-[0.35em] text-[#3ab4f2] uppercase">

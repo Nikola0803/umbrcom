@@ -9,7 +9,7 @@ import TikTokSection from "./components/TikTokSection";
 
 export default function Home() {
   return (
-    <PageLayout overlayHeader>
+    <PageLayout>
       <Hero />
       <TrustStrip />
       <CategoriesSection />

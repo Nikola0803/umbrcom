@@ -12,7 +12,7 @@ export default function Hero() {
   return (
     <section
       className="relative w-full overflow-hidden"
-      style={{ height: "100vh", minHeight: "640px" }}
+      style={{ height: "calc(100vh - 160px)", minHeight: "560px" }}
     >
       {/* ── Background video ── */}
       <video

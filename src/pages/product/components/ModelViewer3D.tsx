@@ -72,7 +72,7 @@ export default function ModelViewer3D({ productName, productSku }: ModelViewer3D
       {/* 3D Viewer */}
       <div className="relative bg-[#f2f2f2] overflow-hidden" style={{ height: 480 }}>
         {!scriptLoaded && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-right">
             <div className="w-8 h-8 border-2 border-[#1a1a1a] border-t-transparent rounded-full animate-spin" />
             <p className="text-xs text-[#9a8a7a]">טוען מודל תלת-מימדי...</p>
           </div>
@@ -171,15 +171,15 @@ export default function ModelViewer3D({ productName, productSku }: ModelViewer3D
 
           {/* QR Code */}
           {qrVisible && (
-            <div className="flex flex-col items-center gap-3">
-              <div className="bg-white p-4 border border-[#ede9e1] rounded-xl">
+            <div className="flex flex-col items-start gap-3">
+              <div className="bg-white p-4 border border-[#ede9e1] rounded-xl self-center">
                 <img
                   src={qrApiUrl}
                   alt="QR code לצפייה ב-AR"
                   className="w-[160px] h-[160px]"
                 />
               </div>
-              <p className="text-[10px] text-[#9a8a7a] text-center max-w-[160px] leading-relaxed">
+              <p className="text-[10px] text-[#9a8a7a] text-right max-w-[160px] leading-relaxed">
                 סרקו עם מצלמת הטלפון לפתיחת AR
               </p>
               <a

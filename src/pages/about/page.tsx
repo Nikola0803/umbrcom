@@ -4,7 +4,7 @@ export default function AboutPage() {
   return (
     <PageLayout>
       {/* Page banner */}
-      <div className="w-full bg-[#0f0f0f] py-20 text-center relative overflow-hidden">
+      <div className="w-full bg-[#0f0f0f] py-20 text-right relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-[#1a1a1a]/5 to-transparent pointer-events-none" />
         <p className="text-xs font-medium tracking-[0.35em] text-[#1a1a1a] uppercase mb-4">
           הסיפור שלנו

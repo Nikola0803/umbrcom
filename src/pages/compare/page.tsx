@@ -25,7 +25,7 @@ export default function ComparePage() {
           </div>
 
           {compareProducts.length < 2 ? (
-            <div className="text-center py-20 border border-dashed border-[#ede9e1] rounded-2xl">
+            <div className="text-right py-20 px-8 border border-dashed border-[#ede9e1] rounded-2xl">
               <i className="ri-scales-3-line text-5xl text-[#ddd] mb-4 block"></i>
               <p className="text-sm text-[#9a8a7a] mb-6">הוסיפו לפחות 2 מוצרים להשוואה</p>
               <Link to="/shop" className="inline-flex items-center gap-2 bg-[#1a1a1a] text-white text-xs font-semibold tracking-widest px-8 py-3.5 rounded-full cursor-pointer hover:bg-[#333] transition-colors">
@@ -40,9 +40,9 @@ export default function ComparePage() {
                   <tr>
                     <th className="text-right text-xs text-[#aaa] font-medium pb-6 w-32">מאפיין</th>
                     {compareProducts.map((p) => (
-                      <th key={p.id} className="text-center pb-6 px-4">
+                      <th key={p.id} className="text-right pb-6 px-4">
                         <Link to={`/product/${p.id}`} className="group block">
-                          <div className="mx-auto w-24 h-24 bg-[#f6f6f6] rounded-xl overflow-hidden mb-3 group-hover:shadow-md transition-shadow">
+                          <div className="w-24 h-24 bg-[#f6f6f6] rounded-xl overflow-hidden mb-3 group-hover:shadow-md transition-shadow">
                             <img src={p.image} alt={p.name} className="w-full h-full object-contain p-2" />
                           </div>
                           <p className="text-xs font-medium text-[#1a1410] leading-snug group-hover:underline">{p.name}</p>
@@ -59,7 +59,7 @@ export default function ComparePage() {
                     <tr key={spec.key} className={idx % 2 === 0 ? "bg-white" : "bg-white"}>
                       <td className="text-xs text-[#9a8a7a] font-medium py-3 pr-3 rounded-r-lg">{spec.label}</td>
                       {compareProducts.map((p) => (
-                        <td key={p.id} className="text-center text-sm text-[#1a1410] py-3 px-4">
+                        <td key={p.id} className="text-right text-sm text-[#1a1410] py-3 px-4">
                           {spec.key === "pvd" ? <i className="ri-checkbox-circle-fill text-[#3ab4f2]"></i> : spec.value}
                         </td>
                       ))}
@@ -70,7 +70,7 @@ export default function ComparePage() {
                   <tr className="bg-white">
                     <td className="text-xs text-[#9a8a7a] font-medium py-3 pr-3">גימור</td>
                     {compareProducts.map((p) => (
-                      <td key={p.id} className="text-center text-xs text-[#1a1410] py-3 px-4">{p.color}</td>
+                      <td key={p.id} className="text-right text-xs text-[#1a1410] py-3 px-4">{p.color}</td>
                     ))}
                   </tr>
 
@@ -78,7 +78,7 @@ export default function ComparePage() {
                   <tr>
                     <td />
                     {compareProducts.map((p) => (
-                      <td key={p.id} className="text-center py-5 px-4">
+                      <td key={p.id} className="text-right py-5 px-4">
                         <Link
                           to={`/product/${p.id}`}
                           className="inline-block bg-[#1a1a1a] hover:bg-[#333] text-white text-xs font-semibold tracking-widest px-5 py-2.5 rounded-full transition-colors cursor-pointer"

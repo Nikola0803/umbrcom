@@ -39,16 +39,16 @@ export default function CustomerServicePage() {
       <div className="max-w-3xl mx-auto px-6 py-14" dir="rtl">
         {/* Breadcrumb */}
         <p className="text-sm text-gray-400 mb-2">שירות לקוחות</p>
-        <h1 className="text-3xl font-bold text-gray-900 mb-6 text-center">שירות לקוחות</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-6 text-right">שירות לקוחות</h1>
 
         {/* Intro */}
-        <p className="text-sm text-gray-600 leading-relaxed mb-10 text-center max-w-2xl mx-auto">
+        <p className="text-sm text-gray-600 leading-relaxed mb-10 text-right max-w-2xl mx-auto">
           אצלנו ב-Umbrcom תמיכה אמיתית מתחילה לפני הרכישה וממשיכה אחרי קבלתה: צוות מקצועי זמין לכל שאלה טכנית, ביצוע הזמנות, תיאום משלוחים, ואף טיפול בתלונות. ניתן לפנות אלינו בטלפון, במייל או ב-WhatsApp, ואנו מבטיחים מענה מהיר, אדיב ואפקטיבי – כי אצלנו הלקוח תמיד במקום הראשון.
         </p>
 
         {/* Form */}
         {status === "success" ? (
-          <div className="py-10 text-center text-green-600 font-medium">
+          <div className="py-10 text-right text-green-600 font-medium">
             תודה! הודעתך נשלחה. נחזור אליך בהקדם.
           </div>
         ) : (
@@ -113,7 +113,7 @@ export default function CustomerServicePage() {
                 placeholder="הודעה"
                 className="w-full border border-gray-200 px-3 py-2 text-sm text-right outline-none focus:border-gray-400 bg-gray-50 resize-none"
               />
-              <p className="text-xs text-gray-400 text-left">{charCount}/500</p>
+              <p className="text-xs text-gray-400 text-right">{charCount}/500</p>
             </div>
             <div className="flex items-start gap-2">
               <input
@@ -141,10 +141,10 @@ export default function CustomerServicePage() {
         )}
 
         {/* Contact icons */}
-        <div className="grid grid-cols-3 gap-6 mt-14 text-center">
+        <div className="grid grid-cols-3 gap-6 mt-14 text-right">
           <a
             href="mailto:office@umbrcom.co.il"
-            className="flex flex-col items-center gap-3 cursor-pointer group"
+            className="flex flex-col items-start gap-3 cursor-pointer group"
           >
             <div className="w-14 h-14 flex items-center justify-center rounded-full bg-gray-900 group-hover:bg-gray-700 transition-colors">
               <i className="ri-mail-line text-white text-2xl"></i>
@@ -153,7 +153,7 @@ export default function CustomerServicePage() {
           </a>
           <a
             href="tel:036208197"
-            className="flex flex-col items-center gap-3 cursor-pointer group"
+            className="flex flex-col items-start gap-3 cursor-pointer group"
           >
             <div className="w-14 h-14 flex items-center justify-center rounded-full bg-gray-900 group-hover:bg-gray-700 transition-colors">
               <i className="ri-phone-line text-white text-2xl"></i>
@@ -164,7 +164,7 @@ export default function CustomerServicePage() {
             href="https://wa.me/972036208197"
             target="_blank"
             rel="nofollow noopener noreferrer"
-            className="flex flex-col items-center gap-3 cursor-pointer group"
+            className="flex flex-col items-start gap-3 cursor-pointer group"
           >
             <div className="w-14 h-14 flex items-center justify-center rounded-full bg-gray-900 group-hover:bg-gray-700 transition-colors">
               <i className="ri-whatsapp-line text-white text-2xl"></i>

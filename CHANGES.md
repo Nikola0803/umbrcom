@@ -32,6 +32,21 @@ Both top navigation bars are now **BLACK** on all pages (logo bar + icon/search 
 - Real brand videos for both heroes (item 17)
 - Real TikTok video IDs (item 20)
 
+## Update — all text right-aligned (no center, no left)
+Went through every page and component and removed centered/left-aligned text site-wide:
+- All headings, paragraphs, labels, banners, empty states (404, empty cart, empty wishlist, no comparison, checkout success), table cells (compare page), and info tiles now read right-to-left, flush right.
+- Fixed a couple of pre-existing bugs where Hebrew headings were accidentally set to `text-left` (Featured Products header, "forgot password" link).
+- **Left untouched on purpose:** email/phone number **input fields** (auth, business, warranty, invoice-recovery) — these keep `dir="ltr"` + left-aligned text because that's how you actually type an email or phone number; flipping those would break typing UX, not fix a design issue. Also left as-is: small icon-only UI controls where centering is structural, not "text" — the checkout step-progress circles, floating WhatsApp/phone buttons, the accessibility-widget toggle tiles, and scroll-indicator dots. Flag if you want those changed too.
+
 Also fixed along the way: broken import in `src/mocks/blogPosts.ts` (`./BlogCard` → correct path).
 
 `npm run build` passes; fresh production build included in `out/`.
+
+## Update — header rebuilt to match your WhatsApp screenshot (item 7)
+Replaced the header with a pixel-matched version of the reference:
+- **Row 1**: icon cluster on the left (cart, login, wishlist, compare — each icon + small white label, blue on Waterfall / amber on Ambercom), dual logo on the right (Waterfall wordmark with a dropdown chevron that opens a brand-switch menu → Waterfall / Ambercom, plus the UMBRCOM parent-brand mark).
+- **Row 2** (desktop only): search pill on the left, nav links (מבצעים, מועדון לקוחות, שירות לקוחות → linked to `/customer-service`) plus a white **"כל הקטגוריות"** pill on the right that opens a dropdown with all product categories + Ambercom.
+- **Mobile**: a compact logo + cart + hamburger row, then a search row underneath; the hamburger opens the existing slide-out drawer.
+- Removed the earlier "transparent header floating over video" idea — this header is a solid opaque black bar everywhere per your screenshot, so the hero sections were resized to sit right below it instead of underneath it.
+
+⚠️ Two links are my best guess since there's no dedicated page for them yet: מבצעים → `/shop`, מועדון לקוחות → `/auth`. Tell me if you want real Deals / Loyalty Club pages instead.

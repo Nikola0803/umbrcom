@@ -32,7 +32,7 @@ export default function NewsletterSection() {
       {/* Subtle gold decorative line */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#1a1a1a]/50 to-transparent" />
 
-      <div className="max-w-2xl mx-auto px-8 text-center">
+      <div className="max-w-2xl mx-auto px-8 text-right">
         {/* Label */}
         <p className="text-xs font-medium tracking-[0.35em] text-[#1a1a1a] uppercase mb-5">
           ניוזלייטר
@@ -47,7 +47,7 @@ export default function NewsletterSection() {
         </p>
 
         {status === "success" ? (
-          <div className="flex flex-col items-center gap-3">
+          <div className="flex flex-col items-start gap-3">
             <div className="w-12 h-12 flex items-center justify-center rounded-full border border-[#1a1a1a]">
               <i className="ri-check-line text-xl text-[#1a1a1a]"></i>
             </div>

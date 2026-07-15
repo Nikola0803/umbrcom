@@ -6,8 +6,6 @@ import CookieBanner from "./CookieBanner";
 
 interface PageLayoutProps {
   children: ReactNode;
-  /** Home pages: transparent header floats above the hero video (item 7). */
-  overlayHeader?: boolean;
 }
 
 // ─── Floating contact buttons — moved to the LEFT side so the
@@ -155,7 +153,7 @@ function AccessibilityButton() {
             <Link
               to="/accessibility-statement"
               onClick={() => setOpen(false)}
-              className="block text-center text-[11px] text-[#888] hover:text-[#1565c0] underline"
+              className="block text-right text-[11px] text-[#888] hover:text-[#1565c0] underline"
             >
               הצהרת נגישות
             </Link>
@@ -177,13 +175,13 @@ function AccessibilityButton() {
 }
 
 // ─── Layout ────────────────────────────────────────────────────────────────
-export default function PageLayout({ children, overlayHeader = false }: PageLayoutProps) {
+export default function PageLayout({ children }: PageLayoutProps) {
   return (
     <div dir="rtl" className="min-h-screen bg-white">
-      <Navbar overlay={overlayHeader} />
-      {/* Header heights: 80 + 76 (+44 desktop). With an overlay header the
-          hero video slides underneath, so no top padding is applied. */}
-      <div className={overlayHeader ? "" : "pt-[156px] md:pt-[200px]"}>
+      <Navbar />
+      {/* Mobile header: 64px logo row + ~66px search row ≈ 130px.
+          Desktop: 92px icon/logo row + ~68px search+links row ≈ 160px. */}
+      <div className="pt-[130px] md:pt-[160px]">
         {children}
       </div>
       <Footer />

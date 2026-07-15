@@ -82,7 +82,7 @@ export default function ArticlesSection() {
                 className="group flex gap-4 py-5 first:pt-0 cursor-pointer"
               >
                 {/* Index number, editorial touch */}
-                <span className="font-serif text-3xl font-light leading-none pt-1 w-8 flex-shrink-0 text-left" style={{ color: `${brand.color}55` }}>
+                <span className="font-serif text-3xl font-light leading-none pt-1 w-8 flex-shrink-0 text-right" style={{ color: `${brand.color}55` }}>
                   {String(idx + 2).padStart(2, "0")}
                 </span>
                 <div className="flex-1 text-right">

@@ -75,16 +75,16 @@ export default function ShopPage() {
           </>
         )}
         {/* Content */}
-        <div className="relative z-10 flex flex-col items-center justify-center py-16 px-4 text-center">
+        <div className="relative z-10 flex flex-col items-start justify-center py-16 px-8 text-right">
           <p className="text-[10px] font-medium tracking-[0.4em] text-[#666] uppercase mb-3">
             {meta ? "קטגוריה — Waterfall" : "כל המוצרים"}
           </p>
           <h1 className="font-serif text-4xl sm:text-5xl font-light text-white">{title}</h1>
-          <div className="mt-4 flex justify-center">
+          <div className="mt-4 flex justify-end">
             <span className="block w-12 h-px bg-white/20"></span>
           </div>
           {meta && (
-            <p className="text-sm text-[#888] max-w-xl mx-auto mt-5 leading-relaxed">
+            <p className="text-sm text-[#888] max-w-xl mt-5 leading-relaxed">
               {subtitle}
             </p>
           )}
@@ -107,7 +107,7 @@ export default function ShopPage() {
       {/* Product grid */}
       <div className="max-w-6xl mx-auto px-4 sm:px-8 pb-20 pt-4">
         {filtered.length === 0 ? (
-          <div className="py-24 text-center">
+          <div className="py-24 text-right">
             <i className="ri-search-line text-4xl text-[#ddd] mb-3 block"></i>
             <p className="text-[#aaa] text-sm">לא נמצאו מוצרים התואמים לסינון.</p>
           </div>

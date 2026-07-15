@@ -15,7 +15,7 @@ export default function BlogPage() {
     <PageLayout>
       {/* Banner */}
       <div className="w-full bg-white border-b border-[#eee] py-14">
-        <div className="max-w-6xl mx-auto px-8 text-center">
+        <div className="max-w-6xl mx-auto px-8 text-right">
           <p className="text-[10px] font-medium tracking-[0.4em] text-[#3ab4f2] uppercase mb-3">
             המגזין שלנו
           </p>

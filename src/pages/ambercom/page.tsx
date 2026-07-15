@@ -33,11 +33,11 @@ const AMBERCOM_PRODUCTS = [
 
 export default function AmbercomPage() {
   return (
-    <PageLayout overlayHeader>
+    <PageLayout>
       {/* ── Video hero — transparent header floats above (items 1+7+17) ── */}
       <section
         className="relative w-full overflow-hidden"
-        style={{ height: "100vh", minHeight: "640px" }}
+        style={{ height: "calc(100vh - 160px)", minHeight: "560px" }}
       >
         <video
           className="absolute inset-0 w-full h-full object-cover"
@@ -177,7 +177,7 @@ export default function AmbercomPage() {
             ))}
           </div>
 
-          <div className="text-center mt-10">
+          <div className="text-right mt-10">
             <Link
               to="/shop"
               className="inline-flex items-center gap-2 text-sm font-semibold tracking-[0.2em] text-white px-8 py-3.5 rounded-full transition-colors cursor-pointer hover:opacity-90"

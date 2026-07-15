@@ -70,7 +70,7 @@ export default function SeriesPage() {
   return (
     <PageLayout>
       {/* Page intro — white, quiet (item 11) */}
-      <div className="w-full bg-white pt-14 pb-10 text-center">
+      <div className="w-full bg-white pt-14 pb-10 text-right">
         <div className="max-w-2xl mx-auto px-8">
           <p className="text-[10px] font-semibold tracking-[0.5em] text-[#3ab4f2] uppercase mb-4">
             Waterfall — אוסף הסדרות

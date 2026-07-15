@@ -51,7 +51,7 @@ export default function AuthPage() {
           </div>
 
           {submitted ? (
-            <div className="bg-[#f0faf4] border border-[#a8d8b8] rounded-2xl p-6 text-center">
+            <div className="bg-[#f0faf4] border border-[#a8d8b8] rounded-2xl p-6 text-right">
               <i className="ri-checkbox-circle-line text-3xl text-[#2d7a3a] mb-2 block"></i>
               <p className="text-sm font-medium text-[#2d7a3a]">
                 {mode === "login" ? "התחברת בהצלחה!" : "נרשמת בהצלחה! ברוך הבא."}
@@ -113,7 +113,7 @@ export default function AuthPage() {
               </div>
 
               {mode === "login" && (
-                <div className="text-left">
+                <div className="text-right">
                   <a href="#" className="text-xs text-[#3ab4f2] hover:underline">שכחתי סיסמה</a>
                 </div>
               )}
@@ -131,7 +131,7 @@ export default function AuthPage() {
                 <div className="flex-1 h-px bg-[#ede9e1]" />
               </div>
 
-              <p className="text-center text-xs text-[#9a8a7a]">
+              <p className="text-right text-xs text-[#9a8a7a]">
                 {mode === "login" ? "אין לכם חשבון? " : "יש לכם חשבון? "}
                 <button
                   type="button"
@@ -144,7 +144,7 @@ export default function AuthPage() {
             </form>
           )}
 
-          <div className="mt-8 text-center">
+          <div className="mt-8 text-right">
             <Link to="/contact" className="text-xs text-[#bbb] hover:text-[#1a1a1a] transition-colors">
               צריכים עזרה? צרו קשר
             </Link>

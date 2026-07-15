@@ -3,7 +3,7 @@ import PageLayout from "../../components/feature/PageLayout";
 export default function PrivacyPage() {
   return (
     <PageLayout>
-      <div className="w-full bg-[#0f0f0f] py-10 text-center">
+      <div className="w-full bg-[#0f0f0f] py-10 text-right">
         <h1 className="font-serif text-3xl font-light text-white">מדיניות פרטיות</h1>
       </div>
 
