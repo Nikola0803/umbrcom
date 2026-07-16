@@ -34,7 +34,7 @@ export default function PageBuilder({ sections }: PageBuilderProps) {
   useEffect(() => {
     // Only needed for the tiktok_section layout, but it's cheap and cached
     // by the browser — fetched once regardless of how many sections use it.
-    if (sections.some((s) => s.acf_fc_layout === "tiktok_section")) {
+    if (sections.some((s) => s.type === "tiktok_section")) {
       fetchSettings().then(setSettings);
     }
   }, [sections]);
@@ -42,7 +42,7 @@ export default function PageBuilder({ sections }: PageBuilderProps) {
   return (
     <>
       {sections.map((section, i) => {
-        switch (section.acf_fc_layout) {
+        switch (section.type) {
           case "hero_video":
             return (
               <Hero
@@ -157,7 +157,7 @@ export default function PageBuilder({ sections }: PageBuilderProps) {
             );
 
           default:
-            console.warn(`[PageBuilder] Unknown layout "${section.acf_fc_layout}" — skipped.`);
+            console.warn(`[PageBuilder] Unknown layout "${section.type}" — skipped.`);
             return null;
         }
       })}

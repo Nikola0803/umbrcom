@@ -109,7 +109,7 @@ export function fetchNav() {
  * ──────────────────────────────────────────────────────────────────────── */
 
 export interface PageSection {
-  acf_fc_layout: string;
+  type: string;
   [key: string]: unknown;
 }
 
@@ -117,16 +117,16 @@ interface WpPageRaw {
   id: number;
   slug: string;
   title: { rendered: string };
-  acf?: { page_sections?: PageSection[] };
+  umbrcom_sections?: PageSection[];
 }
 
 export async function fetchPageSections(slug: string): Promise<{ title: string; sections: PageSection[] } | null> {
-  const pages = await getJSON<WpPageRaw[]>(`/wp/v2/pages?slug=${encodeURIComponent(slug)}&_fields=id,slug,title,acf`);
+  const pages = await getJSON<WpPageRaw[]>(`/wp/v2/pages?slug=${encodeURIComponent(slug)}&_fields=id,slug,title,umbrcom_sections`);
   if (!pages || pages.length === 0) return null;
   const page = pages[0];
   return {
     title: page.title?.rendered ?? "",
-    sections: page.acf?.page_sections ?? [],
+    sections: page.umbrcom_sections ?? [],
   };
 }
 

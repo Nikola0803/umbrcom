@@ -116,3 +116,33 @@ converted too — the pattern above makes each one a small, well-understood job)
 - Cart/checkout still operate on the local `CartContext`, not WooCommerce's
   Cart/Checkout Store API endpoints (real order placement) — that's the
   natural next step once you're ready to take live orders through this.
+
+## Correction — plugin rebuilt with ZERO third-party dependencies
+
+The version above was wrong to require ACF PRO. It's been fully rebuilt:
+**the plugin now requires only WooCommerce.** Page Builder, product
+fields, Series, Site Settings, and category images are all custom-built
+in this plugin on core WordPress APIs only — meta boxes, `wp.media`, the
+built-in `wp-color-picker`, and `register_rest_field`/the WooCommerce
+Store API for exposing everything. No ACF, no other field or page-builder
+plugin, no license to buy, ever.
+
+What changed under the hood (functionally identical from wp-admin's point
+of view — same sections, same fields, same Site Settings screen):
+
+- **Page Builder** is a from-scratch flexible-content system: sections are
+  added/removed/reordered with ↑ / ↓ / × buttons, backed by one plain
+  nested array in postmeta (bracket-named form inputs parse straight into
+  PHP arrays — no JSON, no dependency).
+- A small custom **field kit** (`class-field-renderer.php` +
+  `assets/admin.js/css`, ~250 lines of vanilla JS total) provides every
+  field type used across the plugin: text/textarea/color/image/file/
+  checkbox/select/checkbox-list, a generic repeater (native `<template>`
+  cloning), and a relationship field (AJAX search + pill picker).
+- On the frontend, `PageSection` now carries a plain `type` key instead of
+  `acf_fc_layout`, and sections come back as a top-level `umbrcom_sections`
+  field instead of nested under `acf` — `wp-api.ts` and `PageBuilder.tsx`
+  are updated to match. Everything else works exactly the same way.
+
+Re-download both files — the plugin zip and the frontend zip were both
+rebuilt.
