@@ -1,10 +1,21 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import PageLayout from "../../components/feature/PageLayout";
-import { allProducts, colorFilters } from "../../mocks/products";
+import { allProducts, colorFilters, Product } from "../../mocks/products";
 import ProductCard from "../shop/components/ProductCard";
 import ModelViewer3D from "./components/ModelViewer3D";
 import { useCart } from "@/context/CartContext";
+import { fetchProductById, isWpConfigured } from "@/lib/wp-api";
+
+type LiveProduct = Product & {
+  images?: string[];
+  specTable?: { label: string; value: string }[];
+  model3dUrl?: string;
+  model3dUsdzUrl?: string;
+  arEnabled?: boolean;
+  badgeText?: string;
+  isNew?: boolean;
+};
 
 const COLOR_DOT: Record<string, string> = {
   "זהב מוברש": "#c9a96e",
@@ -91,12 +102,36 @@ function GalleryCarousel({ images, name }: { images: string[]; name: string }) {
 export default function ProductPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const product = allProducts.find((p) => p.id === id);
+  const mockProduct = allProducts.find((p) => p.id === id);
+  const [product, setProduct] = useState<LiveProduct | undefined>(mockProduct);
+  const [loading, setLoading] = useState(isWpConfigured());
   const { addItem } = useCart();
+
+  useEffect(() => {
+    setProduct(mockProduct);
+    if (!isWpConfigured() || !id) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    fetchProductById(id).then((live) => {
+      if (live) setProduct(live);
+      setLoading(false);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   const [activeTab, setActiveTab] = useState<"desc" | "specs" | "shipping" | "3d">("desc");
+
+  if (loading) {
+    return (
+      <PageLayout>
+        <div className="min-h-[60vh]" />
+      </PageLayout>
+    );
+  }
 
   if (!product) {
     return (
@@ -127,8 +162,9 @@ export default function ProductPage() {
     setTimeout(() => setAdded(false), 2500);
   };
 
-  // Build 3-image gallery (repeat for demo)
-  const galleryImages = [product.image, product.image, product.image];
+  // Real WooCommerce gallery when available; repeat the single mock image otherwise.
+  const galleryImages =
+    product.images && product.images.length > 0 ? product.images : [product.image, product.image, product.image];
 
   return (
     <PageLayout>
@@ -391,7 +427,7 @@ export default function ProductPage() {
 
             {activeTab === "specs" && (
               <div className="divide-y divide-[#ede9e1]">
-                {SPECS.map((s) => (
+                {(product.specTable && product.specTable.length > 0 ? product.specTable : SPECS).map((s) => (
                   <div key={s.label} className="flex items-center justify-between py-3.5">
                     <span className="text-sm text-[#1a1410] font-medium">{s.value}</span>
                     <span className="text-xs text-[#9a8a7a] uppercase tracking-wide">{s.label}</span>
@@ -428,7 +464,12 @@ export default function ProductPage() {
 
             {activeTab === "3d" && product && (
               <div className="max-w-3xl mr-auto">
-                <ModelViewer3D productName={product.name} productSku={product.sku} />
+                <ModelViewer3D
+                  productName={product.name}
+                  productSku={product.sku}
+                  modelUrl={product.model3dUrl}
+                  modelUsdzUrl={product.model3dUsdzUrl}
+                />
               </div>
             )}
           </div>

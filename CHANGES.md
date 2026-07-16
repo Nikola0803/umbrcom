@@ -50,3 +50,69 @@ Replaced the header with a pixel-matched version of the reference:
 - Removed the earlier "transparent header floating over video" idea — this header is a solid opaque black bar everywhere per your screenshot, so the hero sections were resized to sit right below it instead of underneath it.
 
 ⚠️ Two links are my best guess since there's no dedicated page for them yet: מבצעים → `/shop`, מועדון לקוחות → `/auth`. Tell me if you want real Deals / Loyalty Club pages instead.
+
+## Update — Headless WordPress + WooCommerce integration
+
+Two deliverables:
+
+### 1. WordPress plugin: `umbrcom-content-engine.zip`
+A real, installable plugin (not just docs) that turns wp-admin into the CMS
+for this site. Full details in the plugin's own `readme.txt` / `SETUP.md`,
+short version:
+
+- **Page Builder** — every Page gets a "Page Sections" flexible-content field
+  (Hero Video, Trust Strip, Categories Grid, Featured Products, Testimonials,
+  TikTok, Articles Teaser, Rich Text, CTA Banner). Add/remove/reorder from
+  wp-admin, the frontend renders it automatically.
+- **Series** CPT for Hydra/Dett/Sora-style banners.
+- **Storefront Details** panel on every WooCommerce product — spec table,
+  3D model (.glb/.usdz), AR toggle, badge text, related accessories.
+  Colors/finishes use WooCommerce's native Attributes + Variations (the
+  correct WooCommerce-native way), not a custom field.
+- **Category Display Settings** — a tile image + label override on every
+  product category, so swapping category photos (item 2 from the original
+  brief) is a wp-admin job, not a code change.
+- **Site Settings** — one options screen: contact info, socials, brand
+  colors, both hero videos, header nav links, TikTok handles/videos, footer.
+- REST wiring: `/umbrcom/v1/settings`, `/umbrcom/v1/nav`, Page Builder over
+  `/wp/v2/pages`, and the public WooCommerce **Store API**
+  (`/wc/store/v1/products`) extended with an `umbrcom` data block carrying
+  all the custom fields — no API keys needed for the storefront to read
+  products.
+
+**Requires ACF PRO** (paid) + WooCommerce — the free ACF doesn't have
+Repeater/Flexible Content/Options Page, which this is built on.
+
+### 2. Frontend: `src/lib/wp-api.ts` + wiring
+A typed API client (`fetchSettings`, `fetchNav`, `fetchPageSections`,
+`fetchProducts`/`fetchProductById`, `fetchPosts`) that talks to the plugin
+above. Set `VITE_WP_API_URL` in `.env` (see `.env.example`) to turn it on —
+unset, the site runs exactly as before on local mock data, so nothing
+breaks without a WordPress backend.
+
+**Already wired end-to-end** (real data in, graceful fallback to mocks out):
+- **Home** and **Ambercom** pages — both now render via a new `PageBuilder`
+  component that maps each Page Builder section to its React component.
+  If the WP page has no sections yet (or WP isn't configured), the original
+  hand-built layout renders instead.
+- **Product page** — fetches the real product (price, images, spec table,
+  3D model, badge) by ID from the Store API; falls back to the mock catalog
+  if not found.
+- **Series page** — pulls live Series + product counts from `/umbrcom/v1/nav`.
+- **Navbar** — categories, logo, phone/WhatsApp now come from
+  `/umbrcom/v1/nav` + `/umbrcom/v1/settings`.
+- **Footer** — social icons pull from Site Settings.
+
+**Intentionally left on static/local data for now** (flag if you want these
+converted too — the pattern above makes each one a small, well-understood job):
+- Shop listing page filters/sort (still reads the local product mock array
+  directly rather than the Store API — the product *page* is wired, the
+  *listing* isn't yet).
+- Blog listing page (the homepage Articles teaser is wired via
+  `fetchPosts()`; the standalone `/blog` page still reads the mock array).
+- Footer's link columns (קטלוג/מידע/שירות לקוחות) — these map 1:1 to actual
+  React routes, so they stayed hard-coded rather than becoming freely
+  editable text that could point at pages that don't exist.
+- Cart/checkout still operate on the local `CartContext`, not WooCommerce's
+  Cart/Checkout Store API endpoints (real order placement) — that's the
+  natural next step once you're ready to take live orders through this.

@@ -3,7 +3,15 @@ import { Link } from "react-router-dom";
 // ── ITEM 2: category images — swap the `image` URLs below with the client's
 //    prepared photos for Kitchen / Bathroom Sink / Cold Water. New placeholder
 //    art is in place meanwhile (v3).
-const categories = [
+export interface CategoryTile {
+  key: string;
+  title: string;
+  subtitle?: string;
+  path: string;
+  image: string;
+}
+
+const DEFAULT_CATEGORIES: CategoryTile[] = [
   {
     key: "kitchen",
     title: "ברזי מטבח",
@@ -30,7 +38,17 @@ const categories = [
   },
 ];
 
-export default function CategoriesSection() {
+export interface CategoriesSectionProps {
+  eyebrow?: string;
+  heading?: string;
+  categories?: CategoryTile[];
+}
+
+export default function CategoriesSection({
+  eyebrow = "Waterfall — הקולקציה",
+  heading = "קטגוריות מוצרים",
+  categories = DEFAULT_CATEGORIES,
+}: CategoriesSectionProps) {
   return (
     <section className="w-full bg-white py-16">
       {/* Header */}
@@ -38,16 +56,16 @@ export default function CategoriesSection() {
         <div className="inline-flex items-center gap-2 mb-4">
           <span className="w-2 h-2 rounded-full bg-[#3ab4f2]" />
           <p className="text-[10px] font-semibold tracking-[0.35em] text-[#3ab4f2] uppercase">
-            Waterfall — הקולקציה
+            {eyebrow}
           </p>
           <span className="w-2 h-2 rounded-full bg-[#3ab4f2]" />
         </div>
         <h2 className="font-serif text-3xl font-light text-[#0d0d0d]">
-          קטגוריות מוצרים
+          {heading}
         </h2>
       </div>
 
-      {/* 3 cards */}
+      {/* cards */}
       <div className="max-w-6xl mx-auto px-4 sm:px-8 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
         {categories.map((cat) => (
           <Link

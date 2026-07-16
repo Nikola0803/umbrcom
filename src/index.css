@@ -52,3 +52,14 @@ body.no-motion *, body.no-motion *::before, body.no-motion *::after {
   animation: none !important;
   transition: none !important;
 }
+
+/* ── Rich Text Block (Page Builder WYSIWYG content) ─────────────────────── */
+.prose-umbrcom { color: #4a4038; font-size: 0.9375rem; line-height: 1.75; }
+.prose-umbrcom h2 { font-family: 'Playfair Display', serif; font-weight: 300; font-size: 1.75rem; color: #1a1410; margin: 1.5rem 0 0.75rem; }
+.prose-umbrcom h3 { font-weight: 600; font-size: 1.125rem; color: #1a1410; margin: 1.25rem 0 0.5rem; }
+.prose-umbrcom p { margin: 0.75rem 0; }
+.prose-umbrcom a { color: #3ab4f2; text-decoration: underline; }
+.prose-umbrcom ul, .prose-umbrcom ol { padding-inline-start: 1.25rem; margin: 0.75rem 0; }
+.prose-umbrcom li { margin: 0.25rem 0; }
+.prose-umbrcom img { border-radius: 0.75rem; margin: 1rem 0; }
+.prose-umbrcom strong { color: #1a1410; }

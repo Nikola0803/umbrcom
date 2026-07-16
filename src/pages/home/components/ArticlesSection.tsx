@@ -1,15 +1,26 @@
 import { Link } from "react-router-dom";
 import { blogPosts } from "../../../mocks/blogPosts";
+import type { BlogPost } from "../../blog/components/BlogCard";
 import { useBrand } from "@/hooks/useBrand";
+
+export interface ArticlesSectionProps {
+  eyebrow?: string;
+  heading?: string;
+  posts?: BlogPost[];
+}
 
 /**
  * Homepage articles — editorial / magazine style (item 18):
  * one large featured story with the text card overlapping the image,
  * plus a column of compact horizontal stories on the side.
  */
-export default function ArticlesSection() {
+export default function ArticlesSection({
+  eyebrow = "המגזין",
+  heading = "כתבות, השראה ומדריכים",
+  posts = blogPosts.slice(0, 4),
+}: ArticlesSectionProps) {
   const brand = useBrand();
-  const [featured, ...rest] = blogPosts.slice(0, 4);
+  const [featured, ...rest] = posts;
   if (!featured) return null;
 
   return (
@@ -21,11 +32,11 @@ export default function ArticlesSection() {
             <div className="flex items-center gap-2 mb-2">
               <span className="w-6 h-[2px]" style={{ backgroundColor: brand.color }} />
               <p className="text-[10px] font-semibold tracking-[0.35em] uppercase" style={{ color: brand.color }}>
-                המגזין
+                {eyebrow}
               </p>
             </div>
             <h2 className="font-serif text-3xl font-light text-[#0d0d0d]">
-              כתבות, השראה ומדריכים
+              {heading}
             </h2>
           </div>
           <Link

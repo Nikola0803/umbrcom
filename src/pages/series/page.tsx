@@ -1,7 +1,21 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import PageLayout from "../../components/feature/PageLayout";
+import { fetchNav } from "@/lib/wp-api";
 
-const SERIES = [
+interface SeriesTile {
+  name: string;
+  nameHe: string;
+  tagline: string;
+  description: string;
+  image: string;
+  color: string;
+  products: number;
+  path: string;
+  isFeatured?: boolean;
+}
+
+const DEFAULT_SERIES: SeriesTile[] = [
   {
     name: "Atlas",
     nameHe: "אטלס",
@@ -65,7 +79,29 @@ const SERIES = [
 ];
 
 export default function SeriesPage() {
-  const [featured, ...rest] = SERIES;
+  const [series, setSeries] = useState<SeriesTile[]>(DEFAULT_SERIES);
+
+  useEffect(() => {
+    fetchNav().then((nav) => {
+      if (!nav || nav.series.length === 0) return;
+      const mapped: SeriesTile[] = nav.series.map((s) => ({
+        name: s.name,
+        nameHe: s.name_he,
+        tagline: s.tagline,
+        description: s.description,
+        image: s.image,
+        color: s.color,
+        products: s.products,
+        path: s.path,
+        isFeatured: s.is_featured,
+      }));
+      // Featured series first, rest in the order returned (menu_order).
+      mapped.sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
+      setSeries(mapped);
+    });
+  }, []);
+
+  const [featured, ...rest] = series;
 
   return (
     <PageLayout>

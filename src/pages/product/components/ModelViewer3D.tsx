@@ -3,6 +3,10 @@ import { useEffect, useRef, useState } from "react";
 interface ModelViewer3DProps {
   productName: string;
   productSku: string;
+  /** Real per-product .glb/.usdz from WooCommerce (Storefront Details panel).
+   *  Falls back to a generic demo model when not set. */
+  modelUrl?: string;
+  modelUsdzUrl?: string;
 }
 
 // Demo GLB model — a publicly available 3D model for demonstration
@@ -33,14 +37,16 @@ declare global {
   }
 }
 
-export default function ModelViewer3D({ productName, productSku }: ModelViewer3DProps) {
+export default function ModelViewer3D({ productName, productSku, modelUrl, modelUsdzUrl }: ModelViewer3DProps) {
+  const glbSrc = modelUrl || DEMO_MODEL_URL;
+  const usdzSrc = modelUsdzUrl || DEMO_USDZ_URL;
   const [scriptLoaded, setScriptLoaded] = useState(false);
   const [qrVisible, setQrVisible] = useState(false);
   const [isRotating, setIsRotating] = useState(true);
   const viewerRef = useRef<HTMLElement>(null);
 
   // AR deep-link — opens model-viewer AR experience on mobile
-  const arUrl = `https://modelviewer.dev/editor/?model=${encodeURIComponent(DEMO_MODEL_URL)}`;
+  const arUrl = `https://modelviewer.dev/editor/?model=${encodeURIComponent(glbSrc)}`;
   const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(arUrl)}&color=1a1410&bgcolor=faf8f5&margin=10`;
 
   useEffect(() => {
@@ -82,8 +88,8 @@ export default function ModelViewer3D({ productName, productSku }: ModelViewer3D
           // @ts-expect-error — model-viewer is a custom element loaded via CDN
           <model-viewer
             ref={viewerRef}
-            src={DEMO_MODEL_URL}
-            ios-src={DEMO_USDZ_URL}
+            src={glbSrc}
+            ios-src={usdzSrc}
             alt={`מודל תלת-מימדי של ${productName}`}
             ar
             ar-modes="webxr scene-viewer quick-look"

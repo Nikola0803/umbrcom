@@ -1,4 +1,10 @@
-const PERKS = [
+export interface Perk {
+  icon: string;
+  title: string;
+  sub: string;
+}
+
+const DEFAULT_PERKS: Perk[] = [
   { icon: "ri-shield-check-line", title: "אחריות מקיפה", sub: "אחריות מלאה ושירות מקצועי המעניקים שקט נפשי לאורך שנים" },
   { icon: "ri-medal-line", title: "חומרים איכותיים", sub: "ייצור מחומרים איכותיים עמידים לשמירה על מראה וביצועים לאורך זמן" },
   { icon: "ri-water-flash-line", title: "טכנולוגיית חיסכון במים", sub: "מערכות מתקדמות המסייעות לצמצם את צריכת המים ללא פגיעה בנוחות השימוש" },
@@ -6,12 +12,16 @@ const PERKS = [
   { icon: "ri-customer-service-2-line", title: "שירות ותמיכה בישראל", sub: "זמינות מלאה, מענה מקצועי ואספקת חלקי חילוף ושירות מקומי ללקוחות" },
 ];
 
-export default function TrustStrip() {
+export interface TrustStripProps {
+  perks?: Perk[];
+}
+
+export default function TrustStrip({ perks = DEFAULT_PERKS }: TrustStripProps) {
   return (
     <section className="w-full bg-white border-y border-[#ede9e1]">
       <div className="max-w-7xl mx-auto px-8 py-6">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-          {PERKS.map((p) => (
+          {perks.map((p) => (
             <div key={p.title} className="flex flex-col items-start text-right gap-2 px-3">
               <div className="w-10 h-10 flex items-center justify-center">
                 <i className={`${p.icon} text-[22px] text-[#1a1a1a]`}></i>

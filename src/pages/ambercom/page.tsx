@@ -1,5 +1,8 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import PageLayout from "../../components/feature/PageLayout";
+import PageBuilder from "../../components/feature/PageBuilder";
+import { fetchPageSections, isWpConfigured, PageSection } from "@/lib/wp-api";
 import TikTokSection from "../home/components/TikTokSection";
 
 const AMBERCOM_COLOR = "#e8a030"; // Ambercom brand amber/gold
@@ -31,9 +34,9 @@ const AMBERCOM_PRODUCTS = [
   },
 ];
 
-export default function AmbercomPage() {
+function StaticAmbercom() {
   return (
-    <PageLayout>
+    <>
       {/* ── Video hero — transparent header floats above (items 1+7+17) ── */}
       <section
         className="relative w-full overflow-hidden"
@@ -201,6 +204,25 @@ export default function AmbercomPage() {
           { id: "7448000000000000006", caption: "מאחורי הקלעים — Ambercom" },
         ]}
       />
+    </>
+  );
+}
+
+export default function AmbercomPage() {
+  const [sections, setSections] = useState<PageSection[] | null>(null);
+  const [loaded, setLoaded] = useState(!isWpConfigured());
+
+  useEffect(() => {
+    if (!isWpConfigured()) return;
+    fetchPageSections("ambercom").then((page) => {
+      setSections(page?.sections?.length ? page.sections : null);
+      setLoaded(true);
+    });
+  }, []);
+
+  return (
+    <PageLayout>
+      {!loaded ? null : sections ? <PageBuilder sections={sections} /> : <StaticAmbercom />}
     </PageLayout>
   );
 }

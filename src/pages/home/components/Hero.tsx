@@ -1,14 +1,39 @@
 import { Link } from "react-router-dom";
 
-// ── Replace VIDEO_SRC with your own Waterfall brand video URL ──────────────
-// Supported: direct .mp4 URL — e.g. "https://your-cdn.com/waterfall-brand.mp4"
+// ── Fallback content used until a WordPress "Hero — Video Banner" Page
+//    Builder section is configured (or when VITE_WP_API_URL isn't set) ──
 const VIDEO_SRC =
   "https://assets.mixkit.co/videos/preview/mixkit-hands-adjusting-a-modern-bathroom-faucet-40413-large.mp4";
 
 const POSTER =
   "https://readdy.ai/api/search-image?query=ultra+luxury+modern+bathroom+interior+freestanding+marble+bathtub+elegant+brushed+gold+faucet+large+floor-to-ceiling+windows+soft+morning+light&width=1920&height=1080&seq=hero-video-poster-v1&orientation=landscape";
 
-export default function Hero() {
+export interface HeroProps {
+  eyebrow?: string;
+  heading?: string;
+  headingEmphasis?: string;
+  subheading?: string;
+  video?: string;
+  poster?: string;
+  button1Label?: string;
+  button1Link?: string;
+  button2Label?: string;
+  button2Link?: string;
+}
+
+export default function Hero({
+  eyebrow = "Waterfall Collection 2025",
+  heading = "עיצוב שמרגישים.",
+  headingEmphasis = "איכות שנשארת.",
+  subheading = "ברזי מטבח ואמבטיה פרמיום מאוסף Waterfall.\nעיצוב אירופאי, חומרים מושלמים, מחירים שמפתיעים לטובה.",
+  video = VIDEO_SRC,
+  poster = POSTER,
+  button1Label = "אודות אמברקום",
+  button1Link = "/about",
+  button2Label = "לחנות שלנו",
+  button2Link = "/shop",
+}: HeroProps) {
+  const subLines = subheading.split("\n");
   return (
     <section
       className="relative w-full overflow-hidden"
@@ -17,12 +42,12 @@ export default function Hero() {
       {/* ── Background video ── */}
       <video
         className="absolute inset-0 w-full h-full object-cover"
-        src={VIDEO_SRC}
+        src={video}
         autoPlay
         muted
         loop
         playsInline
-        poster={POSTER}
+        poster={poster}
       />
 
       {/* Gradient overlay */}
@@ -36,17 +61,17 @@ export default function Hero() {
             {/* Badge */}
             <div className="flex items-center justify-end gap-3 mb-6">
               <span className="text-[10px] font-semibold tracking-[0.45em] text-[#3ab4f2] uppercase">
-                Waterfall Collection 2025
+                {eyebrow}
               </span>
               <span className="block w-8 h-px bg-[#3ab4f2]" />
             </div>
 
             {/* Headline */}
             <h1 className="font-serif text-4xl sm:text-6xl font-light text-white leading-[1.1] mb-5">
-              עיצוב שמרגישים.
+              {heading}
               <br />
               <em className="not-italic font-semibold text-white">
-                איכות שנשארת.
+                {headingEmphasis}
               </em>
             </h1>
 
@@ -56,24 +81,27 @@ export default function Hero() {
 
             {/* Sub */}
             <p className="text-white/75 text-base font-light leading-relaxed mb-10">
-              ברזי מטבח ואמבטיה פרמיום מאוסף Waterfall.
-              <br />
-              עיצוב אירופאי, חומרים מושלמים, מחירים שמפתיעים לטובה.
+              {subLines.map((line, i) => (
+                <span key={i}>
+                  {line}
+                  {i < subLines.length - 1 && <br />}
+                </span>
+              ))}
             </p>
 
             {/* CTAs */}
             <div className="flex items-center justify-end gap-4 mb-12">
               <Link
-                to="/about"
+                to={button1Link}
                 className="border border-white/50 hover:border-white text-white text-xs font-medium tracking-[0.2em] px-7 py-3.5 rounded-full transition-all duration-300 whitespace-nowrap cursor-pointer"
               >
-                אודות אמברקום
+                {button1Label}
               </Link>
               <Link
-                to="/shop"
+                to={button2Link}
                 className="bg-[#3ab4f2] hover:bg-[#2da0d8] text-white text-xs font-semibold tracking-[0.2em] px-8 py-3.5 rounded-full transition-colors duration-300 whitespace-nowrap cursor-pointer shadow-lg"
               >
-                לחנות שלנו
+                {button2Label}
               </Link>
             </div>
           </div>

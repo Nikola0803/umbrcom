@@ -1,11 +1,22 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { fetchSettings } from "@/lib/wp-api";
 
 const LOGO_URL =
   "https://umbrcom.co.il/wp-content/uploads/2025/10/%D7%9C%D7%95%D7%92%D7%95-%D7%9C%D7%92%D7%A8%D7%A1%D7%AA-%D7%A0%D7%99%D7%99%D7%93-3.png";
 const WATERFALL_LOGO =
   "https://umbrcom.co.il/wp-content/uploads/2025/10/500824_160.webp";
 
-const socialLinks = [
+const SOCIAL_ICON: Record<string, string> = {
+  facebook: "ri-facebook-circle-line",
+  instagram: "ri-instagram-line",
+  tiktok: "ri-tiktok-line",
+  youtube: "ri-youtube-line",
+  telegram: "ri-telegram-line",
+  whatsapp: "ri-whatsapp-line",
+};
+
+const DEFAULT_SOCIAL_LINKS = [
   { icon: "ri-tiktok-line", href: "https://www.tiktok.com/@1umbrcom", label: "TikTok" },
   { icon: "ri-youtube-line", href: "https://www.youtube.com/@umbrcom", label: "YouTube" },
   { icon: "ri-instagram-line", href: "https://www.instagram.com/umbrcomisrael/", label: "Instagram" },
@@ -66,6 +77,22 @@ function FLink({ link }: { link: FLink }) {
 }
 
 export default function Footer() {
+  const [socialLinks, setSocialLinks] = useState(DEFAULT_SOCIAL_LINKS);
+
+  useEffect(() => {
+    fetchSettings().then((settings) => {
+      if (settings?.contact?.social && settings.contact.social.length > 0) {
+        setSocialLinks(
+          settings.contact.social.map((s) => ({
+            icon: SOCIAL_ICON[s.platform] ?? "ri-links-line",
+            href: s.url,
+            label: s.platform,
+          }))
+        );
+      }
+    });
+  }, []);
+
   return (
     <footer className="bg-[#0f0f0f]/95 backdrop-blur-sm rounded-t-3xl border-t border-white/5 overflow-hidden">
       {/* Main columns */}

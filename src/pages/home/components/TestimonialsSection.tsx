@@ -1,4 +1,14 @@
-const REVIEWS = [
+export interface Testimonial {
+  id: number | string;
+  name: string;
+  location: string;
+  stars: number;
+  text: string;
+  product: string;
+  avatar: string;
+}
+
+const DEFAULT_REVIEWS: Testimonial[] = [
   {
     id: 1,
     name: "מיכל ב.",
@@ -28,7 +38,15 @@ const REVIEWS = [
   },
 ];
 
-export default function TestimonialsSection() {
+export interface TestimonialsSectionProps {
+  heading?: string;
+  reviews?: Testimonial[];
+}
+
+export default function TestimonialsSection({
+  heading = "מה אומרים עלינו",
+  reviews = DEFAULT_REVIEWS,
+}: TestimonialsSectionProps) {
   return (
     <section className="w-full bg-white py-20">
       <div className="max-w-6xl mx-auto px-8">
@@ -38,7 +56,7 @@ export default function TestimonialsSection() {
             לקוחות מספרים
           </p>
           <h2 className="font-serif text-3xl font-light text-[#1a1410]">
-            מה אומרים עלינו
+            {heading}
           </h2>
           {/* Stars row */}
           <div className="flex items-center justify-center gap-1 mt-4">
@@ -51,7 +69,7 @@ export default function TestimonialsSection() {
 
         {/* Cards */}
         <div className="grid grid-cols-3 gap-6">
-          {REVIEWS.map((r) => (
+          {reviews.map((r) => (
             <div
               key={r.id}
               className="border border-[#ede9e1] rounded-2xl p-7 flex flex-col gap-5 hover:border-[#888888]/50 transition-colors duration-300"

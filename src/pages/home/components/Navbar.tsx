@@ -2,20 +2,24 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import { useBrand, AMBERCOM } from "@/hooks/useBrand";
+import { fetchNav, fetchSettings } from "@/lib/wp-api";
 
-const LOGO_URL =
+const DEFAULT_LOGO_URL =
   "https://umbrcom.co.il/wp-content/uploads/2025/10/%D7%9C%D7%95%D7%92%D7%95-%D7%9C%D7%92%D7%A8%D7%A1%D7%AA-%D7%A0%D7%99%D7%99%D7%93-3.png";
 
 // Both top navigation bars are BLACK (client request).
 const NAV_BLACK = "#0d0d0d";
 
-const CATEGORIES = [
+const DEFAULT_CATEGORIES = [
   { label: "ברזי מטבח", path: "/shop/kitchen" },
   { label: "ברזי כיור רחצה", path: "/shop/bathroom" },
   { label: "ברזי מים קרים", path: "/shop/cold-water" },
   { label: "ערכות פינוק", path: "/shop/pampering-sets" },
   { label: "סדרות", path: "/series" },
 ];
+
+const DEFAULT_PHONE = "03-620-8197";
+const DEFAULT_WHATSAPP = "97236208197";
 
 const MOBILE_NAV = [
   { label: "בית", path: "/" },
@@ -42,6 +46,27 @@ export default function Navbar() {
   const brand = useBrand();
   const brandMenuRef = useRef<HTMLDivElement>(null);
   const catMenuRef = useRef<HTMLDivElement>(null);
+
+  // Live data from WordPress — falls back to the defaults above until it
+  // loads (or forever, if VITE_WP_API_URL isn't configured).
+  const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
+  const [logoUrl, setLogoUrl] = useState(DEFAULT_LOGO_URL);
+  const [phone, setPhone] = useState(DEFAULT_PHONE);
+  const [whatsapp, setWhatsapp] = useState(DEFAULT_WHATSAPP);
+
+  useEffect(() => {
+    fetchNav().then((nav) => {
+      if (nav && nav.categories.length > 0) {
+        setCategories(nav.categories.map((c) => ({ label: c.label, path: c.link })));
+      }
+    });
+    fetchSettings().then((settings) => {
+      if (!settings) return;
+      if (settings.brand?.waterfall_logo) setLogoUrl(settings.brand.waterfall_logo);
+      if (settings.contact?.phone) setPhone(settings.contact.phone);
+      if (settings.contact?.whatsapp) setWhatsapp(settings.contact.whatsapp);
+    });
+  }, []);
 
   useEffect(() => { setMobileOpen(false); setBrandMenuOpen(false); setCatMenuOpen(false); }, [location.pathname]);
 
@@ -120,7 +145,7 @@ export default function Navbar() {
                       Ambercom
                     </span>
                   ) : (
-                    <img src={LOGO_URL} alt="Waterfall" className="h-9 sm:h-10 w-auto object-contain" />
+                    <img src={logoUrl} alt="Waterfall" className="h-9 sm:h-10 w-auto object-contain" />
                   )}
                   <i
                     className={`ri-arrow-down-s-fill text-lg leading-none transition-transform duration-200 ${brandMenuOpen ? "rotate-180" : ""}`}
@@ -220,7 +245,7 @@ export default function Navbar() {
                     dir="rtl"
                     className="absolute top-full mt-3 left-0 w-56 bg-white rounded-xl shadow-[0_12px_36px_rgba(0,0,0,0.2)] overflow-hidden text-right py-1"
                   >
-                    {CATEGORIES.map((cat) => (
+                    {categories.map((cat) => (
                       <Link
                         key={cat.path}
                         to={cat.path}
@@ -254,7 +279,7 @@ export default function Navbar() {
             {brand.key === "ambercom" ? (
               <span className="text-lg font-serif font-semibold" style={{ color: AMBERCOM.color }}>Ambercom</span>
             ) : (
-              <img src={LOGO_URL} alt="Waterfall" className="h-8 w-auto object-contain" />
+              <img src={logoUrl} alt="Waterfall" className="h-8 w-auto object-contain" />
             )}
           </Link>
 
@@ -316,7 +341,7 @@ export default function Navbar() {
             <button onClick={() => setMobileOpen(false)} className="text-white cursor-pointer">
               <i className="ri-close-line text-2xl"></i>
             </button>
-            <img src={LOGO_URL} alt="Waterfall" className="h-9 object-contain" />
+            <img src={logoUrl} alt="Waterfall" className="h-9 object-contain" />
           </div>
 
           <nav className="flex-1 overflow-y-auto py-2">
@@ -353,11 +378,11 @@ export default function Navbar() {
           </nav>
 
           <div className="px-5 py-4 border-t border-gray-100 space-y-2.5">
-            <a href="tel:+97236208197" className="flex items-center gap-3 text-sm text-gray-500 hover:text-gray-800">
+            <a href={`tel:+${whatsapp}`} className="flex items-center gap-3 text-sm text-gray-500 hover:text-gray-800">
               <i className="ri-phone-line" style={{ color: brand.color }}></i>
-              03-620-8197
+              {phone}
             </a>
-            <a href="https://wa.me/97236208197" className="flex items-center gap-3 text-sm text-gray-500 hover:text-[#25D366]">
+            <a href={`https://wa.me/${whatsapp}`} className="flex items-center gap-3 text-sm text-gray-500 hover:text-[#25D366]">
               <i className="ri-whatsapp-line text-[#25D366]"></i>
               WhatsApp
             </a>
