@@ -1,8 +1,8 @@
-import PageLayout from "../../components/feature/PageLayout";
+import CmsPage from "../../components/feature/CmsPage";
 
-export default function AboutPage() {
+function StaticAbout() {
   return (
-    <PageLayout>
+    <>
       {/* Page banner */}
       <div className="w-full bg-[#0f0f0f] py-20 text-right relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-[#1a1a1a]/5 to-transparent pointer-events-none" />
@@ -64,6 +64,10 @@ export default function AboutPage() {
           </p>
         </div>
       </div>
-    </PageLayout>
+    </>
   );
+}
+
+export default function AboutPage() {
+  return <CmsPage slug="about" fallback={<StaticAbout />} />;
 }

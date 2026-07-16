@@ -1,8 +1,8 @@
-import PageLayout from "../../components/feature/PageLayout";
+import CmsPage from "../../components/feature/CmsPage";
 
-export default function PrivacyPage() {
+function StaticPrivacy() {
   return (
-    <PageLayout>
+    <>
       <div className="w-full bg-[#0f0f0f] py-10 text-right">
         <h1 className="font-serif text-3xl font-light text-white">מדיניות פרטיות</h1>
       </div>
@@ -45,6 +45,10 @@ export default function PrivacyPage() {
           <p>ממונה פרטיות: <a href="mailto:office@umbrcom.co.il" className="text-[#1a1a1a] underline">office@umbrcom.co.il</a> | 03-620-8197</p>
         </section>
       </div>
-    </PageLayout>
+    </>
   );
+}
+
+export default function PrivacyPage() {
+  return <CmsPage slug="privacy" fallback={<StaticPrivacy />} />;
 }

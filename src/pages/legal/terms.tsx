@@ -1,8 +1,8 @@
-import PageLayout from "../../components/feature/PageLayout";
+import CmsPage from "../../components/feature/CmsPage";
 
-export default function TermsPage() {
+function StaticTerms() {
   return (
-    <PageLayout>
+    <>
       <div className="w-full bg-[#0f0f0f] py-10 text-right">
         <h1 className="font-serif text-3xl font-light text-white">תקנון האתר</h1>
       </div>
@@ -53,6 +53,10 @@ export default function TermsPage() {
           <p>רחוב שלמה אבן גבירול 69, תל אביב.</p>
         </section>
       </div>
-    </PageLayout>
+    </>
   );
+}
+
+export default function TermsPage() {
+  return <CmsPage slug="terms" fallback={<StaticTerms />} />;
 }

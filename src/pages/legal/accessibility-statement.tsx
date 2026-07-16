@@ -1,8 +1,8 @@
-import PageLayout from "../../components/feature/PageLayout";
+import CmsPage from "../../components/feature/CmsPage";
 
-export default function AccessibilityStatementPage() {
+function StaticAccessibilityStatement() {
   return (
-    <PageLayout>
+    <>
       <section className="w-full bg-white min-h-[70vh] py-16 px-6" dir="rtl">
         <div className="max-w-3xl mx-auto text-right">
           <p className="text-[10px] font-medium tracking-[0.4em] text-[#3ab4f2] uppercase mb-3">
@@ -70,6 +70,10 @@ export default function AccessibilityStatementPage() {
           </div>
         </div>
       </section>
-    </PageLayout>
+    </>
   );
+}
+
+export default function AccessibilityStatementPage() {
+  return <CmsPage slug="accessibility-statement" fallback={<StaticAccessibilityStatement />} />;
 }

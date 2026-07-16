@@ -1,8 +1,5 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import PageLayout from "../../components/feature/PageLayout";
-import PageBuilder from "../../components/feature/PageBuilder";
-import { fetchPageSections, isWpConfigured, PageSection } from "@/lib/wp-api";
+import CmsPage from "../../components/feature/CmsPage";
 import TikTokSection from "../home/components/TikTokSection";
 
 const AMBERCOM_COLOR = "#e8a030"; // Ambercom brand amber/gold
@@ -209,20 +206,5 @@ function StaticAmbercom() {
 }
 
 export default function AmbercomPage() {
-  const [sections, setSections] = useState<PageSection[] | null>(null);
-  const [loaded, setLoaded] = useState(!isWpConfigured());
-
-  useEffect(() => {
-    if (!isWpConfigured()) return;
-    fetchPageSections("ambercom").then((page) => {
-      setSections(page?.sections?.length ? page.sections : null);
-      setLoaded(true);
-    });
-  }, []);
-
-  return (
-    <PageLayout>
-      {!loaded ? null : sections ? <PageBuilder sections={sections} /> : <StaticAmbercom />}
-    </PageLayout>
-  );
+  return <CmsPage slug="ambercom" fallback={<StaticAmbercom />} />;
 }

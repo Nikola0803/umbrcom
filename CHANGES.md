@@ -146,3 +146,35 @@ of view — same sections, same fields, same Site Settings screen):
 
 Re-download both files — the plugin zip and the frontend zip were both
 rebuilt.
+
+## Update — content pages wired to Page Builder too (About, Terms, Privacy, Returns, Accessibility Statement)
+
+Previously only Home and Ambercom read from wp-admin — every other page
+(About, Contact, Terms, Privacy, Returns, Business, Customer Service,
+Warranty, Invoice Recovery, Accessibility Statement) was still 100%
+hardcoded React, meaning editing a single word on any of them required a
+developer. That's now fixed for the pages that are pure content:
+
+**Now wp-admin-editable** (same pattern as Home/Ambercom — build a
+WordPress Page with that slug using Page Builder sections, or leave it
+alone and the current hand-built version keeps showing):
+- About (`/about`)
+- Terms (`/terms`)
+- Privacy (`/privacy`)
+- Returns (`/returns`)
+- Accessibility Statement (`/accessibility-statement`)
+
+Also added a shared `CmsPage` component
+(`src/components/feature/CmsPage.tsx`) so wiring any *new* content page to
+Page Builder going forward is a two-line change, not copy-pasted
+boilerplate — Home and Ambercom were refactored to use it too.
+
+**Still hardcoded, on purpose, for now**: Contact, Business, Customer
+Service, Warranty, Invoice Recovery. These aren't pure content — each one
+is a functional form (contact form, business inquiry form, warranty
+lookup, etc.) with the copy woven directly into the same component as the
+form logic. Page Builder can't edit a form's behavior, only content, so
+fully converting these means separating "the words around the form" from
+"the form itself" — doable, but a distinct, slightly bigger job per page
+than the copy-paste-safe conversions above. Flag if you want these done
+next; same pattern, just more surgery per file.

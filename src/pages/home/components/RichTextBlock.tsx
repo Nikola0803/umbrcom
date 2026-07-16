@@ -14,7 +14,6 @@ export default function RichTextBlock({ content }: RichTextBlockProps) {
     <section className="w-full bg-white py-14" dir="rtl">
       <div
         className="max-w-3xl mx-auto px-8 text-right prose-umbrcom"
-        // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: content }}
       />
     </section>

@@ -1,8 +1,8 @@
-import PageLayout from "../../components/feature/PageLayout";
+import CmsPage from "../../components/feature/CmsPage";
 
-export default function ReturnsPage() {
+function StaticReturns() {
   return (
-    <PageLayout>
+    <>
       <div className="w-full bg-[#0f0f0f] py-10 text-right">
         <h1 className="font-serif text-3xl font-light text-white">ביטולים והחזרות</h1>
       </div>
@@ -65,6 +65,10 @@ export default function ReturnsPage() {
           <p className="text-xs text-[#9a8a7a] mt-2">ימים א׳–ה׳, 09:00–17:00</p>
         </div>
       </div>
-    </PageLayout>
+    </>
   );
+}
+
+export default function ReturnsPage() {
+  return <CmsPage slug="returns" fallback={<StaticReturns />} />;
 }
