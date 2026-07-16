@@ -13,6 +13,8 @@ import TikTokSection from "@/pages/home/components/TikTokSection";
 import ArticlesSection from "@/pages/home/components/ArticlesSection";
 import RichTextBlock from "@/pages/home/components/RichTextBlock";
 import CTABanner from "@/pages/home/components/CTABanner";
+import PageHeader from "@/pages/home/components/PageHeader";
+import InfoTiles, { InfoTile } from "@/pages/home/components/InfoTiles";
 
 interface PageBuilderProps {
   sections: PageSection[];
@@ -136,6 +138,29 @@ export default function PageBuilder({ sections }: PageBuilderProps) {
                 eyebrow={section.eyebrow as string}
                 heading={section.heading as string}
                 postIds={ids}
+              />
+            );
+          }
+
+          case "page_header":
+            return (
+              <PageHeader
+                key={i}
+                icon={(section.icon as string) || undefined}
+                eyebrow={(section.eyebrow as string) || undefined}
+                heading={(section.heading as string) ?? ""}
+                subheading={(section.subheading as string) || undefined}
+              />
+            );
+
+          case "info_tiles": {
+            const tiles = (section.tiles as InfoTile[] | undefined) ?? [];
+            return (
+              <InfoTiles
+                key={i}
+                heading={(section.heading as string) || undefined}
+                tiles={tiles}
+                style={(section.style as "cards" | "circles") ?? "cards"}
               />
             );
           }

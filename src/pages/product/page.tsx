@@ -9,7 +9,18 @@ import { fetchProductById, isWpConfigured } from "@/lib/wp-api";
 
 type LiveProduct = Product & {
   images?: string[];
+  regularPrice?: number;
+  salePrice?: number;
+  discountPercent?: number;
+  averageRating?: number;
+  reviewCount?: number;
+  brandLabel?: string;
+  featureCards?: { icon: string; title: string; sub: string }[];
+  shortDescription?: string;
+  descriptionParagraphs?: string[];
+  features?: string[];
   specTable?: { label: string; value: string }[];
+  shippingInfo?: { icon: string; title: string; text: string }[];
   model3dUrl?: string;
   model3dUsdzUrl?: string;
   arEnabled?: boolean;
@@ -210,7 +221,7 @@ export default function ProductPage() {
               {/* Product name + badge */}
               <div className="text-right">
                 <span className="inline-block text-[9px] font-semibold tracking-[0.4em] text-[#888] uppercase mb-3">
-                  {product.category === "kitchen" ? "ברזי מטבח" : product.category === "bathroom" ? "ברזי כיור רחצה" : "ברזי מים קרים"} — Waterfall
+                  {product.category === "kitchen" ? "ברזי מטבח" : product.category === "bathroom" ? "ברזי כיור רחצה" : "ברזי מים קרים"} — {product.brandLabel || "Waterfall"}
                 </span>
                 <h1 className="font-serif text-3xl sm:text-4xl font-light text-[#1a1410] leading-tight">
                   {product.name}
@@ -218,19 +229,29 @@ export default function ProductPage() {
                 {/* Stars */}
                 <div className="flex items-center justify-end gap-1 mt-3">
                   {Array.from({ length: 5 }).map((_, i) => (
-                    <i key={i} className="ri-star-fill text-[#1a1a1a] text-sm" />
+                    <i
+                      key={i}
+                      className={`ri-star-fill text-sm ${
+                        product.reviewCount ? (i < Math.round(product.averageRating ?? 0) ? "text-[#1a1a1a]" : "text-[#e5e5e5]") : "text-[#1a1a1a]"
+                      }`}
+                    />
                   ))}
-                  <span className="text-xs text-[#aaa] mr-2">(14 ביקורות)</span>
+                  <span className="text-xs text-[#aaa] mr-2">
+                    ({product.reviewCount ?? 14} ביקורות)
+                  </span>
                 </div>
               </div>
 
               {/* Feature cards */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-                {[
-                  { icon: "ri-shield-check-line", title: "אחריות 7 שנים", sub: "מלאה על כל חלקי הברז" },
-                  { icon: "ri-truck-line", title: "משלוח חינם", sub: "הזמנות מעל ₪200" },
-                  { icon: "ri-medal-line", title: "ציפוי PVD", sub: "עמיד לאורך שנים" },
-                ].map((f) => (
+                {(product.featureCards && product.featureCards.length > 0
+                  ? product.featureCards
+                  : [
+                      { icon: "ri-shield-check-line", title: "אחריות 7 שנים", sub: "מלאה על כל חלקי הברז" },
+                      { icon: "ri-truck-line", title: "משלוח חינם", sub: "הזמנות מעל ₪200" },
+                      { icon: "ri-medal-line", title: "ציפוי PVD", sub: "עמיד לאורך שנים" },
+                    ]
+                ).map((f) => (
                   <div key={f.title} className="flex flex-col items-end text-right bg-white rounded-xl p-4 border border-[#eaeaea]">
                     <i className={`${f.icon} text-[#1a1a1a] text-xl mb-2`}></i>
                     <p className="text-xs font-semibold text-[#1a1410]">{f.title}</p>
@@ -241,8 +262,9 @@ export default function ProductPage() {
 
               {/* Short description */}
               <div className="text-right text-sm text-[#6a5e52] leading-relaxed border-r-2 border-[#1a1a1a] pr-4">
-                ברז פרמיום מסדרת Waterfall — עשוי פליז איכותי עם ציפוי {product.color} עמיד לאורך שנים.
-                מנגנון קרמיקה מבטיח פעולה חלקה ואטימה מושלמת ללא טפטוף.
+                {product.shortDescription && product.shortDescription.trim().length > 0
+                  ? product.shortDescription
+                  : `ברז פרמיום מסדרת ${product.brandLabel || "Waterfall"} — עשוי פליז איכותי עם ציפוי ${product.color} עמיד לאורך שנים. מנגנון קרמיקה מבטיח פעולה חלקה ואטימה מושלמת ללא טפטוף.`}
               </div>
 
               {/* SKU */}
@@ -250,19 +272,23 @@ export default function ProductPage() {
 
               {/* Purchase panel — white (item 11) */}
               <div className="bg-white rounded-2xl border border-[#eaeaea] p-6 text-right space-y-5">
-              {/* Price */}
+              {/* Price — real WooCommerce regular/sale price when available */}
               <div className="flex items-start justify-between flex-row-reverse">
                 <div>
                   <span className="text-3xl font-bold text-[#1a1410]">
                     ₪{product.price.toLocaleString("he-IL")}
                   </span>
-                  <span className="text-sm text-[#bbb] line-through mr-2">
-                    ₪{Math.round(product.price * 1.2).toLocaleString("he-IL")}
-                  </span>
+                  {(product.regularPrice ?? Math.round(product.price * 1.2)) > product.price && (
+                    <span className="text-sm text-[#bbb] line-through mr-2">
+                      ₪{(product.regularPrice ?? Math.round(product.price * 1.2)).toLocaleString("he-IL")}
+                    </span>
+                  )}
                 </div>
-                <span className="text-xs font-bold text-white bg-[#1a1a1a] px-2.5 py-1 rounded-full">
-                  חיסכון 17%
-                </span>
+                {(product.discountPercent ?? 17) > 0 && (
+                  <span className="text-xs font-bold text-white bg-[#1a1a1a] px-2.5 py-1 rounded-full">
+                    חיסכון {product.discountPercent ?? 17}%
+                  </span>
+                )}
               </div>
 
               <div className="border-t border-[#ede9e1]" />
@@ -403,19 +429,21 @@ export default function ProductPage() {
           <div className="text-right max-w-2xl mr-auto">
             {activeTab === "desc" && (
               <div className="space-y-4 text-sm text-[#5a4e42] leading-relaxed">
-                <p>
-                  {product.name} — ברז פרמיום מסדרת Waterfall, מעוצב לשדרג כל מטבח ואמבטיה.
-                  הברז עשוי פליז איכותי עם ציפוי {product.color} עמיד לאורך שנים, עמיד בפני שריטות וסימני מים.
-                </p>
-                <p>
-                  מנגנון הקרמיקה הפנימי מבטיח פעולה חלקה ואטימה מושלמת — ללא טפטוף, ללא בלאי מוקדם.
-                  הכינון הארגונומי מאפשר שליטה מדויקת בטמפרטורת המים.
-                </p>
-                <p>
-                  מתאים לכל מערכות אינסטלציה סטנדרטיות בישראל. ההתקנה פשוטה ומגיעה עם כל הכלים הנדרשים.
-                </p>
+                {(product.descriptionParagraphs && product.descriptionParagraphs.length > 0
+                  ? product.descriptionParagraphs
+                  : [
+                      `${product.name} — ברז פרמיום מסדרת ${product.brandLabel || "Waterfall"}, מעוצב לשדרג כל מטבח ואמבטיה. הברז עשוי פליז איכותי עם ציפוי ${product.color} עמיד לאורך שנים, עמיד בפני שריטות וסימני מים.`,
+                      "מנגנון הקרמיקה הפנימי מבטיח פעולה חלקה ואטימה מושלמת — ללא טפטוף, ללא בלאי מוקדם. הכינון הארגונומי מאפשר שליטה מדויקת בטמפרטורת המים.",
+                      "מתאים לכל מערכות אינסטלציה סטנדרטיות בישראל. ההתקנה פשוטה ומגיעה עם כל הכלים הנדרשים.",
+                    ]
+                ).map((paragraph, i) => (
+                  <p key={i}>{paragraph}</p>
+                ))}
                 <ul className="list-none space-y-2 pt-2">
-                  {["ציפוי פיזי PVD — לא מתקלף לעולם", "ידית ארגונומית חד-ידנית", "מכסה ראש ניתן להסרה לניקוי קל", "תואם מערכות מים קרים/חמים"].map((f) => (
+                  {(product.features && product.features.length > 0
+                    ? product.features
+                    : ["ציפוי פיזי PVD — לא מתקלף לעולם", "ידית ארגונומית חד-ידנית", "מכסה ראש ניתן להסרה לניקוי קל", "תואם מערכות מים קרים/חמים"]
+                  ).map((f) => (
                     <li key={f} className="flex items-center gap-2 justify-end text-sm">
                       <span>{f}</span>
                       <i className="ri-checkbox-circle-fill text-[#1a1a1a] flex-shrink-0"></i>
@@ -438,27 +466,22 @@ export default function ProductPage() {
 
             {activeTab === "shipping" && (
               <div className="space-y-5 text-sm text-[#5a4e42] leading-relaxed">
-                <div className="flex gap-4 items-start flex-row-reverse">
-                  <i className="ri-truck-line text-xl text-[#1a1a1a] flex-shrink-0 mt-0.5"></i>
-                  <div>
-                    <p className="font-semibold text-[#1a1410] mb-1">משלוח חינם מעל ₪200</p>
-                    <p>משלוח סטנדרטי: 3-5 ימי עסקים. משלוח מהיר (יומיים): +₪29. שליח עד הבית ברחבי הארץ.</p>
+                {(product.shippingInfo && product.shippingInfo.length > 0
+                  ? product.shippingInfo
+                  : [
+                      { icon: "ri-truck-line", title: "משלוח חינם מעל ₪200", text: "משלוח סטנדרטי: 3-5 ימי עסקים. משלוח מהיר (יומיים): +₪29. שליח עד הבית ברחבי הארץ." },
+                      { icon: "ri-arrow-go-back-line", title: "החזרה קלה תוך 14 יום", text: "לא מרוצים? ניצור איתכם קשר ונדאג לאיסוף והחזר כספי מלא — ללא שאלות." },
+                      { icon: "ri-shield-check-line", title: "אחריות יצרן 7 שנים", text: `כל מוצרי ${product.brandLabel || "Waterfall"} מגיעים עם אחריות מלאה של 7 שנים על חלקי הברז ומנגנון הקרמיקה.` },
+                    ]
+                ).map((block, i) => (
+                  <div key={i} className="flex gap-4 items-start flex-row-reverse">
+                    <i className={`${block.icon} text-xl text-[#1a1a1a] flex-shrink-0 mt-0.5`}></i>
+                    <div>
+                      <p className="font-semibold text-[#1a1410] mb-1">{block.title}</p>
+                      <p>{block.text}</p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex gap-4 items-start flex-row-reverse">
-                  <i className="ri-arrow-go-back-line text-xl text-[#1a1a1a] flex-shrink-0 mt-0.5"></i>
-                  <div>
-                    <p className="font-semibold text-[#1a1410] mb-1">החזרה קלה תוך 14 יום</p>
-                    <p>לא מרוצים? ניצור איתכם קשר ונדאג לאיסוף והחזר כספי מלא — ללא שאלות.</p>
-                  </div>
-                </div>
-                <div className="flex gap-4 items-start flex-row-reverse">
-                  <i className="ri-shield-check-line text-xl text-[#1a1a1a] flex-shrink-0 mt-0.5"></i>
-                  <div>
-                    <p className="font-semibold text-[#1a1410] mb-1">אחריות יצרן 7 שנים</p>
-                    <p>כל מוצרי Waterfall מגיעים עם אחריות מלאה של 7 שנים על חלקי הברז ומנגנון הקרמיקה.</p>
-                  </div>
-                </div>
+                ))}
               </div>
             )}
 

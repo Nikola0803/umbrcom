@@ -178,3 +178,62 @@ fully converting these means separating "the words around the form" from
 "the form itself" — doable, but a distinct, slightly bigger job per page
 than the copy-paste-safe conversions above. Flag if you want these done
 next; same pattern, just more surgery per file.
+
+## Update — full page management, auto-generated pages, complete product field coverage
+
+Direct response to: "manage any page, pages auto-generated from React and
+connected straight away, all fields pre-defined, all product-page fields
+must exist in wp-admin."
+
+### Pages — now genuinely all of them
+Every remaining content page is wired the same way Home/About/Terms
+already were: **Contact, Business, Customer Service, Warranty, Invoice
+Recovery**. Each one's functional form was extracted into its own static
+component (`ContactForm.tsx`, `BusinessForm.tsx`, etc. — forms stay real
+React, Page Builder edits content, not form logic); the header, intro
+copy, and contact/benefit tiles around each form are now CMS-editable.
+
+Two new reusable Page Builder layouts power this:
+- **Page Header / Banner** — the eyebrow+title banner at the top of a
+  content page.
+- **Info Tiles** — an icon+title+text grid, in two styles (bordered cards
+  for benefit lists, icon circles for contact methods).
+
+### Pages are now auto-generated — not something you build from scratch
+The plugin now creates a real WordPress Page, **pre-filled with today's
+actual copy** (transcribed word-for-word from the live React content), for
+all 12 pages the moment it's activated: Home, Ambercom, About, Contact,
+Terms, Privacy, Returns, Accessibility Statement, Business, Customer
+Service, Warranty, Invoice Recovery. Open Pages → All Pages right after
+activating and it's all there — nothing blank, nothing to build from zero.
+A "Sync Pages Now" button on Site Settings re-runs this safely any time
+(only creates what's missing; never overwrites an edited page). I verified
+this by actually executing the generator code (not just reading it) —
+confirmed all 12 pages created with correct Hebrew content, and confirmed
+running it twice creates nothing the second time.
+
+### Product page — every visible field now exists in wp-admin
+Expanded the Storefront Details panel to cover literally everything shown
+on the product page, not just specs/3D/badges:
+- Highlight cards (the 3 icon cards above the buy box)
+- Short description (the highlighted line next to the SKU)
+- Description tab paragraphs + feature bullet list
+- Shipping/returns/warranty blocks (shipping tab)
+- Brand label (the "— Waterfall" suffix next to the category)
+
+Also fixed two things that were fake/hardcoded and are now real WooCommerce
+data: the "17% off" discount badge now computes from the product's actual
+regular/sale price instead of a fixed ×1.2 multiplier, and the "(14
+ביקורות)" review count now reads WooCommerce's native review count and
+average rating instead of a hardcoded number. Colors/finishes, price,
+stock, gallery, and reviews are deliberately *not* custom fields — those
+are WooCommerce's own native mechanisms (Attributes/Variations, Product
+data, Product gallery, Reviews), which is the architecturally correct way
+to do it, not a gap.
+
+### Verification
+Every PHP file (17 total) passes `php -l` syntax linting — installed a
+real PHP interpreter this round instead of relying on brace-counting. The
+Site Settings page and the page-sync generator were both actually
+*executed* against a stubbed WordPress environment (not just read) to
+confirm they produce correct output, not just valid syntax.

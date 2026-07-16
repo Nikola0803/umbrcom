@@ -160,8 +160,16 @@ interface StoreApiProduct {
   variations?: { id: number; attributes: { attribute: string; value: string }[] }[];
   is_in_stock: boolean;
   on_sale: boolean;
+  average_rating?: string;
+  review_count?: number;
   umbrcom?: {
+    brand_label: string;
+    feature_cards: { icon: string; title: string; sub: string }[];
+    short_description: string;
+    description_paragraphs: { text: string }[];
+    features: { text: string }[];
     spec_table: { label: string; value: string }[];
+    shipping_info: { icon: string; title: string; text: string }[];
     model_3d_url: string;
     model_usdz_url: string;
     ar_enabled: boolean;
@@ -204,7 +212,18 @@ function findAttributeTerm(attrs: StoreApiAttribute[], candidates: string[]): st
 export function mapStoreApiProduct(p: StoreApiProduct): Product & {
   slug: string;
   images: string[];
+  regularPrice?: number;
+  salePrice?: number;
+  discountPercent?: number;
+  averageRating: number;
+  reviewCount: number;
+  brandLabel: string;
+  featureCards: { icon: string; title: string; sub: string }[];
+  shortDescription: string;
+  descriptionParagraphs: string[];
+  features: string[];
   specTable: { label: string; value: string }[];
+  shippingInfo: { icon: string; title: string; text: string }[];
   model3dUrl?: string;
   model3dUsdzUrl?: string;
   arEnabled: boolean;
@@ -218,18 +237,37 @@ export function mapStoreApiProduct(p: StoreApiProduct): Product & {
   const color = (findAttributeTerm(p.attributes, ["color", "צבע", "גימור"]) ?? "כרום") as ProductColor;
   const type = (findAttributeTerm(p.attributes, ["type", "סוג"]) ?? "נשלף") as ProductType;
 
+  const minorUnit = p.prices.currency_minor_unit;
+  const regularPrice = p.prices.regular_price ? minorUnitToNumber(p.prices.regular_price, minorUnit) : undefined;
+  const salePrice = p.prices.sale_price ? minorUnitToNumber(p.prices.sale_price, minorUnit) : undefined;
+  const discountPercent =
+    regularPrice && salePrice && regularPrice > salePrice
+      ? Math.round(((regularPrice - salePrice) / regularPrice) * 100)
+      : undefined;
+
   return {
     id: String(p.id),
     slug: p.slug,
     sku: p.sku,
     name: p.name,
-    price: minorUnitToNumber(p.prices.price, p.prices.currency_minor_unit),
+    price: minorUnitToNumber(p.prices.price, minorUnit),
+    regularPrice,
+    salePrice,
+    discountPercent,
+    averageRating: p.average_rating ? parseFloat(p.average_rating) : 0,
+    reviewCount: p.review_count ?? 0,
     image: p.images?.[0]?.src ?? "",
     images: (p.images ?? []).map((img) => img.src),
     category,
     color,
     type,
+    brandLabel: p.umbrcom?.brand_label || "Waterfall",
+    featureCards: p.umbrcom?.feature_cards ?? [],
+    shortDescription: p.umbrcom?.short_description ?? "",
+    descriptionParagraphs: (p.umbrcom?.description_paragraphs ?? []).map((r) => r.text),
+    features: (p.umbrcom?.features ?? []).map((r) => r.text),
     specTable: p.umbrcom?.spec_table ?? [],
+    shippingInfo: p.umbrcom?.shipping_info ?? [],
     model3dUrl: p.umbrcom?.model_3d_url || undefined,
     model3dUsdzUrl: p.umbrcom?.model_usdz_url || undefined,
     arEnabled: p.umbrcom?.ar_enabled ?? false,
