@@ -8,6 +8,7 @@ import CustomerServicePage from "../pages/customer-service/page";
 import BlogPage from "../pages/blog/page";
 import ProductPage from "../pages/product/page";
 import CheckoutPage from "../pages/checkout/page";
+import CheckoutResultPage from "../pages/checkout/result";
 import TermsPage from "../pages/legal/terms";
 import PrivacyPage from "../pages/legal/privacy";
 import ReturnsPage from "../pages/legal/returns";
@@ -33,6 +34,7 @@ const routes: RouteObject[] = [
   { path: "/blog", element: <BlogPage /> },
   { path: "/product/:id", element: <ProductPage /> },
   { path: "/checkout", element: <CheckoutPage /> },
+  { path: "/checkout/result", element: <CheckoutResultPage /> },
   { path: "/terms", element: <TermsPage /> },
   { path: "/privacy", element: <PrivacyPage /> },
   { path: "/returns", element: <ReturnsPage /> },

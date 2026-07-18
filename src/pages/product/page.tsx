@@ -21,6 +21,11 @@ type LiveProduct = Product & {
   features?: string[];
   specTable?: { label: string; value: string }[];
   shippingInfo?: { icon: string; title: string; text: string }[];
+  youtubeUrl?: string;
+  aiReview?: string;
+  techSpecsHtml?: string;
+  packageContents?: string[];
+  warranty?: string;
   model3dUrl?: string;
   model3dUsdzUrl?: string;
   arEnabled?: boolean;
@@ -45,6 +50,15 @@ const SPECS = [
   { label: "גובה", value: "37 ס״מ" },
   { label: "אחריות", value: "7 שנים" },
 ];
+
+/** Extracts the video ID from any YouTube URL shape (watch?v=, youtu.be,
+ *  shorts/, embed/) so the CMS field accepts whatever the editor pastes. */
+function youtubeEmbedUrl(url: string): string | null {
+  const m = url.match(
+    /(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{11})/
+  );
+  return m ? `https://www.youtube.com/embed/${m[1]}` : null;
+}
 
 // ─── Gallery Carousel ─────────────────────────────────────────────────────
 function GalleryCarousel({ images, name }: { images: string[]; name: string }) {
@@ -134,7 +148,7 @@ export default function ProductPage() {
 
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
-  const [activeTab, setActiveTab] = useState<"desc" | "specs" | "shipping" | "3d">("desc");
+  const [activeTab, setActiveTab] = useState<"desc" | "specs" | "video" | "ai" | "package" | "warranty" | "shipping" | "3d">("desc");
 
   if (loading) {
     return (
@@ -405,10 +419,16 @@ export default function ProductPage() {
             {(
               [
                 { key: "desc", label: "תיאור המוצר" },
-                { key: "specs", label: "מפרט טכני" },
+                { key: "specs", label: "נתונים טכניים" },
+                ...(product.youtubeUrl ? [{ key: "video", label: "סרטון מוצר" }] : []),
+                ...(product.aiReview ? [{ key: "ai", label: "סקירת AI" }] : []),
+                ...(product.packageContents && product.packageContents.length > 0
+                  ? [{ key: "package", label: "תכולת האריזה" }]
+                  : []),
+                ...(product.warranty ? [{ key: "warranty", label: "אחריות" }] : []),
                 { key: "shipping", label: "משלוח והחזרות" },
                 { key: "3d", label: "תצוגה תלת-מימדית" },
-              ] as const
+              ] as { key: typeof activeTab; label: string }[]
             ).map((t) => (
               <button
                 key={t.key}
@@ -420,6 +440,8 @@ export default function ProductPage() {
                 }`}
               >
                 {t.key === "3d" && <i className="ri-box-3-line text-xs"></i>}
+                {t.key === "video" && <i className="ri-youtube-line text-xs"></i>}
+                {t.key === "ai" && <i className="ri-sparkling-2-line text-xs"></i>}
                 {t.label}
               </button>
             ))}
@@ -453,14 +475,93 @@ export default function ProductPage() {
               </div>
             )}
 
-            {activeTab === "specs" && (
-              <div className="divide-y divide-[#ede9e1]">
-                {(product.specTable && product.specTable.length > 0 ? product.specTable : SPECS).map((s) => (
-                  <div key={s.label} className="flex items-center justify-between py-3.5">
-                    <span className="text-sm text-[#1a1410] font-medium">{s.value}</span>
-                    <span className="text-xs text-[#9a8a7a] uppercase tracking-wide">{s.label}</span>
+            {activeTab === "specs" &&
+              (product.techSpecsHtml ? (
+                <div
+                  className="umbrcom-tech-specs text-sm text-[#5a4e42] leading-relaxed
+                    [&_table]:w-full [&_table]:border-collapse [&_table]:text-right
+                    [&_th]:bg-[#faf8f4] [&_th]:text-[#1a1410] [&_th]:text-xs [&_th]:font-semibold [&_th]:uppercase [&_th]:tracking-wide
+                    [&_th]:px-4 [&_th]:py-3 [&_td]:px-4 [&_td]:py-3
+                    [&_tr]:border-b [&_tr]:border-[#ede9e1]
+                    [&_td:first-child]:font-medium [&_td:first-child]:text-[#1a1410]
+                    [&_p]:mb-3 [&_ul]:list-disc [&_ul]:pr-5 [&_ul]:space-y-1 [&_h3]:font-semibold [&_h3]:text-[#1a1410] [&_h3]:mb-2"
+                  dangerouslySetInnerHTML={{ __html: product.techSpecsHtml }}
+                />
+              ) : (
+                <div className="divide-y divide-[#ede9e1]">
+                  {(product.specTable && product.specTable.length > 0 ? product.specTable : SPECS).map((s) => (
+                    <div key={s.label} className="flex items-center justify-between py-3.5">
+                      <span className="text-sm text-[#1a1410] font-medium">{s.value}</span>
+                      <span className="text-xs text-[#9a8a7a] uppercase tracking-wide">{s.label}</span>
+                    </div>
+                  ))}
+                </div>
+              ))}
+
+            {activeTab === "video" && product.youtubeUrl && (
+              <div className="max-w-3xl mr-auto">
+                {youtubeEmbedUrl(product.youtubeUrl) ? (
+                  <div className="relative w-full rounded-2xl overflow-hidden bg-black" style={{ paddingTop: "56.25%" }}>
+                    <iframe
+                      src={youtubeEmbedUrl(product.youtubeUrl)!}
+                      title={`${product.name} — וידאו`}
+                      className="absolute inset-0 w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                    ></iframe>
                   </div>
+                ) : (
+                  <a
+                    href={product.youtubeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-sm text-[#1a1a1a] underline"
+                  >
+                    <i className="ri-youtube-fill text-lg text-[#f00]"></i>
+                    לצפייה בסרטון המוצר ביוטיוב
+                  </a>
+                )}
+              </div>
+            )}
+
+            {activeTab === "ai" && product.aiReview && (
+              <div className="space-y-4 text-sm text-[#5a4e42] leading-relaxed">
+                <div className="flex items-center gap-2 justify-end text-xs font-semibold text-[#1a1a1a]">
+                  <span>סקירה שנוצרה בעזרת בינה מלאכותית</span>
+                  <i className="ri-sparkling-2-fill text-[#3ab4f2]"></i>
+                </div>
+                {product.aiReview
+                  .split(/\n\s*\n/)
+                  .filter(Boolean)
+                  .map((paragraph, i) => (
+                    <p key={i}>{paragraph}</p>
+                  ))}
+              </div>
+            )}
+
+            {activeTab === "package" && product.packageContents && (
+              <ul className="list-none space-y-3">
+                {product.packageContents.map((item) => (
+                  <li key={item} className="flex items-center gap-3 justify-end text-sm text-[#5a4e42]">
+                    <span>{item}</span>
+                    <i className="ri-inbox-unarchive-line text-[#1a1a1a] flex-shrink-0"></i>
+                  </li>
                 ))}
+              </ul>
+            )}
+
+            {activeTab === "warranty" && product.warranty && (
+              <div className="space-y-4 text-sm text-[#5a4e42] leading-relaxed">
+                <div className="flex items-center gap-2 justify-end text-sm font-semibold text-[#1a1410]">
+                  <span>אחריות</span>
+                  <i className="ri-shield-check-line text-lg text-[#1a1a1a]"></i>
+                </div>
+                {product.warranty
+                  .split(/\n\s*\n/)
+                  .filter(Boolean)
+                  .map((paragraph, i) => (
+                    <p key={i}>{paragraph}</p>
+                  ))}
               </div>
             )}
 

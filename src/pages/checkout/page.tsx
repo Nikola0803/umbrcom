@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import PageLayout from "../../components/feature/PageLayout";
 import { useCart } from "@/context/CartContext";
+import { createPelecardCheckout, isWpConfigured } from "@/lib/wp-api";
 
 type Step = "details" | "shipping" | "payment" | "confirm";
 
@@ -33,11 +34,9 @@ export default function CheckoutPage() {
     firstName: "", lastName: "", email: "", phone: "",
     address: "", city: "", zip: "", notes: "",
   });
-  const [cardNum, setCardNum] = useState("");
-  const [cardExp, setCardExp] = useState("");
-  const [cardCvv, setCardCvv] = useState("");
-  const [cardName, setCardName] = useState("");
   const [ordered, setOrdered] = useState(false);
+  const [paying, setPaying] = useState(false);
+  const [payError, setPayError] = useState<string | null>(null);
 
   // Item 21 — account options on the order page
   const [createAccount, setCreateAccount] = useState(false);
@@ -72,9 +71,42 @@ export default function CheckoutPage() {
     if (i < order.length - 1) setStep(order[i + 1]);
   };
 
-  const placeOrder = () => {
-    setOrdered(true);
-    clearCart?.();
+  const placeOrder = async () => {
+    // No WordPress backend configured (local dev with mocks) — simulate.
+    if (!isWpConfigured()) {
+      setOrdered(true);
+      clearCart?.();
+      return;
+    }
+
+    setPaying(true);
+    setPayError(null);
+
+    const [firstName, ...rest] = [details.firstName, details.lastName];
+    const session = await createPelecardCheckout({
+      items: items.map(({ product, qty }) => ({ id: Number(product.id), quantity: qty })),
+      customer: {
+        first_name: firstName,
+        last_name: rest.join(" "),
+        email: details.email,
+        phone: details.phone,
+        address: details.address,
+        city: details.city,
+        zip: details.zip,
+        notes: details.notes || undefined,
+      },
+      shipping_method: shipping as "standard" | "express" | "free",
+    });
+
+    if (!session || "error" in session) {
+      setPayError(session && "error" in session ? session.error : "שגיאה ביצירת ההזמנה. נסו שוב.");
+      setPaying(false);
+      return;
+    }
+
+    // Off to Pelecard's PCI-compliant hosted payment page. It redirects
+    // back to /checkout/result when done.
+    window.location.href = session.redirect_url;
   };
 
   // Empty cart
@@ -375,53 +407,15 @@ export default function CheckoutPage() {
                   תשלום מאובטח ב-SSL — הפרטים מוצפנים
                 </div>
 
-                <div className="space-y-4">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-[#1a1410]">מספר כרטיס אשראי</label>
-                    <input
-                      type="text"
-                      value={cardNum}
-                      onChange={(e) => setCardNum(e.target.value.replace(/\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim())}
-                      placeholder="XXXX XXXX XXXX XXXX"
-                      className="border border-[#ede9e1] rounded-xl px-4 py-3 text-sm text-right placeholder-[#ccc] outline-none focus:border-[#1a1a1a] transition-colors"
-                    />
+                <div className="bg-[#fafcff] border border-[#d4e8f8] rounded-xl p-5 text-right space-y-3">
+                  <div className="flex items-center gap-2 justify-end">
+                    <p className="text-sm font-semibold text-[#1a1410]">תשלום מאובטח באמצעות Pelecard</p>
+                    <i className="ri-bank-card-line text-xl text-[#3ab4f2]"></i>
                   </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-[#1a1410]">שם בעל הכרטיס</label>
-                    <input
-                      type="text"
-                      value={cardName}
-                      onChange={(e) => setCardName(e.target.value)}
-                      placeholder="כפי שמופיע על הכרטיס"
-                      className="border border-[#ede9e1] rounded-xl px-4 py-3 text-sm text-right placeholder-[#ccc] outline-none focus:border-[#1a1a1a] transition-colors"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-semibold text-[#1a1410]">תוקף</label>
-                      <input
-                        type="text"
-                        value={cardExp}
-                        onChange={(e) => {
-                          let v = e.target.value.replace(/\D/g, "").slice(0, 4);
-                          if (v.length >= 3) v = v.slice(0, 2) + "/" + v.slice(2);
-                          setCardExp(v);
-                        }}
-                        placeholder="MM/YY"
-                        className="border border-[#ede9e1] rounded-xl px-4 py-3 text-sm text-right placeholder-[#ccc] outline-none focus:border-[#1a1a1a] transition-colors"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-semibold text-[#1a1410]">CVV</label>
-                      <input
-                        type="password"
-                        value={cardCvv}
-                        onChange={(e) => setCardCvv(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                        placeholder="•••"
-                        className="border border-[#ede9e1] rounded-xl px-4 py-3 text-sm text-right placeholder-[#ccc] outline-none focus:border-[#1a1a1a] transition-colors"
-                      />
-                    </div>
-                  </div>
+                  <p className="text-xs text-[#6a5e52] leading-relaxed">
+                    בסיום אישור ההזמנה תועברו לעמוד תשלום מאובטח של Pelecard להזנת פרטי כרטיס האשראי.
+                    פרטי הכרטיס מוזנים ישירות אצל ספק הסליקה בתקן PCI-DSS ואינם נשמרים באתר.
+                  </p>
                 </div>
 
                 {/* Accepted cards */}
@@ -437,8 +431,7 @@ export default function CheckoutPage() {
                   </button>
                   <button
                     onClick={next}
-                    disabled={cardNum.length < 19 || !cardName || cardExp.length < 5 || cardCvv.length < 3}
-                    className="flex-1 py-3.5 bg-[#1a1410] text-white text-sm font-semibold tracking-widest rounded-xl hover:bg-[#1a1a1a] transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+                    className="flex-1 py-3.5 bg-[#1a1410] text-white text-sm font-semibold tracking-widest rounded-xl hover:bg-[#1a1a1a] transition-colors cursor-pointer whitespace-nowrap"
                   >
                     לסיכום ←
                   </button>
@@ -483,15 +476,30 @@ export default function CheckoutPage() {
                   ו<Link to="/privacy" className="text-[#1a1a1a] underline">מדיניות הפרטיות</Link>.
                 </p>
 
+                {payError && (
+                  <div className="flex items-center gap-2 justify-end text-xs font-semibold text-[#b3261e] bg-[#fdf0ef] border border-[#f3cfcc] rounded-xl px-4 py-3">
+                    <span>{payError}</span>
+                    <i className="ri-error-warning-line text-base"></i>
+                  </div>
+                )}
+
                 <div className="flex gap-3">
-                  <button onClick={() => setStep("payment")} className="flex-1 py-3.5 border border-[#ede9e1] rounded-xl text-sm text-[#6a5e52] hover:border-[#1a1a1a] transition-colors cursor-pointer whitespace-nowrap">
+                  <button onClick={() => setStep("payment")} disabled={paying} className="flex-1 py-3.5 border border-[#ede9e1] rounded-xl text-sm text-[#6a5e52] hover:border-[#1a1a1a] transition-colors cursor-pointer whitespace-nowrap disabled:opacity-40">
                     ← חזרה
                   </button>
                   <button
                     onClick={placeOrder}
-                    className="flex-1 py-4 bg-[#2d7a3a] text-white text-sm font-semibold tracking-widest rounded-xl hover:bg-[#256832] transition-colors cursor-pointer whitespace-nowrap"
+                    disabled={paying}
+                    className="flex-1 py-4 bg-[#2d7a3a] text-white text-sm font-semibold tracking-widest rounded-xl hover:bg-[#256832] transition-colors cursor-pointer whitespace-nowrap disabled:opacity-60 disabled:cursor-wait"
                   >
-                    ✓ אישור וסיום
+                    {paying ? (
+                      <span className="inline-flex items-center gap-2">
+                        <i className="ri-loader-4-line animate-spin"></i>
+                        מעביר לתשלום מאובטח...
+                      </span>
+                    ) : (
+                      "✓ אישור ומעבר לתשלום"
+                    )}
                   </button>
                 </div>
               </div>

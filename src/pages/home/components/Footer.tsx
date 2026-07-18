@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { fetchSettings } from "@/lib/wp-api";
 
 const LOGO_URL =
-  "https://umbrcom.co.il/wp-content/uploads/2025/10/%D7%9C%D7%95%D7%92%D7%95-%D7%9C%D7%92%D7%A8%D7%A1%D7%AA-%D7%A0%D7%99%D7%99%D7%93-3.png";
+  "https://admin.umbrcom.co.il/wp-content/uploads/2026/07/%D7%9C%D7%95%D7%92%D7%95-%D7%9C%D7%90%D7%95%D7%A8%D7%9A-500-x-170-%D7%A4%D7%99%D7%A7%D7%A1%D7%9C-500-x-100-%D7%A4%D7%99%D7%A7%D7%A1%D7%9C-8.png";
 const WATERFALL_LOGO =
   "https://umbrcom.co.il/wp-content/uploads/2025/10/500824_160.webp";
 

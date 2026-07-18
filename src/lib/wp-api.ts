@@ -38,6 +38,26 @@ async function getJSON<T>(path: string): Promise<T | null> {
   }
 }
 
+async function postJSON<T>(path: string, body: unknown): Promise<T | { error: string } | null> {
+  if (!BASE) return null;
+  try {
+    const res = await fetch(`${BASE}${path}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json().catch(() => null);
+    if (!res.ok) {
+      console.warn(`[wp-api] POST ${path} → HTTP ${res.status}`, data);
+      return { error: (data as { message?: string } | null)?.message ?? "שגיאה בביצוע הפעולה. נסו שוב." };
+    }
+    return data as T;
+  } catch (err) {
+    console.warn(`[wp-api] POST ${path} failed`, err);
+    return { error: "שגיאת תקשורת. בדקו את החיבור ונסו שוב." };
+  }
+}
+
 /* ────────────────────────────────────────────────────────────────────────
  * Site Settings  —  GET /umbrcom/v1/settings
  * ──────────────────────────────────────────────────────────────────────── */
@@ -170,6 +190,11 @@ interface StoreApiProduct {
     features: { text: string }[];
     spec_table: { label: string; value: string }[];
     shipping_info: { icon: string; title: string; text: string }[];
+    youtube_url: string;
+    ai_review: string;
+    tech_specs_html: string;
+    package_contents: string;
+    warranty: string;
     model_3d_url: string;
     model_usdz_url: string;
     ar_enabled: boolean;
@@ -224,6 +249,11 @@ export function mapStoreApiProduct(p: StoreApiProduct): Product & {
   features: string[];
   specTable: { label: string; value: string }[];
   shippingInfo: { icon: string; title: string; text: string }[];
+  youtubeUrl?: string;
+  aiReview?: string;
+  techSpecsHtml?: string;
+  packageContents: string[];
+  warranty?: string;
   model3dUrl?: string;
   model3dUsdzUrl?: string;
   arEnabled: boolean;
@@ -268,6 +298,14 @@ export function mapStoreApiProduct(p: StoreApiProduct): Product & {
     features: (p.umbrcom?.features ?? []).map((r) => r.text),
     specTable: p.umbrcom?.spec_table ?? [],
     shippingInfo: p.umbrcom?.shipping_info ?? [],
+    youtubeUrl: p.umbrcom?.youtube_url || undefined,
+    aiReview: p.umbrcom?.ai_review || undefined,
+    techSpecsHtml: p.umbrcom?.tech_specs_html || undefined,
+    packageContents: (p.umbrcom?.package_contents ?? "")
+      .split(/\r?\n/)
+      .map((l) => l.trim())
+      .filter(Boolean),
+    warranty: p.umbrcom?.warranty || undefined,
     model3dUrl: p.umbrcom?.model_3d_url || undefined,
     model3dUsdzUrl: p.umbrcom?.model_usdz_url || undefined,
     arEnabled: p.umbrcom?.ar_enabled ?? false,
@@ -343,4 +381,64 @@ export async function fetchPosts(perPage = 20) {
   const raw = await getJSON<WpPostRaw[]>(`/wp/v2/posts?per_page=${perPage}&_embed=wp:featuredmedia,wp:term,author`);
   if (!raw) return null;
   return raw.map(mapWpPost);
+}
+
+/* ────────────────────────────────────────────────────────────────────────
+ * Pelecard checkout  —  /umbrcom/v1/checkout + /umbrcom/v1/pelecard/*
+ * ──────────────────────────────────────────────────────────────────────── */
+
+export interface CheckoutPayload {
+  items: { id: number; quantity: number }[];
+  customer: {
+    first_name: string;
+    last_name: string;
+    email: string;
+    phone: string;
+    address: string;
+    city: string;
+    zip: string;
+    notes?: string;
+  };
+  shipping_method: "standard" | "express" | "free";
+}
+
+export interface CheckoutSession {
+  order_id: number;
+  order_key: string;
+  redirect_url: string;
+  total: number;
+}
+
+export interface OrderResult {
+  status: "paid" | "failed" | "pending" | "invalid";
+  order_id: number;
+  order_number: string;
+  total: number;
+  email: string;
+  first_name: string;
+}
+
+/** Creates the WooCommerce order server-side and returns the Pelecard
+ *  hosted payment page URL to redirect the shopper to. */
+export async function createPelecardCheckout(payload: CheckoutPayload) {
+  return postJSON<CheckoutSession>("/umbrcom/v1/checkout", payload);
+}
+
+/** Called from /checkout/result with Pelecard's redirect params — the
+ *  backend validates them with Pelecard before marking the order paid. */
+export async function confirmPelecardPayment(payload: {
+  order_id: string | number;
+  order_key: string;
+  status_code: string;
+  transaction_id: string;
+  confirmation_key: string;
+  token?: string;
+}) {
+  return postJSON<OrderResult>("/umbrcom/v1/pelecard/confirm", payload);
+}
+
+export async function fetchOrderStatus(orderId: string | number, orderKey: string) {
+  return getJSON<OrderResult>(
+    `/umbrcom/v1/pelecard/status?order_id=${encodeURIComponent(String(orderId))}&order_key=${encodeURIComponent(orderKey)}`
+  );
 }
