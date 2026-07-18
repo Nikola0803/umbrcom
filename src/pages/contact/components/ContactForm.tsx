@@ -31,8 +31,8 @@ export default function ContactForm() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-8 py-20">
-      <div className="grid grid-cols-2 gap-16 items-start">
+    <div className="max-w-5xl mx-auto px-8 py-20" dir="rtl">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
         {/* Left: Form */}
         <div className="text-right">
           <h2 className="font-serif text-2xl font-light text-[#0d0d0d] mb-2">השאירו הודעה</h2>
@@ -85,7 +85,7 @@ export default function ContactForm() {
               </div>
               <div className="flex items-start gap-3 pt-1">
                 <input
-                  type="checkbox" id="consent" checked={form.consent}
+                  type="checkbox" id="consent" required checked={form.consent}
                   onChange={(e) => setForm({ ...form, consent: e.target.checked })}
                   className="mt-1 cursor-pointer accent-[#1a1a1a]"
                 />

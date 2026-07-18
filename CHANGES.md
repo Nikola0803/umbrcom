@@ -237,3 +237,86 @@ real PHP interpreter this round instead of relying on brace-counting. The
 Site Settings page and the page-sync generator were both actually
 *executed* against a stubbed WordPress environment (not just read) to
 confirm they produce correct output, not just valid syntax.
+
+## Update — July 2026 round (20-item list)
+
+**Header (1–3)**
+1. Header background is now **white** on all pages (`NAV_BG` in `Navbar.tsx`), light borders + soft shadow.
+2. The logo renders as the **black version** — a `brightness-0` CSS filter forces the blue wordmark to pure black, so it works with the existing PNG and any future logo upload from wp-admin. The UMBRCOM parent wordmark text is black too.
+3. **All header icons are black** (cart, login, wishlist, compare, chevron, drawer icons, mobile icons) — on Waterfall *and* Ambercom pages. Search pill is now light gray with dark text; the "כל הקטגוריות" pill flipped to black-on-white. Only the cart count badge keeps the brand color as a small accent — say the word and I'll make it black too.
+
+**Font (4)**
+4. Entire site now uses **Assistant** — the same font as the Mashiach storefront. Headings (`h1–h3`, `.font-serif`) and the `.prose-umbrcom` styles all point at Assistant; Heebo / Frank Ruhl Libre / Playfair imports removed.
+
+**Homepage (5–7) — plumbing ready, waiting on the actual assets**
+5. Hero video: the homepage hero now reads `waterfall_hero_video` from wp-admin → Site Settings and uses it automatically. ⚠️ The field is currently empty on the live WP — send me the video (or upload it in Site Settings) and it's live. Placeholder plays meanwhile.
+6. Category images: the three homepage tiles now pull the tile image from wp-admin → Product Categories → Category Display Settings (matched by kitchen / כיור רחצה / מים קרים keywords, ignoring the WooCommerce placeholder). ⚠️ All live categories still have placeholder images — I don't know which images you marked; upload them to the categories (or send them to me) and they appear.
+7. TikTok: the homepage TikTok section reads the video rows from wp-admin → Site Settings → TikTok. ⚠️ Currently empty, and TikTok blocks scraping @1umbrcom, so I couldn't pull the IDs myself — send the 3 video links (or paste the IDs in Site Settings).
+
+**Footer (8–9)**
+8. Bottom-bar Waterfall logo (wfl.co.il link) replaced with the **UMBRCOM logo**, linking home.
+9. Removed the brand entry from the קטלוג column. Note: the column had no literal "UmbraCom" item — the closest was the **Ambercom** link, which I removed; flag me if you meant something else.
+
+**Pages (10–15)**
+10–12. Terms / Privacy / Accessibility now render the **real content copied from the old website (wfl.co.il)**, cleaned of Word/Elementor markup, stored in `src/pages/legal/content/*.html` (edit those files to change the text). ⚠️ Two flagged adaptations for the client's lawyer to bless: the privacy policy referenced WFL.CO.IL and the accessibility statement referenced "אתר WATERFALL" — both swapped to UMBRCOM. The terms already referenced umbrcom.co.il, copied as-is.
+13. Invoice Recovery page deleted — page, form, route, and footer link.
+14. Customer Service page redesigned: dark page header, intro, three proper contact cards (icon circle, contact detail, CTA), form inside a card, clashing orange button replaced with site black, responsive 1→3 column grid.
+15. Contact page fixed for RTL: header sits in a proper container with the divider flush right; each contact tile is icon-on-the-right, text after it, all right-aligned; the form/map grid is RTL (and stacks on mobile); phone/email values render `dir="ltr"` inside the RTL row so they read correctly.
+
+**Returns & forms (16–17)**
+16. New **cancellation-request form** on ביטולים והחזרות: full name, order number, cancellation reason (dropdown + free-text for "אחר"), phone, email, consent checkbox. ⚠️ No form endpoint exists yet — `CANCELLATION_FORM_URL` in `CancellationForm.tsx` is empty, so it currently falls back to opening a pre-filled email to office@umbrcom.co.il. Create a readdy form (like the others) and paste the URL to make it a real submit.
+17. Required consent checkbox — "קראתי ואני מסכים/ה למדיניות הפרטיות ותנאי השימוש, ומאשר/ת יצירת קשר עמי." — is now on **every** form: Business (added, submit disabled until checked), Warranty (added), Customer Service (text upgraded to the full wording + required), Contact (already had it — now also browser-required), Newsletter (added), and the new cancellation form.
+
+**Products (18–20)**
+18. Import verified: all **65 products** on the old site exist on the new backend with identical names, prices, descriptions, short descriptions, and image counts (scripted comparison, 0 diffs). Nothing to import — already done. What *was* broken: the frontend never displayed the imported content — fixed below.
+19. Product page is fully RTL: removed the forced-LTR grid wrapper (gallery now sits on the right, as RTL dictates — flag me if you still want it on the left), and the description / tech-specs / AI-review / warranty tab contents are explicitly `dir="rtl"` right-aligned, including imported HTML.
+20. **Bugfix that makes the custom fields actually show**: the Store API returns the plugin's data under `extensions.umbrcom`, but the frontend read a top-level `umbrcom` that never exists — so YouTube video / AI review / tech specs / package contents / warranty tabs never appeared even when filled. Now read correctly (with fallback for older plugin builds). Also: the product page now renders the real imported WooCommerce long description (styled, RTL) and short description when the plugin fields are empty — previously imported content was silently ignored in favor of generic filler text.
+
+`npm run type-check` + `npm run build` pass; fresh production build in `out/`.
+
+### Still need from you
+- the homepage hero video file/URL (item 5)
+- the marked category images (item 6)
+- the 3 TikTok video links (item 7)
+- a form endpoint URL for the cancellation form (item 16)
+- lawyer sign-off on the WFL→UMBRCOM references in privacy/accessibility (items 11–12)
+
+
+## Update — July 2026 round (20-item list)
+
+**Header**
+1. **White header** — both header rows, mobile header, search rows, and the drawer top strip are now white with a soft shadow and hairline borders.
+2. **Black UMBRCOM logo** — the blue wordmark renders pure black via a `brightness-0` filter (works even after you swap the logo URL in wp-admin). The "UMBRCOM / THE UMBRELLA COMPANY" mark is black text now too.
+3. **Black header icons** — cart, login, wishlist, compare, search, chevrons, drawer icons all black. The only remaining color accent is the tiny cart-count badge.
+4. **Font = Assistant site-wide** — same Google font as the Mashiach storefront; replaces Heebo + Frank Ruhl Libre everywhere including headings and the prose styles.
+
+**Homepage**
+5. **Hero video** — the hero now reads the video from wp-admin → UMBRCOM → Site Settings → "Waterfall hero video" automatically; a placeholder plays until you set it. ⚠️ I don't have the real video file — upload it to the media library and paste its URL in Site Settings (or send me the URL and I'll hard-code it).
+6. **Category images** — same flow: upload the marked photos per category under Products → Categories → Category Display Settings and they appear automatically. ⚠️ I can't tell which of the recently-uploaded images are "the marked ones" — happy to hard-code if you point me at the 3 URLs.
+7. **TikTok videos** — the section reads video IDs from Site Settings → TikTok. ⚠️ TikTok blocks scraping so I couldn't pull them from @1umbrcom myself — send the 3 video links (or set them in wp-admin).
+
+**Footer**
+8. Bottom-bar **Waterfall logo → UMBRCOM logo** (links to the homepage instead of wfl.co.il).
+9. Removed the brand entry ("Ambercom") from the קטלוג column. If you meant a different footer item, tell me which.
+
+**Pages**
+10-12. **Terms / Privacy / Accessibility copied from the old website (wfl.co.il)** — full legal text, cleaned of Word/Elementor markup, rendered RTL via a shared `LegalContent` component (`src/pages/legal/content/*.html`). Note: the privacy policy and accessibility statement referenced WFL.CO.IL / WATERFALL by name; I swapped those references to UMBRCOM.CO.IL / UMBRCOM — flag for legal review.
+13. **Invoice Recovery page deleted** — page, form, route, and footer link.
+14. **Customer Service page redesigned** — dark page header, proper contact cards (email / phone / WhatsApp with CTAs), the form in a white card with a black button (the orange one is gone).
+15. **Contact page fully RTL** — icons sit to the right of their labels, everything flush right; phone/email values render LTR inside so numbers read correctly.
+
+**Returns & forms**
+16. **Cancellation request form** on ביטולים והחזרות: full name, order number, cancellation reason (dropdown + optional details), phone, email + the consent checkbox. ⚠️ No endpoint existed for it — set `CANCELLATION_FORM_URL` in `CancellationForm.tsx` (readdy or any POST endpoint); until then it falls back to opening a pre-filled email to office@umbrcom.co.il so nothing gets lost.
+17. **Consent checkbox on every form** — Business, Contact, Customer Service, Warranty, Newsletter, Cancellation: required checkbox with the exact text "קראתי ואני מסכים/ה למדיניות הפרטיות ותנאי השימוש, ומאשר/ת יצירת קשר עמי", submit disabled until checked.
+
+**Products**
+18. **Import verified complete** — all 65 products (names, SKUs, prices, images, long + short descriptions) match wfl.co.il on the new backend, checked programmatically product-by-product. The frontend now actually *renders* the imported WooCommerce description/short-description HTML (it previously only showed the plugin's custom paragraphs, which are empty on imported products).
+19. **Product page fully RTL** — removed the `dir="ltr"` layout override; all tab content, tech-specs HTML, and the imported description render `dir="rtl"` text-right (new `.product-description` styles handle Word-pasted markup).
+20. **Custom product fields now display** — fixed the bug where the plugin's data block arrives at `extensions.umbrcom` but the frontend read a top-level `umbrcom` that never exists. YouTube video, AI review, technical specs, package contents, warranty, 3D model, badges, and related accessories all appear as tabs whenever the field has data in wp-admin.
+
+`npm run type-check` + `npm run build` pass; fresh production build in `out/`.
+
+### Still needed from you
+- Hero video URL (item 5) · the 3 marked category images (item 6) · 3 TikTok video links (item 7)
+- An endpoint for the cancellation form (item 16) — or say the word and I'll spin one up in the plugin
+- Legal check on the domain-name swaps inside the copied privacy/accessibility pages (items 11-12)

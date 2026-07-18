@@ -17,6 +17,7 @@ type LiveProduct = Product & {
   brandLabel?: string;
   featureCards?: { icon: string; title: string; sub: string }[];
   shortDescription?: string;
+  descriptionHtml?: string;
   descriptionParagraphs?: string[];
   features?: string[];
   specTable?: { label: string; value: string }[];
@@ -207,9 +208,9 @@ export default function ProductPage() {
       {/* ── Main Product Info ── */}
       <section className="w-full bg-white border-b border-[#ede9e1]">
         <div className="max-w-5xl mx-auto px-4 sm:px-8 py-10">
-          <div dir="ltr" className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-10 lg:gap-14 items-start">
+          <div dir="rtl" className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-10 lg:gap-14 items-start">
 
-            {/* ── LEFT (physical): main product image + thumbnails (item 19) ── */}
+            {/* ── Gallery column — page is fully RTL (item 19, July 2026) ── */}
             <div dir="rtl" className="space-y-4 lg:sticky lg:top-56">
               <div className="w-full aspect-square rounded-2xl bg-[#f6f6f6] overflow-hidden flex items-center justify-center">
                 <img
@@ -230,7 +231,7 @@ export default function ProductPage() {
               </div>
             </div>
 
-            {/* ── RIGHT (physical): name, highlights + purchase panel ── */}
+            {/* ── Info column: name, highlights + purchase panel ── */}
             <div dir="rtl" className="space-y-5">
               {/* Product name + badge */}
               <div className="text-right">
@@ -448,9 +449,15 @@ export default function ProductPage() {
           </div>
 
           {/* Tab content */}
-          <div className="text-right max-w-2xl mr-auto">
-            {activeTab === "desc" && (
-              <div className="space-y-4 text-sm text-[#5a4e42] leading-relaxed">
+          <div dir="rtl" className="text-right max-w-2xl ml-auto">
+            {activeTab === "desc" && product.descriptionHtml && (!product.descriptionParagraphs || product.descriptionParagraphs.length === 0) ? (
+              <div
+                dir="rtl"
+                className="product-description text-sm text-[#5a4e42] leading-relaxed text-right"
+                dangerouslySetInnerHTML={{ __html: product.descriptionHtml }}
+              />
+            ) : activeTab === "desc" && (
+              <div dir="rtl" className="space-y-4 text-sm text-[#5a4e42] leading-relaxed text-right">
                 {(product.descriptionParagraphs && product.descriptionParagraphs.length > 0
                   ? product.descriptionParagraphs
                   : [
@@ -478,7 +485,8 @@ export default function ProductPage() {
             {activeTab === "specs" &&
               (product.techSpecsHtml ? (
                 <div
-                  className="umbrcom-tech-specs text-sm text-[#5a4e42] leading-relaxed
+                  dir="rtl"
+                  className="umbrcom-tech-specs text-sm text-[#5a4e42] leading-relaxed text-right
                     [&_table]:w-full [&_table]:border-collapse [&_table]:text-right
                     [&_th]:bg-[#faf8f4] [&_th]:text-[#1a1410] [&_th]:text-xs [&_th]:font-semibold [&_th]:uppercase [&_th]:tracking-wide
                     [&_th]:px-4 [&_th]:py-3 [&_td]:px-4 [&_td]:py-3
@@ -525,7 +533,7 @@ export default function ProductPage() {
             )}
 
             {activeTab === "ai" && product.aiReview && (
-              <div className="space-y-4 text-sm text-[#5a4e42] leading-relaxed">
+              <div dir="rtl" className="space-y-4 text-sm text-[#5a4e42] leading-relaxed text-right">
                 <div className="flex items-center gap-2 justify-end text-xs font-semibold text-[#1a1a1a]">
                   <span>סקירה שנוצרה בעזרת בינה מלאכותית</span>
                   <i className="ri-sparkling-2-fill text-[#3ab4f2]"></i>
@@ -551,7 +559,7 @@ export default function ProductPage() {
             )}
 
             {activeTab === "warranty" && product.warranty && (
-              <div className="space-y-4 text-sm text-[#5a4e42] leading-relaxed">
+              <div dir="rtl" className="space-y-4 text-sm text-[#5a4e42] leading-relaxed text-right">
                 <div className="flex items-center gap-2 justify-end text-sm font-semibold text-[#1a1410]">
                   <span>אחריות</span>
                   <i className="ri-shield-check-line text-lg text-[#1a1a1a]"></i>

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@300;400;500;700;900&family=Heebo:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -9,13 +9,13 @@
     direction: rtl;
   }
   body {
-    font-family: 'Heebo', 'Arial Hebrew', sans-serif;
+    font-family: 'Assistant', 'Arial Hebrew', sans-serif;
     color: #0d0d0d;
     background: #ffffff;
     -webkit-font-smoothing: antialiased;
   }
   h1, h2, h3, .font-serif {
-    font-family: 'Frank Ruhl Libre', 'David', serif;
+    font-family: 'Assistant', 'Arial Hebrew', sans-serif;
   }
 }
 
@@ -54,8 +54,20 @@ body.no-motion *, body.no-motion *::before, body.no-motion *::after {
 }
 
 /* ── Rich Text Block (Page Builder WYSIWYG content) ─────────────────────── */
+/* Product page — imported WooCommerce description HTML (RTL) */
+.product-description { direction: rtl; unicode-bidi: isolate; }
+.product-description p { margin: 0 0 0.85rem; }
+.product-description h2, .product-description h3 { font-weight: 600; color: #1a1410; margin: 1.25rem 0 0.5rem; }
+.product-description ul, .product-description ol { margin: 0 0 1rem; padding-right: 1.4rem; }
+.product-description ul { list-style: disc; }
+.product-description ol { list-style: decimal; }
+.product-description li { margin-bottom: 0.3rem; }
+.product-description img { max-width: 100%; height: auto; border-radius: 0.75rem; margin: 0.75rem 0; }
+.product-description table { width: 100%; border-collapse: collapse; margin: 0 0 1rem; }
+.product-description th, .product-description td { border: 1px solid #ede9e1; padding: 0.5rem 0.75rem; text-align: right; }
+
 .prose-umbrcom { color: #4a4038; font-size: 0.9375rem; line-height: 1.75; }
-.prose-umbrcom h2 { font-family: 'Playfair Display', serif; font-weight: 300; font-size: 1.75rem; color: #1a1410; margin: 1.5rem 0 0.75rem; }
+.prose-umbrcom h2 { font-family: 'Assistant', 'Arial Hebrew', sans-serif; font-weight: 600; font-size: 1.75rem; color: #1a1410; margin: 1.5rem 0 0.75rem; }
 .prose-umbrcom h3 { font-weight: 600; font-size: 1.125rem; color: #1a1410; margin: 1.25rem 0 0.5rem; }
 .prose-umbrcom p { margin: 0.75rem 0; }
 .prose-umbrcom a { color: #3ab4f2; text-decoration: underline; }
@@ -63,3 +75,4 @@ body.no-motion *, body.no-motion *::before, body.no-motion *::after {
 .prose-umbrcom li { margin: 0.25rem 0; }
 .prose-umbrcom img { border-radius: 0.75rem; margin: 1rem 0; }
 .prose-umbrcom strong { color: #1a1410; }
+

@@ -1,8 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { fetchSettings } from "@/lib/wp-api";
 
-// ── Reusable TikTok video template (item 20) — used on BOTH homepages ─────
-// Replace the IDs below with real TikTok video IDs:
-// find the ID in the URL — tiktok.com/@user/video/VIDEO_ID_HERE
+// ── Reusable TikTok video template — used on BOTH homepages ──────────────
+// ITEM 7 (July 2026): the 3 real TikTok videos can be set in wp-admin →
+// UMBRCOM → Site Settings → TikTok (video ID + caption per row) and they
+// will replace these placeholders automatically. To hard-code instead,
+// paste the real IDs below — the ID is the number in the video URL:
+// tiktok.com/@1umbrcom/video/VIDEO_ID_HERE
 const DEFAULT_VIDEOS = [
   { id: "7448000000000000001", caption: "ברז מטבח Waterfall חדש" },
   { id: "7448000000000000002", caption: "ציפוי רוז גולד — מדהים" },
@@ -31,6 +35,19 @@ export default function TikTokSection({
   accent = "#3ab4f2",
   videos = DEFAULT_VIDEOS,
 }: TikTokSectionProps) {
+  // When no explicit videos prop was passed, use the videos configured in
+  // wp-admin Site Settings, if any.
+  const [settingsVideos, setSettingsVideos] = useState<{ id: string; caption: string }[] | null>(null);
+  useEffect(() => {
+    if (videos !== DEFAULT_VIDEOS) return; // Page Builder already supplied them
+    fetchSettings().then((s) => {
+      const v = s?.tiktok?.waterfall?.videos;
+      if (v && v.length > 0) setSettingsVideos(v);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const shownVideos = videos === DEFAULT_VIDEOS && settingsVideos ? settingsVideos : videos;
+
   useEffect(() => {
     if (!document.getElementById("tiktok-embed-script")) {
       const script = document.createElement("script");
@@ -73,7 +90,7 @@ export default function TikTokSection({
 
         {/* TikTok embed grid */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 justify-items-center">
-          {videos.map((v) => (
+          {shownVideos.map((v) => (
             <div key={v.id} className="w-full max-w-[320px]">
               <blockquote
                 className="tiktok-embed"

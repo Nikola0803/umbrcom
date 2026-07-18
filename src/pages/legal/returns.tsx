@@ -1,4 +1,5 @@
 import CmsPage from "../../components/feature/CmsPage";
+import CancellationForm from "./components/CancellationForm";
 
 function StaticReturns() {
   return (
@@ -70,5 +71,5 @@ function StaticReturns() {
 }
 
 export default function ReturnsPage() {
-  return <CmsPage slug="returns" fallback={<StaticReturns />} />;
+  return <CmsPage slug="returns" fallback={<StaticReturns />} after={<CancellationForm />} />;
 }

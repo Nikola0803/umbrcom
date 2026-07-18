@@ -1,7 +1,12 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { fetchSettings } from "@/lib/wp-api";
 
-// ── Fallback content used until a WordPress "Hero — Video Banner" Page
-//    Builder section is configured (or when VITE_WP_API_URL isn't set) ──
+// ── ITEM 5 (July 2026): the homepage hero video. The real brand video can
+//    be set in wp-admin → UMBRCOM → Site Settings → "Waterfall hero video"
+//    (field `waterfall_hero_video`) and it will be used automatically.
+//    Until then, this placeholder plays. To hard-code it instead, replace
+//    the URL below.
 const VIDEO_SRC =
   "https://assets.mixkit.co/videos/preview/mixkit-hands-adjusting-a-modern-bathroom-faucet-40413-large.mp4";
 
@@ -34,6 +39,17 @@ export default function Hero({
   button2Link = "/shop",
 }: HeroProps) {
   const subLines = subheading.split("\n");
+
+  // When no explicit video prop was passed (static homepage), use the video
+  // configured in wp-admin Site Settings, if any.
+  const [settingsVideo, setSettingsVideo] = useState<string | null>(null);
+  useEffect(() => {
+    if (video !== VIDEO_SRC) return; // Page Builder already supplied one
+    fetchSettings().then((s) => {
+      if (s?.brand?.waterfall_hero_video) setSettingsVideo(s.brand.waterfall_hero_video);
+    });
+  }, [video]);
+  const videoSrc = video === VIDEO_SRC && settingsVideo ? settingsVideo : video;
   return (
     <section
       className="relative w-full overflow-hidden"
@@ -42,7 +58,7 @@ export default function Hero({
       {/* ── Background video ── */}
       <video
         className="absolute inset-0 w-full h-full object-cover"
-        src={video}
+        src={videoSrc}
         autoPlay
         muted
         loop

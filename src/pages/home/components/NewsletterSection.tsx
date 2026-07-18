@@ -4,6 +4,7 @@ const FORM_URL = "https://readdy.ai/api/form/d70o0or2m2156g4s70hg";
 
 export default function NewsletterSection() {
   const [email, setEmail] = useState("");
+  const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [loading, setLoading] = useState(false);
 
@@ -70,12 +71,25 @@ export default function NewsletterSection() {
             />
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !consent}
               className="flex-shrink-0 bg-[#1a1a1a] hover:bg-[#333333] text-white text-sm font-semibold px-7 py-3.5 rounded-l-full transition-colors duration-200 whitespace-nowrap cursor-pointer disabled:opacity-60"
             >
               {loading ? "..." : "הרשמה"}
             </button>
           </form>
+        )}
+
+        {status !== "success" && (
+          <div className="flex items-start justify-center gap-2.5 mt-4 max-w-md mx-auto text-right">
+            <input
+              type="checkbox" id="newsletter-consent" required checked={consent}
+              onChange={(e) => setConsent(e.target.checked)}
+              className="mt-0.5 cursor-pointer accent-white"
+            />
+            <label htmlFor="newsletter-consent" className="text-xs text-[#888] cursor-pointer leading-relaxed">
+              קראתי ואני מסכים/ה למדיניות הפרטיות ותנאי השימוש, ומאשר/ת יצירת קשר עמי.
+            </label>
+          </div>
         )}
 
         {status === "error" && (

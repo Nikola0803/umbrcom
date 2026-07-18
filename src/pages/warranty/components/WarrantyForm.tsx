@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
 /** The functional warranty-activation form. Kept as a fixed React
  *  component; the header/intro is CMS-editable (warranty/page.tsx). */
 export default function WarrantyForm() {
+  const [consent, setConsent] = useState(false);
   return (
     <div className="max-w-xl mx-auto px-6 pb-16 text-right" dir="rtl">
       <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
@@ -48,9 +50,20 @@ export default function WarrantyForm() {
             className="w-full px-4 py-3 rounded-xl border border-[#ede9e1] text-sm text-right text-[#1a1410] bg-white focus:outline-none focus:border-[#1a1a1a] transition-colors"
           />
         </div>
+        <div className="flex items-start gap-2.5 pt-1">
+          <input
+            type="checkbox" id="warranty-consent" required checked={consent}
+            onChange={(e) => setConsent(e.target.checked)}
+            className="mt-1 cursor-pointer accent-[#1a1a1a]"
+          />
+          <label htmlFor="warranty-consent" className="text-xs text-[#888] cursor-pointer leading-relaxed">
+            קראתי ואני מסכים/ה למדיניות הפרטיות ותנאי השימוש, ומאשר/ת יצירת קשר עמי.
+          </label>
+        </div>
         <button
           type="submit"
-          className="w-full mt-2 bg-[#1a1a1a] hover:bg-[#333333] text-white text-sm font-semibold tracking-widest py-4 rounded-xl transition-colors duration-300 cursor-pointer whitespace-nowrap"
+          disabled={!consent}
+          className="w-full mt-2 bg-[#1a1a1a] hover:bg-[#333333] text-white text-sm font-semibold tracking-widest py-4 rounded-xl transition-colors duration-300 cursor-pointer whitespace-nowrap disabled:opacity-40"
         >
           הפעלת אחריות
         </button>

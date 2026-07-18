@@ -182,6 +182,13 @@ interface StoreApiProduct {
   on_sale: boolean;
   average_rating?: string;
   review_count?: number;
+  /** Real WooCommerce content (imported from the old site) */
+  description?: string;
+  short_description?: string;
+  /** Store API places extension data here — the plugin's block is
+   *  `extensions.umbrcom`. A top-level `umbrcom` is kept for
+   *  backwards-compatibility with older plugin builds. */
+  extensions?: { umbrcom?: StoreApiProduct["umbrcom"] };
   umbrcom?: {
     brand_label: string;
     feature_cards: { icon: string; title: string; sub: string }[];
@@ -245,6 +252,8 @@ export function mapStoreApiProduct(p: StoreApiProduct): Product & {
   brandLabel: string;
   featureCards: { icon: string; title: string; sub: string }[];
   shortDescription: string;
+  /** Raw WooCommerce long-description HTML (RTL Hebrew, imported content) */
+  descriptionHtml?: string;
   descriptionParagraphs: string[];
   features: string[];
   specTable: { label: string; value: string }[];
@@ -263,6 +272,15 @@ export function mapStoreApiProduct(p: StoreApiProduct): Product & {
 } {
   const categorySlug = p.categories?.[0]?.slug;
   const category: ProductCategory = CATEGORY_SLUG_MAP[categorySlug ?? ""] ?? "kitchen";
+
+  // BUGFIX: the Store API returns the plugin's block under `extensions.umbrcom`,
+  // not at the top level — without this, none of the custom fields
+  // (YouTube video, AI review, tech specs, package contents, warranty…)
+  // ever reached the product page.
+  const u = p.extensions?.umbrcom ?? p.umbrcom;
+
+  const stripTags = (html: string) =>
+    html.replace(/<br\s*\/?>/gi, "\n").replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").trim();
 
   const color = (findAttributeTerm(p.attributes, ["color", "צבע", "גימור"]) ?? "כרום") as ProductColor;
   const type = (findAttributeTerm(p.attributes, ["type", "סוג"]) ?? "נשלף") as ProductType;
@@ -291,27 +309,28 @@ export function mapStoreApiProduct(p: StoreApiProduct): Product & {
     category,
     color,
     type,
-    brandLabel: p.umbrcom?.brand_label || "Waterfall",
-    featureCards: p.umbrcom?.feature_cards ?? [],
-    shortDescription: p.umbrcom?.short_description ?? "",
-    descriptionParagraphs: (p.umbrcom?.description_paragraphs ?? []).map((r) => r.text),
-    features: (p.umbrcom?.features ?? []).map((r) => r.text),
-    specTable: p.umbrcom?.spec_table ?? [],
-    shippingInfo: p.umbrcom?.shipping_info ?? [],
-    youtubeUrl: p.umbrcom?.youtube_url || undefined,
-    aiReview: p.umbrcom?.ai_review || undefined,
-    techSpecsHtml: p.umbrcom?.tech_specs_html || undefined,
-    packageContents: (p.umbrcom?.package_contents ?? "")
+    brandLabel: u?.brand_label || "Waterfall",
+    featureCards: u?.feature_cards ?? [],
+    shortDescription: u?.short_description || (p.short_description ? stripTags(p.short_description) : ""),
+    descriptionHtml: p.description || undefined,
+    descriptionParagraphs: (u?.description_paragraphs ?? []).map((r) => r.text),
+    features: (u?.features ?? []).map((r) => r.text),
+    specTable: u?.spec_table ?? [],
+    shippingInfo: u?.shipping_info ?? [],
+    youtubeUrl: u?.youtube_url || undefined,
+    aiReview: u?.ai_review || undefined,
+    techSpecsHtml: u?.tech_specs_html || undefined,
+    packageContents: (u?.package_contents ?? "")
       .split(/\r?\n/)
       .map((l) => l.trim())
       .filter(Boolean),
-    warranty: p.umbrcom?.warranty || undefined,
-    model3dUrl: p.umbrcom?.model_3d_url || undefined,
-    model3dUsdzUrl: p.umbrcom?.model_usdz_url || undefined,
-    arEnabled: p.umbrcom?.ar_enabled ?? false,
-    badgeText: p.umbrcom?.badge_text_override || (p.on_sale ? "מבצע" : undefined),
-    isNew: p.umbrcom?.is_new ?? false,
-    relatedAccessoryIds: p.umbrcom?.related_accessory_ids ?? [],
+    warranty: u?.warranty || undefined,
+    model3dUrl: u?.model_3d_url || undefined,
+    model3dUsdzUrl: u?.model_usdz_url || undefined,
+    arEnabled: u?.ar_enabled ?? false,
+    badgeText: u?.badge_text_override || (p.on_sale ? "מבצע" : undefined),
+    isNew: u?.is_new ?? false,
+    relatedAccessoryIds: u?.related_accessory_ids ?? [],
   };
 }
 

@@ -1,8 +1,11 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { fetchNav } from "@/lib/wp-api";
 
-// ── ITEM 2: category images — swap the `image` URLs below with the client's
-//    prepared photos for Kitchen / Bathroom Sink / Cold Water. New placeholder
-//    art is in place meanwhile (v3).
+// ── ITEM 6 (July 2026): homepage category images. Preferred flow — upload
+//    the client's marked photos in wp-admin → Products → Categories →
+//    (category) → "Category Display Settings" tile image; they're picked up
+//    automatically below. To hard-code instead, swap the `image` URLs.
 export interface CategoryTile {
   key: string;
   title: string;
@@ -49,6 +52,33 @@ export default function CategoriesSection({
   heading = "קטגוריות מוצרים",
   categories = DEFAULT_CATEGORIES,
 }: CategoriesSectionProps) {
+  // Merge in real tile images from wp-admin (Category Display Settings)
+  // whenever they've been uploaded — placeholders keep rendering otherwise.
+  const [wpImages, setWpImages] = useState<Record<string, string>>({});
+  useEffect(() => {
+    if (categories !== DEFAULT_CATEGORIES) return; // Page Builder supplied its own
+    const KEYWORDS: Record<string, string[]> = {
+      kitchen: ["kitchen", "מטבח"],
+      bathroom: ["bathroom", "כיור רחצה"],
+      "cold-water": ["cold", "מים קרים"],
+    };
+    fetchNav().then((nav) => {
+      if (!nav) return;
+      const found: Record<string, string> = {};
+      for (const [key, words] of Object.entries(KEYWORDS)) {
+        const match = nav.categories.find(
+          (c) =>
+            c.image &&
+            !c.image.includes("woocommerce-placeholder") &&
+            words.some((w) => c.label.includes(w) || decodeURIComponent(c.slug).includes(w))
+        );
+        if (match) found[key] = match.image;
+      }
+      if (Object.keys(found).length > 0) setWpImages(found);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const shownCategories = categories.map((c) => (wpImages[c.key] ? { ...c, image: wpImages[c.key] } : c));
   return (
     <section className="w-full bg-white py-16">
       {/* Header */}
@@ -67,7 +97,7 @@ export default function CategoriesSection({
 
       {/* cards */}
       <div className="max-w-6xl mx-auto px-4 sm:px-8 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
-        {categories.map((cat) => (
+        {shownCategories.map((cat) => (
           <Link
             key={cat.key}
             to={cat.path}

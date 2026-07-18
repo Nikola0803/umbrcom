@@ -1,6 +1,9 @@
+import { useState } from "react";
+
 /** The functional B2B inquiry form. Kept as a fixed React component; the
  *  banner and benefit tiles around it are CMS-editable (business/page.tsx). */
 export default function BusinessForm() {
+  const [consent, setConsent] = useState(false);
   return (
     <div className="max-w-3xl mx-auto px-8 pb-16" dir="rtl">
       <div className="bg-white border border-[#ede9e1] rounded-2xl p-8">
@@ -32,7 +35,17 @@ export default function BusinessForm() {
             <label className="block text-xs font-semibold text-[#1a1410] mb-1.5">היקף הצורך המשוער</label>
             <textarea rows={3} placeholder="לדוגמה: 50 ברזי מטבח לפרויקט מגורים ברחובות..." className="w-full px-4 py-3 rounded-xl border border-[#ede9e1] text-sm text-right text-[#1a1410] bg-white placeholder-[#bbb] focus:outline-none focus:border-[#1a1a1a] transition-colors resize-none" />
           </div>
-          <button type="submit" className="bg-[#1a1a1a] hover:bg-[#333] text-white text-sm font-semibold tracking-widest px-10 py-4 rounded-xl transition-colors cursor-pointer">
+          <div className="flex items-start gap-2.5 pt-1">
+            <input
+              type="checkbox" id="business-consent" required checked={consent}
+              onChange={(e) => setConsent(e.target.checked)}
+              className="mt-1 cursor-pointer accent-[#1a1a1a]"
+            />
+            <label htmlFor="business-consent" className="text-xs text-[#888] cursor-pointer leading-relaxed">
+              קראתי ואני מסכים/ה למדיניות הפרטיות ותנאי השימוש, ומאשר/ת יצירת קשר עמי.
+            </label>
+          </div>
+          <button type="submit" disabled={!consent} className="bg-[#1a1a1a] hover:bg-[#333] text-white text-sm font-semibold tracking-widest px-10 py-4 rounded-xl transition-colors cursor-pointer disabled:opacity-40">
             שלחו פנייה
           </button>
         </form>

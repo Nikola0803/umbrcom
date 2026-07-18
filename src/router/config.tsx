@@ -17,7 +17,6 @@ import WarrantyActivationPage from "../pages/warranty/page";
 import AuthPage from "../pages/auth/page";
 import AccountPage from "../pages/account/page";
 import BusinessPage from "../pages/business/page";
-import InvoiceRecoveryPage from "../pages/legal/invoice-recovery";
 import AccessibilityStatementPage from "../pages/legal/accessibility-statement";
 import SeriesPage from "../pages/series/page";
 import WishlistPage from "../pages/wishlist/page";
@@ -48,7 +47,6 @@ const routes: RouteObject[] = [
   // Business
   { path: "/business", element: <BusinessPage /> },
   // Legal / service
-  { path: "/invoice-recovery", element: <InvoiceRecoveryPage /> },
   { path: "/accessibility-statement", element: <AccessibilityStatementPage /> },
   // Collections
   { path: "/series", element: <SeriesPage /> },

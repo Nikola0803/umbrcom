@@ -37,13 +37,13 @@ export default function CustomerServiceForm() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-6 pb-14" dir="rtl">
+    <div className="max-w-3xl mx-auto px-6 pb-16" dir="rtl">
       {status === "success" ? (
         <div className="py-10 text-right text-green-600 font-medium">
           תודה! הודעתך נשלחה. נחזור אליך בהקדם.
         </div>
       ) : (
-        <form onSubmit={handleSubmit} data-readdy-form className="space-y-4">
+        <form onSubmit={handleSubmit} data-readdy-form className="space-y-4 bg-white border border-[#ececec] rounded-2xl p-6 sm:p-8">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1 text-right">שם מלא</label>
             <input
@@ -81,12 +81,12 @@ export default function CustomerServiceForm() {
           </div>
           <div className="flex items-start gap-2">
             <input
-              type="checkbox" checked={form.consent}
+              type="checkbox" required checked={form.consent}
               onChange={(e) => setForm({ ...form, consent: e.target.checked })}
               className="mt-1 cursor-pointer"
             />
             <label className="text-xs text-gray-500 leading-relaxed">
-              קראתי ואני מסכים/ה למדיניות הפרטיות ותנאי השימוש.
+              קראתי ואני מסכים/ה למדיניות הפרטיות ותנאי השימוש, ומאשר/ת יצירת קשר עמי.
             </label>
           </div>
           {status === "error" && (
@@ -95,7 +95,7 @@ export default function CustomerServiceForm() {
           <button
             type="submit"
             disabled={loading || !form.consent}
-            className="w-full bg-[#f5a623] hover:bg-[#e0951a] text-white font-semibold py-3 text-sm transition-colors cursor-pointer disabled:opacity-50 whitespace-nowrap"
+            className="w-full bg-[#111] hover:bg-[#2a2a2a] text-white font-semibold py-3.5 text-sm rounded-xl transition-colors cursor-pointer disabled:opacity-50 whitespace-nowrap"
           >
             {loading ? "שולח..." : "שליחה"}
           </button>

@@ -4,8 +4,6 @@ import { fetchSettings } from "@/lib/wp-api";
 
 const LOGO_URL =
   "https://admin.umbrcom.co.il/wp-content/uploads/2026/07/%D7%9C%D7%95%D7%92%D7%95-%D7%9C%D7%90%D7%95%D7%A8%D7%9A-500-x-170-%D7%A4%D7%99%D7%A7%D7%A1%D7%9C-500-x-100-%D7%A4%D7%99%D7%A7%D7%A1%D7%9C-8.png";
-const WATERFALL_LOGO =
-  "https://umbrcom.co.il/wp-content/uploads/2025/10/500824_160.webp";
 
 const SOCIAL_ICON: Record<string, string> = {
   facebook: "ri-facebook-circle-line",
@@ -34,7 +32,6 @@ const cols = [
       { label: "ברזי מים קרים", to: "/shop/cold-water", internal: true },
       { label: "ערכות פינוק", to: "/shop/pampering-sets", internal: true },
       { label: "סדרות Waterfall", to: "/series", internal: true },
-      { label: "Ambercom", to: "/ambercom", internal: true },
     ],
   },
   {
@@ -52,7 +49,6 @@ const cols = [
     links: [
       { label: "החשבון שלי", to: "/my-account", internal: true },
       { label: "מחלקה עסקית", to: "/business", internal: true },
-      { label: "שחזור חשבונית", to: "/invoice-recovery", internal: true },
       { label: "הצהרת נגישות", to: "/accessibility-statement", internal: true },
       { label: "מדיניות פרטיות", to: "/privacy", internal: true },
       { label: "ביטולים והחזרות", to: "/returns", internal: true },
@@ -143,9 +139,9 @@ export default function Footer() {
 
       {/* Bottom bar */}
       <div className="max-w-7xl mx-auto px-6 sm:px-10 py-6 flex items-center justify-between flex-wrap gap-4">
-        <a href="http://wfl.co.il" target="_blank" rel="nofollow noopener noreferrer" className="cursor-pointer opacity-60 hover:opacity-100 transition-opacity">
-          <img src={WATERFALL_LOGO} alt="Waterfall" className="h-7 object-contain brightness-0 invert" />
-        </a>
+        <Link to="/" className="cursor-pointer opacity-60 hover:opacity-100 transition-opacity">
+          <img src={LOGO_URL} alt="UMBRCOM" className="h-7 object-contain brightness-0 invert" />
+        </Link>
         <p className="text-[#555] text-xs">
           ט.ל.ח | כל התמונות והסרטונים באתר להמחשה בלבד.
         </p>
