@@ -343,3 +343,22 @@ confirm they produce correct output, not just valid syntax.
 - **Brand page**: moved to **/umbrcom** (the old /ambercom URL 301-redirects there so nothing breaks). All page copy, headings, product blurbs, and the amber glow/accents rebranded to UMBRCOM in black/neutral.
 - **Navigation**: mobile drawer + all-categories dropdown entries renamed and recolored.
 - **Kept intentionally**: the WP plugin's internal field keys (`ambercom_color`, `ambercom_hero_video`, `tiktok.ambercom`, Page Builder `section.brand === "ambercom"`, and the WP page slug `ambercom`) — those are backend API identifiers; renaming them requires a matching plugin release, which I can do as a follow-up if you want the wp-admin labels cleaned up too.
+
+
+## Update — WYSIWYG product fields (client feedback)
+
+Client couldn't paste an Excel table into "מפרט טכני" and wanted headings in the AI review — the metaboxes were plain textareas.
+
+- **Plugin patch** (`umbrcom-wysiwyg-fields-patch.php`, delivered separately): AI review, tech specs, package contents, and warranty become full `wp_editor()` (TinyMCE) fields — headings dropdown, lists, links, and Excel/Word tables survive paste (styles stripped, structure kept). Saved via `wp_kses_post`; clearing an editor deletes the meta so the tab hides on the storefront. ⚠️ Meta keys in the patch are best-guess (`_umbrcom_*`) — align with the plugin's actual keys before deploying. youtube_url stays a plain URL input.
+- **Frontend**: new `RichField` renderer on the product page — AI review, warranty, and package contents tabs now render rich HTML (h2-h4, lists, RTL-styled tables) when the field contains HTML, and fall back to the old paragraph/checklist rendering for legacy plain-text values, so existing product data keeps working without re-entry. Tech specs already rendered HTML tables. `packageContentsHtml` added to the wp-api mapping.
+
+
+## Update — "products not seen": full connection diagnosis
+
+Three separate breaks, found by inspecting the live deployment:
+
+1. **Frontend was never connected to WordPress at all.** No `.env` existed, so `VITE_WP_API_URL` was undefined in every build — including the deployed one (verified: the live JS bundle contains zero `wp-json` references). `isWpConfigured()` returned false and the whole site ran on mock data: fake products, static nav, simulated checkout. **Fixed**: `.env.production` added with `VITE_WP_API_URL=https://admin.umbrcom.co.il/wp-json`; the new build verifiably contains the API URL. Deploy this build.
+2. **Store API CORS is broken on the server.** The OPTIONS preflight returns `Access-Control-Allow-Origin` but the actual `/wc/store/*` responses do not — browsers reject that, so product fetches from umbrcom.co.il would fail even after fix 1. **Fix delivered**: `umbrcom-cors-fix.php` (drop into `wp-content/mu-plugins/`). The `/umbrcom/v1/*` routes already sent the header correctly.
+3. **The plugin's own REST routes are missing on the live server**: `/umbrcom/v1/settings` and `/umbrcom/v1/nav` both 404 (as do the Pelecard routes, flagged earlier). The Store API `extensions.umbrcom` product block IS live, so the plugin is active — the deployed plugin version just predates the REST routes. The frontend degrades gracefully (static nav fallback), but Site Settings (hero video, TikTok, brand colors), live nav, and CMS pages need them. → Deploy the current umbrcom-content-engine version that registers these routes, together with the Pelecard module.
+
+**Deploy order**: CORS mu-plugin → updated plugin (routes + Pelecard + WYSIWYG) → this frontend build. Then products, settings, nav, and checkout all light up.

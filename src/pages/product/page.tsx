@@ -27,6 +27,7 @@ type LiveProduct = Product & {
   aiReview?: string;
   techSpecsHtml?: string;
   packageContents?: string[];
+  packageContentsHtml?: string;
   warranty?: string;
   model3dUrl?: string;
   model3dUsdzUrl?: string;
@@ -43,6 +44,38 @@ const COLOR_DOT: Record<string, string> = {
   "זהב": "#d4af37",
   "כרום": "#c0c0c0",
 };
+
+
+/** Product custom fields now come from WYSIWYG editors in wp-admin (may contain
+ *  headings, lists, and pasted Excel/Word tables). Legacy values are plain text
+ *  — detect and render each accordingly. */
+const RICH_FIELD_CLASSES =
+  "text-sm text-[#5a4e42] leading-relaxed text-right " +
+  "[&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-[#1a1410] [&_h2]:mt-4 [&_h2]:mb-2 " +
+  "[&_h3]:text-base [&_h3]:font-semibold [&_h3]:text-[#1a1410] [&_h3]:mt-3 [&_h3]:mb-1.5 " +
+  "[&_h4]:font-semibold [&_h4]:text-[#1a1410] [&_p]:mb-3 [&_strong]:text-[#1a1410] " +
+  "[&_ul]:list-disc [&_ul]:pr-5 [&_ul]:space-y-1 [&_ul]:mb-3 [&_ol]:list-decimal [&_ol]:pr-5 [&_ol]:space-y-1 [&_ol]:mb-3 " +
+  "[&_table]:w-full [&_table]:border-collapse [&_table]:text-right [&_table]:my-3 " +
+  "[&_th]:bg-[#faf8f4] [&_th]:text-[#1a1410] [&_th]:text-xs [&_th]:font-semibold [&_th]:px-4 [&_th]:py-2.5 [&_th]:border [&_th]:border-[#ede9e1] " +
+  "[&_td]:px-4 [&_td]:py-2.5 [&_td]:border [&_td]:border-[#ede9e1] " +
+  "[&_a]:underline [&_a]:text-[#1a1410]";
+
+function looksLikeHtml(s: string) {
+  return /<[a-z][\s\S]*>/i.test(s);
+}
+
+function RichField({ value }: { value: string }) {
+  if (looksLikeHtml(value)) {
+    return <div dir="rtl" className={RICH_FIELD_CLASSES} dangerouslySetInnerHTML={{ __html: value }} />;
+  }
+  return (
+    <div dir="rtl" className="space-y-4 text-sm text-[#5a4e42] leading-relaxed text-right">
+      {value.split(/\n\s*\n/).filter(Boolean).map((paragraph, i) => (
+        <p key={i}>{paragraph}</p>
+      ))}
+    </div>
+  );
+}
 
 const SPECS = [
   { label: "חומר", value: "פליז עם ציפוי פרמיום" },
@@ -542,25 +575,25 @@ export default function ProductPage() {
                   <span>סקירה שנוצרה בעזרת בינה מלאכותית</span>
                   <i className="ri-sparkling-2-fill text-[#3ab4f2]"></i>
                 </div>
-                {product.aiReview
-                  .split(/\n\s*\n/)
-                  .filter(Boolean)
-                  .map((paragraph, i) => (
-                    <p key={i}>{paragraph}</p>
-                  ))}
+                <RichField value={product.aiReview} />
               </div>
             )}
 
-            {activeTab === "package" && product.packageContents && (
-              <ul className="list-none space-y-3">
-                {product.packageContents.map((item) => (
-                  <li key={item} className="flex items-center gap-3 justify-end text-sm text-[#5a4e42]">
-                    <span>{item}</span>
-                    <i className="ri-inbox-unarchive-line text-[#1a1a1a] flex-shrink-0"></i>
-                  </li>
-                ))}
-              </ul>
-            )}
+            {activeTab === "package" &&
+              (product.packageContentsHtml ? (
+                <RichField value={product.packageContentsHtml} />
+              ) : (
+                product.packageContents && (
+                  <ul className="list-none space-y-3">
+                    {product.packageContents.map((item) => (
+                      <li key={item} className="flex items-center gap-3 justify-end text-sm text-[#5a4e42]">
+                        <span>{item}</span>
+                        <i className="ri-inbox-unarchive-line text-[#1a1a1a] flex-shrink-0"></i>
+                      </li>
+                    ))}
+                  </ul>
+                )
+              ))}
 
             {activeTab === "warranty" && product.warranty && (
               <div dir="rtl" className="space-y-4 text-sm text-[#5a4e42] leading-relaxed text-right">
@@ -568,12 +601,7 @@ export default function ProductPage() {
                   <span>אחריות</span>
                   <i className="ri-shield-check-line text-lg text-[#1a1a1a]"></i>
                 </div>
-                {product.warranty
-                  .split(/\n\s*\n/)
-                  .filter(Boolean)
-                  .map((paragraph, i) => (
-                    <p key={i}>{paragraph}</p>
-                  ))}
+                <RichField value={product.warranty} />
               </div>
             )}
 

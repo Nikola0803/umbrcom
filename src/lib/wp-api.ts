@@ -262,6 +262,8 @@ export function mapStoreApiProduct(p: StoreApiProduct): Product & {
   aiReview?: string;
   techSpecsHtml?: string;
   packageContents: string[];
+  /** Raw HTML version — set when the field was written in the WYSIWYG editor */
+  packageContentsHtml?: string;
   warranty?: string;
   model3dUrl?: string;
   model3dUsdzUrl?: string;
@@ -320,6 +322,7 @@ export function mapStoreApiProduct(p: StoreApiProduct): Product & {
     youtubeUrl: u?.youtube_url || undefined,
     aiReview: u?.ai_review || undefined,
     techSpecsHtml: u?.tech_specs_html || undefined,
+    packageContentsHtml: /<[a-z][\s\S]*>/i.test(u?.package_contents ?? "") ? u?.package_contents : undefined,
     packageContents: (u?.package_contents ?? "")
       .split(/\r?\n/)
       .map((l) => l.trim())
