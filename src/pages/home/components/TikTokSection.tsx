@@ -20,7 +20,7 @@ declare global {
 }
 
 export interface TikTokSectionProps {
-  /** Brand title, e.g. "Waterfall" / "Ambercom" */
+  /** Brand title, e.g. "Waterfall" / "UMBRCOM" */
   brandName?: string;
   /** TikTok handle without @ */
   handle?: string;

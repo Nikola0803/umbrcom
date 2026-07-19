@@ -1,4 +1,5 @@
 import type { RouteObject } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import NotFound from "../pages/NotFound";
 import Home from "../pages/home/page";
 import ShopPage from "../pages/shop/page";
@@ -21,7 +22,7 @@ import AccessibilityStatementPage from "../pages/legal/accessibility-statement";
 import SeriesPage from "../pages/series/page";
 import WishlistPage from "../pages/wishlist/page";
 import ComparePage from "../pages/compare/page";
-import AmbercomPage from "../pages/ambercom/page";
+import UmbrcomPage from "../pages/umbrcom/page";
 
 const routes: RouteObject[] = [
   { path: "/", element: <Home /> },
@@ -53,8 +54,9 @@ const routes: RouteObject[] = [
   // Wishlist & Compare
   { path: "/wishlist", element: <WishlistPage /> },
   { path: "/compare", element: <ComparePage /> },
-  // Brand pages
-  { path: "/ambercom", element: <AmbercomPage /> },
+  // Brand pages — /ambercom was a naming mistake, kept only as a redirect
+  { path: "/umbrcom", element: <UmbrcomPage /> },
+  { path: "/ambercom", element: <Navigate to="/umbrcom" replace /> },
   // 404
   { path: "*", element: <NotFound /> },
 ];

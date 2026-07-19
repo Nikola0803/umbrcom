@@ -332,3 +332,14 @@ confirm they produce correct output, not just valid syntax.
   - `purchase` on /checkout/result once the backend confirms the Pelecard payment — `transaction_id` = order number, value = order total, items restored from the snapshot (React cart state doesn't survive the Pelecard redirect). Deduped per order number so a refresh of the thank-you page can't double-count revenue.
 - All calls are wrapped so a blocked/missing gtag can never break the shop.
 - GA4 property setup: keep Enhanced Measurement on (history-based page views for the SPA); e-commerce reports populate from the events above automatically.
+
+
+## Update — "Ambercom" naming fix
+
+"Ambercom" was a mistaken reading of אמברקום — it IS UMBRCOM, the parent company, not a second retail brand. Renamed everywhere user-facing:
+
+- **Brand switcher dropdown** (header): now **Waterfall / UMBRCOM**. The amber serif "Ambercom" wordmark is gone — the UMBRCOM entry shows a black UMBRCOM wordmark, on desktop and mobile.
+- **useBrand hook**: second brand renamed `umbrcom`, accent color **black** (#111) instead of amber — no yellow buttons/icons anywhere in the UMBRCOM area (ties back to header item 3).
+- **Brand page**: moved to **/umbrcom** (the old /ambercom URL 301-redirects there so nothing breaks). All page copy, headings, product blurbs, and the amber glow/accents rebranded to UMBRCOM in black/neutral.
+- **Navigation**: mobile drawer + all-categories dropdown entries renamed and recolored.
+- **Kept intentionally**: the WP plugin's internal field keys (`ambercom_color`, `ambercom_hero_video`, `tiktok.ambercom`, Page Builder `section.brand === "ambercom"`, and the WP page slug `ambercom`) — those are backend API identifiers; renaming them requires a matching plugin release, which I can do as a follow-up if you want the wp-admin labels cleaned up too.

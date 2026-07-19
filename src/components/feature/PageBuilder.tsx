@@ -122,7 +122,7 @@ export default function PageBuilder({ sections }: PageBuilderProps) {
             return (
               <TikTokSection
                 key={i}
-                brandName={brandKey === "ambercom" ? "Ambercom" : "Waterfall"}
+                brandName={brandKey === "ambercom" ? "UMBRCOM" : "Waterfall"}
                 handle={brandSettings?.handle}
                 accent={accent}
                 videos={brandSettings?.videos}

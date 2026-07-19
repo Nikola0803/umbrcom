@@ -18,7 +18,7 @@ interface CmsPageProps {
 
 /**
  * Wraps any content page (About, Contact, Terms, …) so it's editable from
- * wp-admin's Page Builder the same way Home and Ambercom already are —
+ * wp-admin's Page Builder the same way Home and UMBRCOM already are —
  * without repeating the fetch/loading boilerplate in every page file.
  *
  * To make a new page CMS-editable: create a WordPress Page with a matching

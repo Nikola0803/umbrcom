@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
-import { useBrand, AMBERCOM } from "@/hooks/useBrand";
+import { useBrand } from "@/hooks/useBrand";
 import { fetchNav, fetchSettings } from "@/lib/wp-api";
 
 const DEFAULT_LOGO_URL =
@@ -26,7 +26,7 @@ const MOBILE_NAV = [
   { label: "בית", path: "/" },
   { label: "חנות", path: "/shop" },
   { label: "סדרות", path: "/series" },
-  { label: "Ambercom", path: "/ambercom" },
+  { label: "UMBRCOM", path: "/umbrcom" },
   { label: "בלוג", path: "/blog" },
   { label: "אודות", path: "/about" },
   { label: "צור קשר", path: "/contact" },
@@ -141,9 +141,9 @@ export default function Navbar() {
                   className="flex flex-col items-center gap-0.5 cursor-pointer"
                   aria-label="החלפת מותג"
                 >
-                  {brand.key === "ambercom" ? (
-                    <span className="text-2xl sm:text-3xl font-serif font-semibold tracking-tight" style={{ color: AMBERCOM.color }}>
-                      Ambercom
+                  {brand.key === "umbrcom" ? (
+                    <span className="text-2xl sm:text-3xl font-bold tracking-[0.12em] text-[#111]">
+                      UMBRCOM
                     </span>
                   ) : (
                     <img src={logoUrl} alt="Waterfall" className="h-9 sm:h-10 w-auto object-contain brightness-0" />
@@ -167,11 +167,11 @@ export default function Navbar() {
                       Waterfall
                     </Link>
                     <Link
-                      to="/ambercom"
+                      to="/umbrcom"
                       onClick={() => setBrandMenuOpen(false)}
-                      className={`block px-4 py-3 text-sm cursor-pointer border-t border-[#eee] hover:bg-[#f5f5f5] ${brand.key === "ambercom" ? "font-semibold text-[#1a1a1a]" : "text-[#555]"}`}
+                      className={`block px-4 py-3 text-sm cursor-pointer border-t border-[#eee] hover:bg-[#f5f5f5] ${brand.key === "umbrcom" ? "font-semibold text-[#1a1a1a]" : "text-[#555]"}`}
                     >
-                      Ambercom
+                      UMBRCOM
                     </Link>
                   </div>
                 )}
@@ -260,11 +260,11 @@ export default function Navbar() {
                     ))}
                     <div className="border-t border-[#eee] mt-1 pt-1">
                       <Link
-                        to="/ambercom"
+                        to="/umbrcom"
                         onClick={() => setCatMenuOpen(false)}
-                        className="block px-4 py-2.5 text-sm cursor-pointer hover:bg-[#f5f5f5] text-[#c9a050] font-medium"
+                        className="block px-4 py-2.5 text-sm cursor-pointer hover:bg-[#f5f5f5] text-[#111] font-medium"
                       >
-                        Ambercom
+                        UMBRCOM
                       </Link>
                     </div>
                   </div>
@@ -277,8 +277,8 @@ export default function Navbar() {
         {/* ══ Mobile header — logo · cart · hamburger ══ */}
         <div dir="rtl" className="md:hidden w-full px-4 h-16 flex items-center justify-between" style={{ backgroundColor: NAV_BG }}>
           <Link to="/" className="flex-shrink-0">
-            {brand.key === "ambercom" ? (
-              <span className="text-lg font-serif font-semibold" style={{ color: AMBERCOM.color }}>Ambercom</span>
+            {brand.key === "umbrcom" ? (
+              <span className="text-lg font-bold tracking-[0.12em] text-[#111]">UMBRCOM</span>
             ) : (
               <img src={logoUrl} alt="Waterfall" className="h-8 w-auto object-contain brightness-0" />
             )}

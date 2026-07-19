@@ -1,7 +1,7 @@
 import { useLocation } from "react-router-dom";
 
 export interface Brand {
-  key: "waterfall" | "ambercom";
+  key: "waterfall" | "umbrcom";
   name: string;
   /** Primary CTA / accent color */
   color: string;
@@ -19,20 +19,26 @@ export const WATERFALL: Brand = {
   tint: "rgba(58,180,242,0.08)",
 };
 
-export const AMBERCOM: Brand = {
-  key: "ambercom",
-  name: "Ambercom",
-  color: "#e8a030",
-  colorHover: "#d18f24",
-  tint: "rgba(232,160,48,0.08)",
+/** The parent brand. NOTE: "Ambercom" was a naming mistake — אמברקום IS
+ *  UMBRCOM (same company, same brand). Renamed July 2026; accent is black,
+ *  never amber/yellow. WP plugin field keys (ambercom_*) are kept for
+ *  backend compatibility only. */
+export const UMBRCOM: Brand = {
+  key: "umbrcom",
+  name: "UMBRCOM",
+  color: "#111111",
+  colorHover: "#333333",
+  tint: "rgba(0,0,0,0.05)",
 };
+
+/** @deprecated alias — use UMBRCOM. */
+export const AMBERCOM = UMBRCOM;
 
 /**
  * Returns the active brand based on the current route.
- * /ambercom* → Ambercom (amber) · everything else → Waterfall (light blue).
- * Item 12: buttons must follow the brand color of the page you're on.
+ * /umbrcom* (and the legacy /ambercom*) → UMBRCOM · everything else → Waterfall.
  */
 export function useBrand(): Brand {
   const { pathname } = useLocation();
-  return pathname.startsWith("/ambercom") ? AMBERCOM : WATERFALL;
+  return pathname.startsWith("/umbrcom") || pathname.startsWith("/ambercom") ? UMBRCOM : WATERFALL;
 }
