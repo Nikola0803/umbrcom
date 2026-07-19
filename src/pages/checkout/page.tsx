@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import PageLayout from "../../components/feature/PageLayout";
 import { useCart } from "@/context/CartContext";
 import { createPelecardCheckout, isWpConfigured } from "@/lib/wp-api";
+import { trackBeginCheckout } from "@/lib/analytics";
 
 type Step = "details" | "shipping" | "payment" | "confirm";
 
@@ -72,6 +73,8 @@ export default function CheckoutPage() {
   };
 
   const placeOrder = async () => {
+    trackBeginCheckout(items, total);
+
     // No WordPress backend configured (local dev with mocks) — simulate.
     if (!isWpConfigured()) {
       setOrdered(true);

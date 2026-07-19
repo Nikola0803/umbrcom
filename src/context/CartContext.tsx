@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback, ReactNode } from "react";
 import { Product } from "@/mocks/products";
+import { trackAddToCart, trackRemoveFromCart } from "@/lib/analytics";
 
 export interface CartItem {
   product: Product;
@@ -26,6 +27,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
 
   const addItem = useCallback((product: Product, qty = 1) => {
+    trackAddToCart(product, qty);
     setItems((prev) => {
       const existing = prev.find((i) => i.product.id === product.id);
       if (existing) {
@@ -39,7 +41,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const removeItem = useCallback((productId: string) => {
-    setItems((prev) => prev.filter((i) => i.product.id !== productId));
+    setItems((prev) => {
+      const removed = prev.find((i) => i.product.id === productId);
+      if (removed) trackRemoveFromCart(removed.product, removed.qty);
+      return prev.filter((i) => i.product.id !== productId);
+    });
   }, []);
 
   const updateQty = useCallback((productId: string, qty: number) => {

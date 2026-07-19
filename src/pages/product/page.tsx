@@ -6,6 +6,7 @@ import ProductCard from "../shop/components/ProductCard";
 import ModelViewer3D from "./components/ModelViewer3D";
 import { useCart } from "@/context/CartContext";
 import { fetchProductById, isWpConfigured } from "@/lib/wp-api";
+import { trackViewItem } from "@/lib/analytics";
 
 type LiveProduct = Product & {
   images?: string[];
@@ -137,12 +138,15 @@ export default function ProductPage() {
     setProduct(mockProduct);
     if (!isWpConfigured() || !id) {
       setLoading(false);
+      if (mockProduct) trackViewItem(mockProduct);
       return;
     }
     setLoading(true);
     fetchProductById(id).then((live) => {
       if (live) setProduct(live);
       setLoading(false);
+      const viewed = live ?? mockProduct;
+      if (viewed) trackViewItem(viewed);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);

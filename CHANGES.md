@@ -320,3 +320,15 @@ confirm they produce correct output, not just valid syntax.
 - Hero video URL (item 5) · the 3 marked category images (item 6) · 3 TikTok video links (item 7)
 - An endpoint for the cancellation form (item 16) — or say the word and I'll spin one up in the plugin
 - Legal check on the domain-name swaps inside the copied privacy/accessibility pages (items 11-12)
+
+
+## Update — Google Analytics (GA4, no Adscale)
+
+- `index.html`: standard gtag.js snippet with measurement ID **G-6N67TXSK2S** (from Ben).
+- New `src/lib/analytics.ts` — GA4 e-commerce events, pure gtag:
+  - `view_item` on every product page view
+  - `add_to_cart` / `remove_from_cart` from CartContext
+  - `begin_checkout` on "place order" (with the grand total incl. shipping), which also snapshots the cart items into sessionStorage
+  - `purchase` on /checkout/result once the backend confirms the Pelecard payment — `transaction_id` = order number, value = order total, items restored from the snapshot (React cart state doesn't survive the Pelecard redirect). Deduped per order number so a refresh of the thank-you page can't double-count revenue.
+- All calls are wrapped so a blocked/missing gtag can never break the shop.
+- GA4 property setup: keep Enhanced Measurement on (history-based page views for the SPA); e-commerce reports populate from the events above automatically.
