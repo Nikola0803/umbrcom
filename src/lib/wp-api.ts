@@ -353,6 +353,18 @@ export async function fetchProductById(id: string | number) {
   return mapStoreApiProduct(raw);
 }
 
+/**
+ * SKU lookup — rescue path for pre-migration product IDs (July 2026):
+ * the old WP install's numeric IDs (683/701/730/748…) died in the move to
+ * admin.umbrcom.co.il, but every SKU survived. Old bookmarked / indexed
+ * /product/:id URLs resolve through here instead of 404ing.
+ */
+export async function fetchProductBySku(sku: string) {
+  const raw = await getJSON<StoreApiProduct[]>(`/wc/store/v1/products?sku=${encodeURIComponent(sku)}`);
+  if (!raw || raw.length === 0) return null;
+  return mapStoreApiProduct(raw[0]);
+}
+
 export async function fetchProductBySlug(slug: string) {
   const raw = await getJSON<StoreApiProduct[]>(`/wc/store/v1/products?slug=${encodeURIComponent(slug)}`);
   if (!raw || raw.length === 0) return null;

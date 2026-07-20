@@ -3,7 +3,8 @@ import { useParams } from "react-router-dom";
 import PageLayout from "../../components/feature/PageLayout";
 import ProductCard from "./components/ProductCard";
 import ShopFilters from "./components/ShopFilters";
-import { allProducts, ProductColor, ProductType, ProductCategory } from "../../mocks/products";
+import { ProductColor, ProductType, ProductCategory } from "../../mocks/products";
+import { useLiveProducts } from "@/hooks/useLiveProducts";
 
 const PAGE_SIZE = 16;
 
@@ -35,6 +36,7 @@ export default function ShopPage() {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   const meta = category ? CATEGORY_META[category] : null;
+  const { products: allProducts, loading } = useLiveProducts();
 
   const filtered = useMemo(() => {
     let list = meta
@@ -48,7 +50,7 @@ export default function ShopPage() {
       list = list.filter((p) => p.type === selectedType);
     }
     return list;
-  }, [meta, selectedColors, selectedType]);
+  }, [meta, selectedColors, selectedType, allProducts]);
 
   const handleColorToggle = (color: ProductColor) => {
     setSelectedColors((prev) =>
@@ -106,7 +108,17 @@ export default function ShopPage() {
 
       {/* Product grid */}
       <div className="max-w-6xl mx-auto px-4 sm:px-8 pb-20 pt-4">
-        {filtered.length === 0 ? (
+        {loading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <div className="bg-[#f0f0f0] rounded-lg aspect-square mb-3" />
+                <div className="bg-[#f0f0f0] h-3 rounded w-3/4 mb-2 mr-auto" />
+                <div className="bg-[#f0f0f0] h-3 rounded w-1/3 mr-auto" />
+              </div>
+            ))}
+          </div>
+        ) : filtered.length === 0 ? (
           <div className="py-24 text-right">
             <i className="ri-search-line text-4xl text-[#ddd] mb-3 block"></i>
             <p className="text-[#aaa] text-sm">לא נמצאו מוצרים התואמים לסינון.</p>

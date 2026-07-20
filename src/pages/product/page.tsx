@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import PageLayout from "../../components/feature/PageLayout";
-import { allProducts, colorFilters, Product } from "../../mocks/products";
+import { allProducts as mockProducts, colorFilters, Product } from "../../mocks/products";
+import { useLiveProducts } from "@/hooks/useLiveProducts";
 import ProductCard from "../shop/components/ProductCard";
 import ModelViewer3D from "./components/ModelViewer3D";
 import { useCart } from "@/context/CartContext";
-import { fetchProductById, isWpConfigured } from "@/lib/wp-api";
+import { fetchProductById, fetchProductBySku, isWpConfigured } from "@/lib/wp-api";
 import { trackViewItem } from "@/lib/analytics";
 
 type LiveProduct = Product & {
@@ -162,7 +163,8 @@ function GalleryCarousel({ images, name }: { images: string[]; name: string }) {
 export default function ProductPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const mockProduct = allProducts.find((p) => p.id === id);
+  const { products: catalog, isLive } = useLiveProducts();
+  const mockProduct = mockProducts.find((p) => p.id === id);
   const [product, setProduct] = useState<LiveProduct | undefined>(mockProduct);
   const [loading, setLoading] = useState(isWpConfigured());
   const { addItem } = useCart();
@@ -175,7 +177,12 @@ export default function ProductPage() {
       return;
     }
     setLoading(true);
-    fetchProductById(id).then((live) => {
+    fetchProductById(id).then(async (live) => {
+      // Old-install ID? (pre-migration URLs / links rendered from mocks)
+      // — the ID is dead but the SKU survived the migration: resolve it.
+      if (!live && mockProduct?.sku) {
+        live = await fetchProductBySku(mockProduct.sku);
+      }
       if (live) setProduct(live);
       setLoading(false);
       const viewed = live ?? mockProduct;
@@ -214,7 +221,10 @@ export default function ProductPage() {
     );
   }
 
-  const related = allProducts
+  // Never build related-product links from mock IDs — they 404 against
+  // the live API. Mocks are only link-safe when WP itself is offline.
+  const linkSafeCatalog = isWpConfigured() && !isLive ? [] : catalog;
+  const related = linkSafeCatalog
     .filter((p) => p.category === product.category && p.id !== product.id)
     .slice(0, 4);
 
@@ -362,7 +372,7 @@ export default function ProductPage() {
                       }`}
                       style={{ backgroundColor: COLOR_DOT[c.value] ?? "#999" }}
                       onClick={() => {
-                        const same = allProducts.find(
+                        const same = catalog.find(
                           (p) => p.category === product.category && p.color === c.value && p.id !== product.id
                         );
                         if (same) navigate(`/product/${same.id}`);

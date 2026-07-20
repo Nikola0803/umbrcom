@@ -1,9 +1,12 @@
 import { Link } from "react-router-dom";
-import { Product, allProducts } from "../../../mocks/products";
+import { Product } from "../../../mocks/products";
+import { useLiveProducts } from "@/hooks/useLiveProducts";
 import ProductCard from "../../shop/components/ProductCard";
 
-const FEATURED_IDS = ["701", "730", "748", "683"];
-const DEFAULT_FEATURED = allProducts.filter((p) => FEATURED_IDS.includes(p.id));
+// Featured picks are pinned by SKU, not ID — product IDs changed in the
+// July 2026 move to admin.umbrcom.co.il (old 683/701/730/748 → new 77/138/
+// 184/206) and would change again on any future re-import. SKUs are stable.
+const FEATURED_SKUS = ["5508-003", "5503-001", "5506-005", "5509-001"];
 
 export interface FeaturedProductsProps {
   eyebrow?: string;
@@ -16,8 +19,19 @@ export default function FeaturedProducts({
   eyebrow = "מובחרים",
   heading = "מוצרים מומלצים",
   viewAllLink = "/shop",
-  products = DEFAULT_FEATURED,
+  products,
 }: FeaturedProductsProps) {
+  // Live featured picks: the four configured IDs when they exist in the
+  // live catalog, otherwise newest/first four — mocks only if WP is down.
+  const { products: catalog, loading } = useLiveProducts();
+  const shown =
+    products ??
+    (() => {
+      const bySku = FEATURED_SKUS
+        .map((sku) => catalog.find((p) => p.sku === sku))
+        .filter((p): p is Product => Boolean(p));
+      return bySku.length > 0 ? bySku : catalog.slice(0, 4);
+    })();
   return (
     <section className="w-full bg-white py-16">
       {/* Header */}
@@ -39,12 +53,21 @@ export default function FeaturedProducts({
         </Link>
       </div>
 
-      {/* Grid */}
+      {/* Grid — skeleton while the live catalog loads so we never render
+          clickable mock cards whose old-install IDs 404 on the live API */}
       <div className="max-w-6xl mx-auto px-8">
         <div className="grid grid-cols-4 gap-5">
-          {products.map((p) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
+          {!products && loading
+            ? Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="bg-[#f0f0f0] aspect-square mb-3" />
+                  <div className="bg-[#f0f0f0] h-3 w-3/4 mb-2 mr-auto" />
+                  <div className="bg-[#f0f0f0] h-3 w-1/3 mr-auto" />
+                </div>
+              ))
+            : shown.map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
         </div>
       </div>
 

@@ -1,9 +1,8 @@
 import { Link } from "react-router-dom";
 import PageLayout from "../../components/feature/PageLayout";
-import { allProducts } from "../../mocks/products";
+import { useLiveProducts } from "@/hooks/useLiveProducts";
 
-const SAMPLE_IDS = ["701", "730", "748"];
-const compareProducts = allProducts.filter((p) => SAMPLE_IDS.includes(p.id));
+const SAMPLE_SKUS = ["5508-003", "5503-001", "5506-005"]; // stable across ID migrations
 
 const SPECS = [
   { key: "material", label: "חומר", value: "פליז איכותי" },
@@ -15,6 +14,12 @@ const SPECS = [
 ];
 
 export default function ComparePage() {
+  const { products: catalog } = useLiveProducts();
+  const bySku = SAMPLE_SKUS
+    .map((sku) => catalog.find((p) => p.sku === sku))
+    .filter((p): p is NonNullable<typeof p> => Boolean(p));
+  const compareProducts = bySku.length > 0 ? bySku : catalog.slice(0, 3);
+
   return (
     <PageLayout>
       <section className="w-full bg-white min-h-[70vh] py-12 px-4 sm:px-8" dir="rtl">
