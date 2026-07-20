@@ -3,6 +3,7 @@ import { AppRoutes } from "./router";
 import { I18nextProvider } from "react-i18next";
 import i18n from "./i18n";
 import { CartProvider } from "./context/CartContext";
+import { BrandProvider } from "./context/BrandContext";
 import CartDrawer from "./components/feature/CartDrawer";
 import ScrollToTop from "./components/feature/ScrollToTop";
 
@@ -10,11 +11,13 @@ function App() {
   return (
     <I18nextProvider i18n={i18n}>
       <BrowserRouter basename={__BASE_PATH__}>
+        <BrandProvider>
         <CartProvider>
           <ScrollToTop />
           <AppRoutes />
           <CartDrawer />
         </CartProvider>
+        </BrandProvider>
       </BrowserRouter>
     </I18nextProvider>
   );

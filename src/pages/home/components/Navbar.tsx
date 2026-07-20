@@ -2,17 +2,22 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import { useBrand } from "@/hooks/useBrand";
+import { useBrandContext } from "@/context/BrandContext";
 import { fetchNav, fetchSettings } from "@/lib/wp-api";
 
-// Logo update (July 2026, per Nik): לוגו-לגרסת-נייד-5.png is the site logo
-// on BOTH desktop and mobile. Overridable from wp-admin Site Settings
-// (brand.waterfall_logo) once the content-engine plugin is active.
+// Brand assets (July 2026, per Nik):
+//  - Waterfall wordmark — settings-overridable (brand.waterfall_logo),
+//    shown in the brand switcher on Waterfall pages.
+//  - UMBRCOM logo (לוגו-לגרסת-נייד-5) — the parent-brand mark in the
+//    desktop nav AND the mobile header logo. Replaces the old
+//    "UMBRCOM / THE UMBRELLA COMPANY" text block.
 const DEFAULT_LOGO_URL =
+  "https://admin.umbrcom.co.il/wp-content/uploads/2026/07/%D7%9C%D7%95%D7%92%D7%95-%D7%9C%D7%90%D7%95%D7%A8%D7%9A-500-x-170-%D7%A4%D7%99%D7%A7%D7%A1%D7%9C-500-x-100-%D7%A4%D7%99%D7%A7%D7%A1%D7%9C-8.png";
+const UMBRCOM_LOGO_URL =
   "https://admin.umbrcom.co.il/wp-content/uploads/2026/07/%D7%9C%D7%95%D7%92%D7%95-%D7%9C%D7%92%D7%A8%D7%A1%D7%AA-%D7%A0%D7%99%D7%99%D7%93-5.png";
 
-// Header background is WHITE with black logo/icons (client request, July 2026).
-const NAV_BG = "#ffffff";
-const NAV_INK = "#111111";
+// Header chrome is brand-driven (July 2026): UMBRCOM (default) = white
+// header / black ink; Waterfall = BLACK header / white ink. See useBrand.
 
 const DEFAULT_CATEGORIES = [
   { label: "ברזי מטבח", path: "/shop/kitchen" },
@@ -48,12 +53,23 @@ export default function Navbar() {
   const location = useLocation();
   const { totalCount, openCart } = useCart();
   const brand = useBrand();
+  const { setBrandKey: setBrand } = useBrandContext();
   const brandMenuRef = useRef<HTMLDivElement>(null);
   const catMenuRef = useRef<HTMLDivElement>(null);
 
   // Live data from WordPress — falls back to the defaults above until it
   // loads (or forever, if VITE_WP_API_URL isn't configured).
   const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
+
+  // ── Brand-driven header theme ──
+  const dark = brand.key === "waterfall";
+  const NAV_BG = brand.headerBg;
+  const NAV_INK = brand.headerInk;
+  const SUB_INK = dark ? "rgba(255,255,255,0.72)" : "#333333";
+  const SURFACE = dark ? "rgba(255,255,255,0.13)" : "#f2f2f2";
+  const HAIRLINE = dark ? "rgba(255,255,255,0.16)" : "rgba(0,0,0,0.08)";
+  // Both logo files are dark-on-transparent — invert to white on the black header.
+  const logoStyle = dark ? { filter: "brightness(0) invert(1)" } : undefined;
   const [logoUrl, setLogoUrl] = useState(DEFAULT_LOGO_URL);
   const [phone, setPhone] = useState(DEFAULT_PHONE);
   const [whatsapp, setWhatsapp] = useState(DEFAULT_WHATSAPP);
@@ -92,7 +108,7 @@ export default function Navbar() {
       <header className="fixed top-0 left-0 right-0 z-50 shadow-[0_2px_14px_rgba(0,0,0,0.07)] border-b border-black/5">
 
         {/* ══ ROW 1 — icons (left) · dual logo (right) — desktop only ══ */}
-        <div dir="ltr" className="hidden md:block w-full border-b border-black/5" style={{ backgroundColor: NAV_BG }}>
+        <div dir="ltr" className="hidden md:block w-full" style={{ backgroundColor: NAV_BG }}>
           <div dir="ltr" className="max-w-7xl mx-auto px-5 sm:px-8 h-[92px] flex items-center justify-between">
 
             {/* LEFT — utility icon cluster */}
@@ -103,7 +119,7 @@ export default function Navbar() {
                 aria-label="סל קניות"
               >
                 <i className="ri-shopping-cart-2-line text-[24px] transition-opacity group-hover:opacity-70" style={{ color: NAV_INK }}></i>
-                <span className="text-[10px] font-medium text-[#333] whitespace-nowrap">סל קניות</span>
+                <span className="text-[10px] font-medium whitespace-nowrap" style={{ color: SUB_INK }}>סל קניות</span>
                 {totalCount > 0 && (
                   <span
                     className="absolute -top-1 left-3 w-[16px] h-[16px] text-[9px] font-bold rounded-full flex items-center justify-center text-white"
@@ -116,22 +132,22 @@ export default function Navbar() {
 
               <Link to="/auth" className="flex flex-col items-center gap-1 cursor-pointer group" aria-label="התחברות">
                 <i className="ri-user-3-line text-[24px] transition-opacity group-hover:opacity-70" style={{ color: NAV_INK }}></i>
-                <span className="text-[10px] font-medium text-[#333] whitespace-nowrap">התחבר</span>
+                <span className="text-[10px] font-medium whitespace-nowrap" style={{ color: SUB_INK }}>התחבר</span>
               </Link>
 
               <Link to="/wishlist" className="flex flex-col items-center gap-1 cursor-pointer group" aria-label="מועדפים">
                 <i className="ri-heart-line text-[24px] transition-opacity group-hover:opacity-70" style={{ color: NAV_INK }}></i>
-                <span className="text-[10px] font-medium text-[#333] whitespace-nowrap">ווישליסט</span>
+                <span className="text-[10px] font-medium whitespace-nowrap" style={{ color: SUB_INK }}>ווישליסט</span>
               </Link>
 
               <Link to="/compare" className="flex flex-col items-center gap-1 cursor-pointer group" aria-label="השוואה">
                 <span
                   className="w-9 h-9 rounded-full flex items-center justify-center transition-colors group-hover:opacity-80"
-                  style={{ backgroundColor: 'rgba(0,0,0,0.06)' }}
+                  style={{ backgroundColor: SURFACE }}
                 >
                   <i className="ri-shopping-bag-3-line text-[19px]" style={{ color: NAV_INK }}></i>
                 </span>
-                <span className="text-[10px] font-medium text-[#333] whitespace-nowrap">השוואה</span>
+                <span className="text-[10px] font-medium whitespace-nowrap" style={{ color: SUB_INK }}>השוואה</span>
               </Link>
             </div>
 
@@ -144,13 +160,9 @@ export default function Navbar() {
                   className="flex flex-col items-center gap-0.5 cursor-pointer"
                   aria-label="החלפת מותג"
                 >
-                  {brand.key === "umbrcom" ? (
-                    <span className="text-2xl sm:text-3xl font-bold tracking-[0.12em] text-[#111]">
-                      UMBRCOM
-                    </span>
-                  ) : (
-                    <img src={logoUrl} alt="Waterfall" className="h-9 sm:h-10 w-auto object-contain brightness-0" />
-                  )}
+                  {/* Waterfall logo is ALWAYS the left mark (Nik, July 2026) —
+                      the switcher no longer swaps it out on UMBRCOM pages. */}
+                  <img src={logoUrl} alt="Waterfall" className="h-9 sm:h-10 w-auto object-contain brightness-0" style={logoStyle} />
                   <i
                     className={`ri-arrow-down-s-fill text-lg leading-none transition-transform duration-200 ${brandMenuOpen ? "rotate-180" : ""}`}
                     style={{ color: NAV_INK }}
@@ -164,14 +176,14 @@ export default function Navbar() {
                   >
                     <Link
                       to="/"
-                      onClick={() => setBrandMenuOpen(false)}
+                      onClick={() => { setBrand("waterfall"); setBrandMenuOpen(false); }}
                       className={`block px-4 py-3 text-sm cursor-pointer hover:bg-[#f5f5f5] ${brand.key === "waterfall" ? "font-semibold text-[#1a1a1a]" : "text-[#555]"}`}
                     >
                       Waterfall
                     </Link>
                     <Link
                       to="/umbrcom"
-                      onClick={() => setBrandMenuOpen(false)}
+                      onClick={() => { setBrand("umbrcom"); setBrandMenuOpen(false); }}
                       className={`block px-4 py-3 text-sm cursor-pointer border-t border-[#eee] hover:bg-[#f5f5f5] ${brand.key === "umbrcom" ? "font-semibold text-[#1a1a1a]" : "text-[#555]"}`}
                     >
                       UMBRCOM
@@ -180,13 +192,14 @@ export default function Navbar() {
                 )}
               </div>
 
-              <div className="hidden sm:block h-9 w-px bg-black/10" />
+              <div className="hidden sm:block h-9 w-px" style={{ backgroundColor: HAIRLINE }} />
 
-              {/* UMBRCOM parent brand */}
-              <Link to="/" className="flex flex-col items-end hover:opacity-85 transition-opacity cursor-pointer">
-                <span className="text-[15px] font-bold tracking-[0.18em] text-[#111] leading-tight">UMBRCOM</span>
-                <span className="text-[8px] tracking-[0.22em] text-black/40 uppercase leading-tight">THE UMBRELLA COMPANY</span>
-              </Link>
+              {/* UMBRCOM parent brand — logo image, deliberately NOT a
+                  link (per Nik): pure brand mark, the switcher next to it
+                  handles navigation. */}
+              <div className="flex items-center">
+                <img src={UMBRCOM_LOGO_URL} alt="UMBRCOM" className="h-10 sm:h-11 w-auto object-contain" style={logoStyle} />
+              </div>
             </div>
           </div>
         </div>
@@ -197,14 +210,14 @@ export default function Navbar() {
 
             {/* LEFT — search */}
             <div className="flex-1 max-w-[520px]">
-              <div dir="rtl" className="flex items-center bg-[#f2f2f2] rounded-full h-11 px-4 gap-2">
-                <i className="ri-search-line text-black/35 text-base flex-shrink-0"></i>
+              <div dir="rtl" className="flex items-center rounded-full h-11 px-4 gap-2" style={{ backgroundColor: SURFACE }}>
+                <i className={`ri-search-line text-base flex-shrink-0 ${dark ? "text-white/50" : "text-black/35"}`}></i>
                 <input
                   type="text"
                   value={searchVal}
                   onChange={(e) => setSearchVal(e.target.value)}
                   placeholder="חיפוש מוצר, מותג או קטגוריה..."
-                  className="flex-1 text-sm text-right outline-none bg-transparent placeholder-[#999] text-[#111]"
+                  className={`flex-1 text-sm text-right outline-none bg-transparent ${dark ? "placeholder-white/50 text-white" : "placeholder-[#999] text-[#111]"}`}
                   dir="rtl"
                 />
                 <button
@@ -212,24 +225,24 @@ export default function Navbar() {
                   style={{ backgroundColor: NAV_INK }}
                   aria-label="חיפוש"
                 >
-                  <i className="ri-search-line text-white text-sm"></i>
+                  <i className={`ri-search-line text-sm ${dark ? "text-[#111]" : "text-white"}`}></i>
                 </button>
               </div>
             </div>
 
             {/* RIGHT — nav links + all categories */}
             <div dir="ltr" className="flex items-center gap-5">
-              <Link to="/shop" className="flex items-center gap-1.5 text-sm font-medium text-[#333] hover:text-black transition-colors cursor-pointer whitespace-nowrap">
+              <Link to="/shop" className="flex items-center gap-1.5 text-sm font-medium hover:opacity-70 transition-opacity cursor-pointer whitespace-nowrap" style={{ color: SUB_INK }}>
                 מבצעים
                 <i className="ri-price-tag-3-line text-sm"></i>
               </Link>
-              <span className="h-4 w-px bg-black/10" />
-              <Link to="/auth" className="flex items-center gap-1.5 text-sm font-medium text-[#333] hover:text-black transition-colors cursor-pointer whitespace-nowrap">
+              <span className="h-4 w-px" style={{ backgroundColor: HAIRLINE }} />
+              <Link to="/auth" className="flex items-center gap-1.5 text-sm font-medium hover:opacity-70 transition-opacity cursor-pointer whitespace-nowrap" style={{ color: SUB_INK }}>
                 מועדון לקוחות
                 <i className="ri-headphone-line text-sm"></i>
               </Link>
-              <span className="h-4 w-px bg-black/10" />
-              <Link to="/customer-service" className="flex items-center gap-1.5 text-sm font-medium text-[#333] hover:text-black transition-colors cursor-pointer whitespace-nowrap">
+              <span className="h-4 w-px" style={{ backgroundColor: HAIRLINE }} />
+              <Link to="/customer-service" className="flex items-center gap-1.5 text-sm font-medium hover:opacity-70 transition-opacity cursor-pointer whitespace-nowrap" style={{ color: SUB_INK }}>
                 שירות לקוחות
                 <i className="ri-star-line text-sm"></i>
               </Link>
@@ -238,7 +251,7 @@ export default function Navbar() {
               <div ref={catMenuRef} className="relative">
                 <button
                   onClick={() => setCatMenuOpen((v) => !v)}
-                  className="flex items-center gap-2 bg-[#111] hover:bg-[#2a2a2a] text-white text-sm font-semibold px-5 py-2.5 rounded-full cursor-pointer transition-colors whitespace-nowrap"
+                  className={`flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-full cursor-pointer transition-colors whitespace-nowrap ${dark ? "bg-white hover:bg-white/85 text-[#111]" : "bg-[#111] hover:bg-[#2a2a2a] text-white"}`}
                 >
                   כל הקטגוריות
                   <i className="ri-grid-fill text-sm"></i>
@@ -280,15 +293,11 @@ export default function Navbar() {
         {/* ══ Mobile header — logo · cart · hamburger ══ */}
         <div dir="rtl" className="md:hidden w-full px-4 h-16 flex items-center justify-between" style={{ backgroundColor: NAV_BG }}>
           <Link to="/" className="flex-shrink-0">
-            {brand.key === "umbrcom" ? (
-              <span className="text-lg font-bold tracking-[0.12em] text-[#111]">UMBRCOM</span>
-            ) : (
-              <img src={logoUrl} alt="Waterfall" className="h-8 w-auto object-contain brightness-0" />
-            )}
+            <img src={UMBRCOM_LOGO_URL} alt="UMBRCOM" className="h-8 w-auto object-contain" style={logoStyle} />
           </Link>
 
           <div className="flex items-center gap-5">
-            <button onClick={openCart} className="relative text-[#111] cursor-pointer" aria-label="סל קניות">
+            <button onClick={openCart} className="relative cursor-pointer" style={{ color: NAV_INK }} aria-label="סל קניות">
               <i className="ri-shopping-cart-2-line text-2xl"></i>
               {totalCount > 0 && (
                 <span
@@ -301,7 +310,8 @@ export default function Navbar() {
             </button>
             <button
               onClick={() => setMobileOpen((v) => !v)}
-              className="text-[#111] cursor-pointer"
+              className="cursor-pointer"
+              style={{ color: NAV_INK }}
               aria-label="תפריט"
             >
               <i className={`text-2xl ${mobileOpen ? "ri-close-line" : "ri-menu-3-line"}`}></i>
@@ -311,14 +321,14 @@ export default function Navbar() {
 
         {/* ══ Compact mobile search row ══ */}
         <div dir="rtl" className="md:hidden w-full px-4 pb-3" style={{ backgroundColor: NAV_BG }}>
-          <div className="flex items-center bg-[#f2f2f2] rounded-full h-10 px-4 gap-2">
-            <i className="ri-search-line text-black/35 text-base flex-shrink-0"></i>
+          <div className="flex items-center rounded-full h-10 px-4 gap-2" style={{ backgroundColor: SURFACE }}>
+            <i className={`ri-search-line text-base flex-shrink-0 ${dark ? "text-white/50" : "text-black/35"}`}></i>
             <input
               type="text"
               value={searchVal}
               onChange={(e) => setSearchVal(e.target.value)}
               placeholder="חיפוש מוצר..."
-              className="flex-1 text-sm text-right outline-none bg-transparent placeholder-[#999] text-[#111]"
+              className={`flex-1 text-sm text-right outline-none bg-transparent ${dark ? "placeholder-white/50 text-white" : "placeholder-[#999] text-[#111]"}`}
               dir="rtl"
             />
           </div>
@@ -342,10 +352,10 @@ export default function Navbar() {
           }`}
         >
           <div className="flex items-center justify-between px-5 py-4 border-b border-black/5" style={{ backgroundColor: NAV_BG }}>
-            <button onClick={() => setMobileOpen(false)} className="text-[#111] cursor-pointer">
+            <button onClick={() => setMobileOpen(false)} className="cursor-pointer" style={{ color: NAV_INK }}>
               <i className="ri-close-line text-2xl"></i>
             </button>
-            <img src={logoUrl} alt="Waterfall" className="h-9 object-contain brightness-0" />
+            <img src={UMBRCOM_LOGO_URL} alt="UMBRCOM" className="h-9 object-contain" style={logoStyle} />
           </div>
 
           <nav className="flex-1 overflow-y-auto py-2">
