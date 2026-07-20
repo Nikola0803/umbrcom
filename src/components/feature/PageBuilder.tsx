@@ -202,7 +202,8 @@ function CategoriesGridResolved({
   heading?: string;
   categoryIds: number[];
 }) {
-  const [tiles, setTiles] = useState<CategoryTile[] | undefined>(undefined);
+  const [catTiles, setCatTiles] = useState<CategoryTile[] | undefined>(undefined);
+  const [seriesTiles, setSeriesTiles] = useState<CategoryTile[] | undefined>(undefined);
 
   useEffect(() => {
     let cancelled = false;
@@ -215,23 +216,47 @@ function CategoriesGridResolved({
           .map((id) => nav.categories.find((c) => c.id === id))
           .filter((c): c is NonNullable<typeof c> => Boolean(c) && wanted.has(c!.id));
       }
-      if (cats.length > 0) {
-        setTiles(
-          cats.map((c) => ({
-            key: c.slug,
-            title: c.label,
-            path: c.link,
-            image: c.image,
-          }))
-        );
-      }
+
+      // ── Homepage grid rules (Nik, July 2026, from the annotated
+      //    screenshot):
+      //    1. Container categories with no tile image ("ברזים", "סדרות" —
+      //       the red-X placeholder tiles) never render.
+      //    2. What's left splits into two titled groups: product-type
+      //       CATEGORIES first (…Waterfall), then the SERIES (סדרת X). ──
+      const usable = cats.filter(
+        (c) => c.image && !c.image.includes("woocommerce-placeholder")
+      );
+      const isSeries = (label: string) => label.trim().startsWith("סדרת");
+      const toTile = (c: (typeof usable)[number]): CategoryTile => ({
+        key: c.slug,
+        title: c.label.trim(),
+        path: c.link,
+        image: c.image,
+      });
+
+      const catGroup = usable.filter((c) => !isSeries(c.label)).map(toTile);
+      const seriesGroup = usable.filter((c) => isSeries(c.label)).map(toTile);
+      if (catGroup.length > 0) setCatTiles(catGroup);
+      if (seriesGroup.length > 0) setSeriesTiles(seriesGroup);
     });
     return () => {
       cancelled = true;
     };
   }, [categoryIds]);
 
-  return <CategoriesSection eyebrow={eyebrow} heading={heading} categories={tiles} />;
+  // Both groups present → two titled sections. Only one (or still
+  // loading) → single section under the configured heading, as before.
+  if (catTiles && seriesTiles) {
+    return (
+      <>
+        <CategoriesSection eyebrow={eyebrow} heading="קטגוריות" categories={catTiles} />
+        <CategoriesSection heading="הסדרות שלנו" categories={seriesTiles} />
+      </>
+    );
+  }
+  return (
+    <CategoriesSection eyebrow={eyebrow} heading={heading} categories={catTiles ?? seriesTiles} />
+  );
 }
 
 /** Resolves an ACF relationship field (product IDs) to full Product objects.

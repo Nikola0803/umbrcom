@@ -194,12 +194,11 @@ export default function Navbar() {
 
               <div className="hidden sm:block h-9 w-px" style={{ backgroundColor: HAIRLINE }} />
 
-              {/* UMBRCOM parent brand — logo image, deliberately NOT a
-                  link (per Nik): pure brand mark, the switcher next to it
-                  handles navigation. */}
-              <div className="flex items-center">
+              {/* UMBRCOM parent brand — clickable, links home (Nik
+                  reversed the earlier not-clickable decision, July 2026). */}
+              <Link to="/" className="flex items-center hover:opacity-85 transition-opacity cursor-pointer">
                 <img src={UMBRCOM_LOGO_URL} alt="UMBRCOM" className="h-10 sm:h-11 w-auto object-contain" style={logoStyle} />
-              </div>
+              </Link>
             </div>
           </div>
         </div>
