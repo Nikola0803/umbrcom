@@ -13,6 +13,13 @@ const DEFAULT_VIDEOS = [
   { id: "7448000000000000003", caption: "התקנה פשוטה בדקות" },
 ];
 
+// Placeholder IDs (7448000000000000xxx) are not real TikTok videos — every
+// one of them triggers a 400 from TikTok plus a wall of embed-SDK console
+// noise. Filter them out everywhere so only real videos ever render.
+const isPlaceholderId = (id: string) => /^74480{12}\d{3}$/.test(id);
+const realOnly = (v: { id: string; caption: string }[]) =>
+  v.filter((x) => x.id && !isPlaceholderId(x.id));
+
 declare global {
   interface Window { // eslint-disable-next-line @typescript-eslint/no-explicit-any
     tiktokEmbedded?: any;
@@ -46,9 +53,14 @@ export default function TikTokSection({
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const shownVideos = videos === DEFAULT_VIDEOS && settingsVideos ? settingsVideos : videos;
+  const shownVideos = realOnly(
+    videos === DEFAULT_VIDEOS && settingsVideos ? settingsVideos : videos
+  );
 
   useEffect(() => {
+    // Only pull in TikTok's embed SDK when we actually have real videos —
+    // it's the source of the permissions-policy / webmssdk console spam.
+    if (shownVideos.length === 0) return;
     if (!document.getElementById("tiktok-embed-script")) {
       const script = document.createElement("script");
       script.id = "tiktok-embed-script";
@@ -56,7 +68,7 @@ export default function TikTokSection({
       script.async = true;
       document.body.appendChild(script);
     }
-  }, []);
+  }, [shownVideos.length]);
 
   return (
     <section className="w-full bg-[#0a0a0a] py-20 overflow-hidden" dir="rtl">
@@ -88,7 +100,9 @@ export default function TikTokSection({
           </a>
         </div>
 
-        {/* TikTok embed grid */}
+        {/* TikTok embed grid — only when real video IDs are configured
+            (wp-admin → UMBRCOM → Site Settings → TikTok) */}
+        {shownVideos.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 justify-items-center">
           {shownVideos.map((v) => (
             <div key={v.id} className="w-full max-w-[320px]">
@@ -105,10 +119,7 @@ export default function TikTokSection({
             </div>
           ))}
         </div>
-
-        <p className="text-right text-xs text-white/20 mt-8">
-          * להחלפת הסרטונים — עדכנו את מזהי הווידאו ב-TikTokSection.tsx
-        </p>
+        )}
       </div>
     </section>
   );
