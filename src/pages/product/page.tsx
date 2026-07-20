@@ -56,9 +56,11 @@ const RICH_FIELD_CLASSES =
   "[&_h3]:text-base [&_h3]:font-semibold [&_h3]:text-[#1a1410] [&_h3]:mt-3 [&_h3]:mb-1.5 " +
   "[&_h4]:font-semibold [&_h4]:text-[#1a1410] [&_p]:mb-3 [&_strong]:text-[#1a1410] " +
   "[&_ul]:list-disc [&_ul]:pr-5 [&_ul]:space-y-1 [&_ul]:mb-3 [&_ol]:list-decimal [&_ol]:pr-5 [&_ol]:space-y-1 [&_ol]:mb-3 " +
-  "[&_table]:w-full [&_table]:border-collapse [&_table]:text-right [&_table]:my-3 " +
-  "[&_th]:bg-[#faf8f4] [&_th]:text-[#1a1410] [&_th]:text-xs [&_th]:font-semibold [&_th]:px-4 [&_th]:py-2.5 [&_th]:border [&_th]:border-[#ede9e1] " +
-  "[&_td]:px-4 [&_td]:py-2.5 [&_td]:border [&_td]:border-[#ede9e1] " +
+  "[&_table]:w-full [&_table]:text-right [&_table]:my-3 [&_table]:border-separate [&_table]:[border-spacing:0] " +
+  "[&_table]:rounded-2xl [&_table]:overflow-hidden [&_table]:border [&_table]:border-[#ece7dd] " +
+  "[&_th]:bg-[#1a1410] [&_th]:text-white [&_th]:text-xs [&_th]:font-semibold [&_th]:px-5 [&_th]:py-3 " +
+  "[&_td]:px-5 [&_td]:py-3 [&_td]:border-b [&_td]:border-[#f2eee6] [&_tr:last-child_td]:border-b-0 " +
+  "[&_tbody_tr:nth-child(even)_td]:bg-[#faf8f4] [&_td:first-child]:font-semibold [&_td:first-child]:text-[#1a1410] " +
   "[&_a]:underline [&_a]:text-[#1a1410]";
 
 function looksLikeHtml(s: string) {
@@ -535,21 +537,27 @@ export default function ProductPage() {
               (product.techSpecsHtml ? (
                 <div
                   dir="rtl"
-                  className="umbrcom-tech-specs text-sm text-[#5a4e42] leading-relaxed text-right
-                    [&_table]:w-full [&_table]:border-collapse [&_table]:text-right
-                    [&_th]:bg-[#faf8f4] [&_th]:text-[#1a1410] [&_th]:text-xs [&_th]:font-semibold [&_th]:uppercase [&_th]:tracking-wide
-                    [&_th]:px-4 [&_th]:py-3 [&_td]:px-4 [&_td]:py-3
-                    [&_tr]:border-b [&_tr]:border-[#ede9e1]
-                    [&_td:first-child]:font-medium [&_td:first-child]:text-[#1a1410]
+                  className="umbrcom-tech-specs text-sm text-[#5a4e52] leading-relaxed text-right
+                    [&_table]:w-full [&_table]:text-right [&_table]:my-2 [&_table]:border-separate [&_table]:[border-spacing:0]
+                    [&_table]:rounded-2xl [&_table]:overflow-hidden [&_table]:border [&_table]:border-[#ece7dd] [&_table]:shadow-[0_1px_2px_rgba(0,0,0,0.03)]
+                    [&_th]:bg-[#1a1410] [&_th]:text-white [&_th]:text-xs [&_th]:font-semibold [&_th]:tracking-wide [&_th]:px-5 [&_th]:py-3.5
+                    [&_td]:px-5 [&_td]:py-3.5 [&_td]:border-b [&_td]:border-[#f2eee6] [&_tr:last-child_td]:border-b-0
+                    [&_tbody_tr:nth-child(even)_td]:bg-[#faf8f4]
+                    [&_td:first-child]:font-semibold [&_td:first-child]:text-[#1a1410] [&_td:first-child]:w-[36%] [&_td:first-child]:align-top
                     [&_p]:mb-3 [&_ul]:list-disc [&_ul]:pr-5 [&_ul]:space-y-1 [&_h3]:font-semibold [&_h3]:text-[#1a1410] [&_h3]:mb-2"
                   dangerouslySetInnerHTML={{ __html: product.techSpecsHtml }}
                 />
               ) : (
-                <div className="divide-y divide-[#ede9e1]">
-                  {(product.specTable && product.specTable.length > 0 ? product.specTable : SPECS).map((s) => (
-                    <div key={s.label} className="flex items-center justify-between py-3.5">
-                      <span className="text-sm text-[#1a1410] font-medium">{s.value}</span>
-                      <span className="text-xs text-[#9a8a7a] uppercase tracking-wide">{s.label}</span>
+                <div dir="rtl" className="rounded-2xl overflow-hidden border border-[#ece7dd] shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+                  {(product.specTable && product.specTable.length > 0 ? product.specTable : SPECS).map((s, i) => (
+                    <div
+                      key={s.label}
+                      className={`grid grid-cols-[36%_1fr] items-center px-5 py-3.5 text-right ${
+                        i % 2 === 1 ? "bg-[#faf8f4]" : "bg-white"
+                      } ${i > 0 ? "border-t border-[#f2eee6]" : ""}`}
+                    >
+                      <span className="text-sm font-semibold text-[#1a1410]">{s.label}</span>
+                      <span className="text-sm text-[#5a4e42]">{s.value}</span>
                     </div>
                   ))}
                 </div>

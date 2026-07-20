@@ -55,7 +55,9 @@ export default function ProductCard({ product }: ProductCardProps) {
   return (
     <Link to={`/product/${product.id}`} className="group cursor-pointer flex flex-col">
       {/* ── Image tile — soft gray, no border ── */}
-      <div className="relative w-full aspect-square overflow-hidden rounded-2xl bg-[#f6f6f6]">
+      {/* Image fills the whole tile edge-to-edge (Nik, July 2026) — no gray
+          backdrop, no inner padding: object-cover instead of padded contain. */}
+      <div className="relative w-full aspect-square overflow-hidden rounded-2xl bg-white">
         {/* Sale tag — quiet text badge, top right */}
         <span className="absolute top-4 right-4 z-10 text-[10px] font-semibold tracking-[0.15em] uppercase text-[#1a1a1a] bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-full">
           מבצע
@@ -73,7 +75,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         <img
           src={product.image}
           alt={product.name}
-          className="w-full h-full object-contain p-8 transition-transform duration-500 group-hover:scale-[1.04]"
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
         />
 
         {/* Quick add — slides up on hover, brand colored (item 12) */}
