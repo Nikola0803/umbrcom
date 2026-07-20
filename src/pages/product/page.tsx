@@ -463,7 +463,9 @@ export default function ProductPage() {
       <section className="w-full bg-white border-y border-[#ede9e1] py-12">
         <div className="max-w-5xl mx-auto px-4 sm:px-8">
           {/* Tab bar */}
-          <div className="flex justify-end gap-0 mb-8 border-b border-[#ede9e1]">
+          {/* PageLayout wraps everything in dir="rtl", so justify-START is the
+              visual RIGHT — justify-end was pinning the tabs to the left. */}
+          <div className="flex justify-start gap-0 mb-8 border-b border-[#ede9e1]">
             {(
               [
                 { key: "desc", label: "תיאור המוצר" },

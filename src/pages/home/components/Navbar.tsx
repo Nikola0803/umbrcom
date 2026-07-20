@@ -4,8 +4,11 @@ import { useCart } from "@/context/CartContext";
 import { useBrand } from "@/hooks/useBrand";
 import { fetchNav, fetchSettings } from "@/lib/wp-api";
 
+// Logo update (July 2026, per Nik): לוגו-לגרסת-נייד-5.png is the site logo
+// on BOTH desktop and mobile. Overridable from wp-admin Site Settings
+// (brand.waterfall_logo) once the content-engine plugin is active.
 const DEFAULT_LOGO_URL =
-  "https://admin.umbrcom.co.il/wp-content/uploads/2026/07/%D7%9C%D7%95%D7%92%D7%95-%D7%9C%D7%90%D7%95%D7%A8%D7%9A-500-x-170-%D7%A4%D7%99%D7%A7%D7%A1%D7%9C-500-x-100-%D7%A4%D7%99%D7%A7%D7%A1%D7%9C-8.png";
+  "https://admin.umbrcom.co.il/wp-content/uploads/2026/07/%D7%9C%D7%95%D7%92%D7%95-%D7%9C%D7%92%D7%A8%D7%A1%D7%AA-%D7%A0%D7%99%D7%99%D7%93-5.png";
 
 // Header background is WHITE with black logo/icons (client request, July 2026).
 const NAV_BG = "#ffffff";
