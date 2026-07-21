@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const CS_FORM_URL = "https://readdy.ai/api/form/d70o48eth28qd804cuug";
 
@@ -86,7 +87,7 @@ export default function CustomerServiceForm() {
               className="mt-1 cursor-pointer"
             />
             <label className="text-xs text-gray-500 leading-relaxed">
-              קראתי ואני מסכים/ה למדיניות הפרטיות ותנאי השימוש, ומאשר/ת יצירת קשר עמי.
+              קראתי ואני מסכים/ה ל<Link to="/privacy" target="_blank" className="underline text-gray-700 hover:text-black">מדיניות הפרטיות</Link> ו<Link to="/terms" target="_blank" className="underline text-gray-700 hover:text-black">תנאי השימוש</Link>, ומאשר/ת יצירת קשר עמי.
             </label>
           </div>
           {status === "error" && (

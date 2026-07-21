@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 /** The functional B2B inquiry form. Kept as a fixed React component; the
  *  banner and benefit tiles around it are CMS-editable (business/page.tsx). */
@@ -42,7 +43,7 @@ export default function BusinessForm() {
               className="mt-1 cursor-pointer accent-[#1a1a1a]"
             />
             <label htmlFor="business-consent" className="text-xs text-[#888] cursor-pointer leading-relaxed">
-              קראתי ואני מסכים/ה למדיניות הפרטיות ותנאי השימוש, ומאשר/ת יצירת קשר עמי.
+              קראתי ואני מסכים/ה ל<Link to="/privacy" target="_blank" className="underline text-[#1a1a1a] hover:text-[#555]">מדיניות הפרטיות</Link> ו<Link to="/terms" target="_blank" className="underline text-[#1a1a1a] hover:text-[#555]">תנאי השימוש</Link>, ומאשר/ת יצירת קשר עמי.
             </label>
           </div>
           <button type="submit" disabled={!consent} className="bg-[#1a1a1a] hover:bg-[#333] text-white text-sm font-semibold tracking-widest px-10 py-4 rounded-xl transition-colors cursor-pointer disabled:opacity-40">

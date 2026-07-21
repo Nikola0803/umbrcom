@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const FORM_URL = "https://readdy.ai/api/form/d70o0or2m2156g4s70hg";
 
@@ -87,7 +88,7 @@ export default function NewsletterSection() {
               className="mt-0.5 cursor-pointer accent-white"
             />
             <label htmlFor="newsletter-consent" className="text-xs text-[#888] cursor-pointer leading-relaxed">
-              קראתי ואני מסכים/ה למדיניות הפרטיות ותנאי השימוש, ומאשר/ת יצירת קשר עמי.
+              קראתי ואני מסכים/ה ל<Link to="/privacy" target="_blank" className="underline hover:text-white">מדיניות הפרטיות</Link> ו<Link to="/terms" target="_blank" className="underline hover:text-white">תנאי השימוש</Link>, ומאשר/ת יצירת קשר עמי.
             </label>
           </div>
         )}

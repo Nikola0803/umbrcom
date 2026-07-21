@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import { useBrand } from "@/hooks/useBrand";
 import { useBrandContext } from "@/context/BrandContext";
-import { fetchNav, fetchSettings } from "@/lib/wp-api";
+import { fetchSettings } from "@/lib/wp-api";
 
 // Brand assets (July 2026, per Nik):
 //  - Waterfall wordmark — settings-overridable (brand.waterfall_logo),
@@ -19,26 +19,21 @@ const UMBRCOM_LOGO_URL =
 // Header chrome is brand-driven (July 2026): UMBRCOM (default) = white
 // header / black ink; Waterfall = BLACK header / white ink. See useBrand.
 
+// Item 35 (July 2026): main navigation simplified to exactly these five —
+// nothing else, per Nik. Both the desktop "all categories" pill and the
+// mobile drawer's primary nav now read from this single list.
 const DEFAULT_CATEGORIES = [
   { label: "ברזי מטבח", path: "/shop/kitchen" },
-  { label: "ברזי כיור רחצה", path: "/shop/bathroom" },
+  { label: "ברזי אמבטיה", path: "/shop/bathroom" },
   { label: "ברזי מים קרים", path: "/shop/cold-water" },
-  { label: "ערכות פינוק", path: "/shop/pampering-sets" },
-  { label: "סדרות", path: "/series" },
+  { label: "ערכות מקלחת", path: "/shop/shower-sets" },
+  { label: "סדרת ברזי Waterfall", path: "/series" },
 ];
 
 const DEFAULT_PHONE = "03-620-8197";
 const DEFAULT_WHATSAPP = "97236208197";
 
-const MOBILE_NAV = [
-  { label: "בית", path: "/" },
-  { label: "חנות", path: "/shop" },
-  { label: "סדרות", path: "/series" },
-  { label: "UMBRCOM", path: "/umbrcom" },
-  { label: "בלוג", path: "/blog" },
-  { label: "אודות", path: "/about" },
-  { label: "צור קשר", path: "/contact" },
-];
+const MOBILE_NAV = DEFAULT_CATEGORIES;
 
 // Reference layout (client WhatsApp screenshot): icon cluster fixed left,
 // dual logo fixed right, search fixed left on row 2, nav links + a white
@@ -48,18 +43,15 @@ const MOBILE_NAV = [
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchVal, setSearchVal] = useState("");
-  const [brandMenuOpen, setBrandMenuOpen] = useState(false);
-  const [catMenuOpen, setCatMenuOpen] = useState(false);
   const location = useLocation();
   const { totalCount, openCart } = useCart();
   const brand = useBrand();
   const { setBrandKey: setBrand } = useBrandContext();
-  const brandMenuRef = useRef<HTMLDivElement>(null);
-  const catMenuRef = useRef<HTMLDivElement>(null);
 
-  // Live data from WordPress — falls back to the defaults above until it
-  // loads (or forever, if VITE_WP_API_URL isn't configured).
-  const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
+  // Item 35: main navigation is a fixed 5-item list (not sourced from
+  // WordPress) — "nothing else for now" per Nik. Left as const so a future
+  // round can reintroduce live categories without touching markup.
+  const categories = DEFAULT_CATEGORIES;
 
   // ── Brand-driven header theme ──
   const dark = brand.key === "waterfall";
@@ -75,11 +67,6 @@ export default function Navbar() {
   const [whatsapp, setWhatsapp] = useState(DEFAULT_WHATSAPP);
 
   useEffect(() => {
-    fetchNav().then((nav) => {
-      if (nav && nav.categories.length > 0) {
-        setCategories(nav.categories.map((c) => ({ label: c.label, path: c.link })));
-      }
-    });
     fetchSettings().then((settings) => {
       if (!settings) return;
       if (settings.brand?.waterfall_logo) setLogoUrl(settings.brand.waterfall_logo);
@@ -88,17 +75,7 @@ export default function Navbar() {
     });
   }, []);
 
-  useEffect(() => { setMobileOpen(false); setBrandMenuOpen(false); setCatMenuOpen(false); }, [location.pathname]);
-
-  // Close dropdowns on outside click
-  useEffect(() => {
-    const onClick = (e: MouseEvent) => {
-      if (brandMenuRef.current && !brandMenuRef.current.contains(e.target as Node)) setBrandMenuOpen(false);
-      if (catMenuRef.current && !catMenuRef.current.contains(e.target as Node)) setCatMenuOpen(false);
-    };
-    document.addEventListener("mousedown", onClick);
-    return () => document.removeEventListener("mousedown", onClick);
-  }, []);
+  useEffect(() => { setMobileOpen(false); }, [location.pathname]);
 
   const isActive = (path: string) =>
     path === "/" ? location.pathname === "/" : location.pathname.startsWith(path);
@@ -151,52 +128,31 @@ export default function Navbar() {
               </Link>
             </div>
 
-            {/* RIGHT — dual logo: brand wordmark (switcher) + UMBRCOM */}
+            {/* RIGHT — dual logo: both brands, both always clickable (item 34).
+                Umbrcom is the default brand (black accents); clicking the
+                Waterfall mark switches the whole site to Waterfall (light
+                blue accents) immediately — no menu, no confirmation. */}
             <div dir="ltr" className="flex items-center gap-5 sm:gap-6">
-              {/* Brand wordmark + dropdown chevron */}
-              <div ref={brandMenuRef} className="relative">
-                <button
-                  onClick={() => setBrandMenuOpen((v) => !v)}
-                  className="flex flex-col items-center gap-0.5 cursor-pointer"
-                  aria-label="החלפת מותג"
-                >
-                  {/* Waterfall logo is ALWAYS the left mark (Nik, July 2026) —
-                      the switcher no longer swaps it out on UMBRCOM pages. */}
-                  <img src={logoUrl} alt="Waterfall" className="h-9 sm:h-10 w-auto object-contain brightness-0" style={logoStyle} />
-                  <i
-                    className={`ri-arrow-down-s-fill text-lg leading-none transition-transform duration-200 ${brandMenuOpen ? "rotate-180" : ""}`}
-                    style={{ color: NAV_INK }}
-                  ></i>
-                </button>
-
-                {brandMenuOpen && (
-                  <div
-                    dir="rtl"
-                    className="absolute top-full mt-3 right-1/2 translate-x-1/2 sm:right-0 sm:translate-x-0 w-44 bg-white rounded-xl shadow-[0_12px_36px_rgba(0,0,0,0.2)] overflow-hidden text-right"
-                  >
-                    <Link
-                      to="/"
-                      onClick={() => { setBrand("waterfall"); setBrandMenuOpen(false); }}
-                      className={`block px-4 py-3 text-sm cursor-pointer hover:bg-[#f5f5f5] ${brand.key === "waterfall" ? "font-semibold text-[#1a1a1a]" : "text-[#555]"}`}
-                    >
-                      Waterfall
-                    </Link>
-                    <Link
-                      to="/umbrcom"
-                      onClick={() => { setBrand("umbrcom"); setBrandMenuOpen(false); }}
-                      className={`block px-4 py-3 text-sm cursor-pointer border-t border-[#eee] hover:bg-[#f5f5f5] ${brand.key === "umbrcom" ? "font-semibold text-[#1a1a1a]" : "text-[#555]"}`}
-                    >
-                      UMBRCOM
-                    </Link>
-                  </div>
-                )}
-              </div>
+              <button
+                onClick={() => setBrand("waterfall")}
+                className="flex items-center hover:opacity-85 transition-opacity cursor-pointer"
+                aria-label="עבור למותג Waterfall"
+                title="Waterfall"
+              >
+                <img src={logoUrl} alt="Waterfall" className="h-9 sm:h-10 w-auto object-contain brightness-0" style={logoStyle} />
+              </button>
 
               <div className="hidden sm:block h-9 w-px" style={{ backgroundColor: HAIRLINE }} />
 
-              {/* UMBRCOM parent brand — clickable, links home (Nik
-                  reversed the earlier not-clickable decision, July 2026). */}
-              <Link to="/" className="flex items-center hover:opacity-85 transition-opacity cursor-pointer">
+              {/* UMBRCOM parent brand — clickable, switches to the default
+                  Umbrcom brand and goes home. */}
+              <Link
+                to="/"
+                onClick={() => setBrand("umbrcom")}
+                className="flex items-center hover:opacity-85 transition-opacity cursor-pointer"
+                aria-label="עבור למותג UMBRCOM"
+                title="UMBRCOM"
+              >
                 <img src={UMBRCOM_LOGO_URL} alt="UMBRCOM" className="h-10 sm:h-11 w-auto object-contain" style={logoStyle} />
               </Link>
             </div>
@@ -229,91 +185,58 @@ export default function Navbar() {
               </div>
             </div>
 
-            {/* RIGHT — nav links + all categories */}
-            <div dir="ltr" className="flex items-center gap-5">
-              <Link to="/shop" className="flex items-center gap-1.5 text-sm font-medium hover:opacity-70 transition-opacity cursor-pointer whitespace-nowrap" style={{ color: SUB_INK }}>
-                מבצעים
-                <i className="ri-price-tag-3-line text-sm"></i>
-              </Link>
-              <span className="h-4 w-px" style={{ backgroundColor: HAIRLINE }} />
-              <Link to="/auth" className="flex items-center gap-1.5 text-sm font-medium hover:opacity-70 transition-opacity cursor-pointer whitespace-nowrap" style={{ color: SUB_INK }}>
-                מועדון לקוחות
-                <i className="ri-headphone-line text-sm"></i>
-              </Link>
-              <span className="h-4 w-px" style={{ backgroundColor: HAIRLINE }} />
-              <Link to="/customer-service" className="flex items-center gap-1.5 text-sm font-medium hover:opacity-70 transition-opacity cursor-pointer whitespace-nowrap" style={{ color: SUB_INK }}>
-                שירות לקוחות
-                <i className="ri-star-line text-sm"></i>
-              </Link>
-
-              {/* All categories — white pill with dropdown */}
-              <div ref={catMenuRef} className="relative">
-                <button
-                  onClick={() => setCatMenuOpen((v) => !v)}
-                  className={`flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-full cursor-pointer transition-colors whitespace-nowrap ${dark ? "bg-white hover:bg-white/85 text-[#111]" : "bg-[#111] hover:bg-[#2a2a2a] text-white"}`}
+            {/* RIGHT — main navigation (item 35): exactly these 5 links,
+                nothing else, for now. */}
+            <div dir="ltr" className="flex items-center gap-6">
+              {categories.map((cat) => (
+                <Link
+                  key={cat.path}
+                  to={cat.path}
+                  className="text-sm font-medium hover:opacity-70 transition-opacity cursor-pointer whitespace-nowrap"
+                  style={{ color: isActive(cat.path) ? NAV_INK : SUB_INK, fontWeight: isActive(cat.path) ? 700 : 500 }}
                 >
-                  כל הקטגוריות
-                  <i className="ri-grid-fill text-sm"></i>
-                </button>
-
-                {catMenuOpen && (
-                  <div
-                    dir="rtl"
-                    className="absolute top-full mt-3 left-0 w-56 bg-white rounded-xl shadow-[0_12px_36px_rgba(0,0,0,0.2)] overflow-hidden text-right py-1"
-                  >
-                    {categories.map((cat) => (
-                      <Link
-                        key={cat.path}
-                        to={cat.path}
-                        onClick={() => setCatMenuOpen(false)}
-                        className={`block px-4 py-2.5 text-sm cursor-pointer hover:bg-[#f5f5f5] ${
-                          isActive(cat.path) ? "font-semibold text-[#1a1a1a]" : "text-[#444]"
-                        }`}
-                      >
-                        {cat.label}
-                      </Link>
-                    ))}
-                    <div className="border-t border-[#eee] mt-1 pt-1">
-                      <Link
-                        to="/umbrcom"
-                        onClick={() => setCatMenuOpen(false)}
-                        className="block px-4 py-2.5 text-sm cursor-pointer hover:bg-[#f5f5f5] text-[#111] font-medium"
-                      >
-                        UMBRCOM
-                      </Link>
-                    </div>
-                  </div>
-                )}
-              </div>
+                  {cat.label}
+                </Link>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* ══ Mobile header — logo · cart · hamburger ══ */}
-        <div dir="rtl" className="md:hidden w-full px-4 h-16 flex items-center justify-between" style={{ backgroundColor: NAV_BG }}>
-          <Link to="/" className="flex-shrink-0">
+        {/* ══ Mobile header (item 1) — logo CENTER · wishlist+cart LEFT ·
+            menu RIGHT. `relative` + `overflow-hidden` + min-w-0 on the side
+            clusters keep this from ever causing horizontal scroll or a
+            clipped top edge on narrow devices (item 2). ══ */}
+        <div dir="rtl" className="md:hidden relative w-full max-w-full overflow-hidden px-3 h-16 flex items-center justify-between" style={{ backgroundColor: NAV_BG }}>
+          {/* RIGHT (rtl start) — menu icon only */}
+          <button
+            onClick={() => setMobileOpen((v) => !v)}
+            className="flex-shrink-0 min-w-0 w-10 h-10 flex items-center justify-center cursor-pointer"
+            style={{ color: NAV_INK }}
+            aria-label="תפריט"
+          >
+            <i className={`text-2xl ${mobileOpen ? "ri-close-line" : "ri-menu-3-line"}`}></i>
+          </button>
+
+          {/* CENTER — logo, absolutely centered regardless of side widths */}
+          <Link to="/" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex-shrink-0">
             <img src={UMBRCOM_LOGO_URL} alt="UMBRCOM" className="h-8 w-auto object-contain" style={logoStyle} />
           </Link>
 
-          <div className="flex items-center gap-5">
+          {/* LEFT (rtl end) — wishlist + cart */}
+          <div className="flex-shrink-0 min-w-0 flex items-center gap-4">
+            <Link to="/wishlist" className="cursor-pointer" style={{ color: NAV_INK }} aria-label="מועדפים">
+              <i className="ri-heart-line text-2xl"></i>
+            </Link>
             <button onClick={openCart} className="relative cursor-pointer" style={{ color: NAV_INK }} aria-label="סל קניות">
               <i className="ri-shopping-cart-2-line text-2xl"></i>
               {totalCount > 0 && (
                 <span
-                  className="absolute -top-1.5 -right-1.5 w-[16px] h-[16px] text-[9px] font-bold rounded-full flex items-center justify-center text-white"
+                  className="absolute -top-1.5 -left-1.5 w-[16px] h-[16px] text-[9px] font-bold rounded-full flex items-center justify-center text-white"
                   style={{ backgroundColor: brand.color }}
                 >
                   {totalCount}
                 </span>
               )}
-            </button>
-            <button
-              onClick={() => setMobileOpen((v) => !v)}
-              className="cursor-pointer"
-              style={{ color: NAV_INK }}
-              aria-label="תפריט"
-            >
-              <i className={`text-2xl ${mobileOpen ? "ri-close-line" : "ri-menu-3-line"}`}></i>
             </button>
           </div>
         </div>
@@ -375,7 +298,7 @@ export default function Navbar() {
               {[
                 { label: "הרשמה / התחברות", path: "/auth", icon: "ri-user-3-line" },
                 { label: "המועדפים שלי", path: "/wishlist", icon: "ri-heart-line" },
-                { label: "השוואת מחירים", path: "/compare", icon: "ri-shopping-bag-3-line" },
+                { label: "השוואת מוצרים", path: "/compare", icon: "ri-shopping-bag-3-line" },
                 { label: "שירות לקוחות", path: "/customer-service", icon: "ri-headphone-line" },
               ].map((l) => (
                 <Link

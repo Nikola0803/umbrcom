@@ -1,28 +1,48 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import PageLayout from "../../components/feature/PageLayout";
-import { useCart } from "@/context/CartContext";
+import { useCart, type CartItem } from "@/context/CartContext";
 import { createPelecardCheckout, isWpConfigured } from "@/lib/wp-api";
 import { trackBeginCheckout } from "@/lib/analytics";
 
-type Step = "details" | "shipping" | "payment" | "confirm";
+// Items 28-30 (July 2026): checkout simplified to two steps — everything
+// that used to live on separate "shipping" and "payment" pages (the
+// shipping method choice and the PlaCard payment selection) now sits
+// directly on the Checkout Details step. Only "confirm" remains separate,
+// for a final review before charging the card.
+type Step = "details" | "confirm";
 
 const STEPS: { key: Step; label: string }[] = [
-  { key: "details", label: "פרטים אישיים" },
-  { key: "shipping", label: "משלוח" },
-  { key: "payment", label: "תשלום" },
+  { key: "details", label: "פרטי הזמנה" },
   { key: "confirm", label: "אישור הזמנה" },
 ];
 
+// Item 26: free shipping threshold.
+const FREE_SHIPPING_THRESHOLD = 250;
+const STANDARD_SHIPPING_FEE = 28;
+const STORE_ADDRESS = "דוד סהרוב 18, ראשון לציון";
+
+// Item 28: only these two options — the old "Fast Shipping" tier is gone.
 const SHIPPING_OPTIONS = [
-  { id: "standard", label: "משלוח סטנדרטי", sub: "3–5 ימי עסקים", price: 28 },
-  { id: "express", label: "משלוח מהיר", sub: "1–2 ימי עסקים", price: 49 },
-  { id: "free", label: "משלוח חינם", sub: "מעל ₪200 — 3–5 ימי עסקים", price: 0, minOrder: 200 },
+  {
+    id: "delivery",
+    label: "משלוח עד הבית",
+    sub: `חינם בהזמנות מעל ₪${FREE_SHIPPING_THRESHOLD} · אחרת ₪${STANDARD_SHIPPING_FEE}`,
+  },
+  {
+    id: "pickup",
+    label: "איסוף עצמי מהחנות",
+    sub: STORE_ADDRESS,
+  },
 ];
 
 interface DetailsForm {
   firstName: string; lastName: string; email: string; phone: string;
   address: string; city: string; zip: string; notes: string;
+  // Item 24
+  invoiceName: string; companyRegNumber: string;
+  // Item 25
+  israeliId: string;
 }
 
 export default function CheckoutPage() {
@@ -30,14 +50,22 @@ export default function CheckoutPage() {
   const navigate = useNavigate();
 
   const [step, setStep] = useState<Step>("details");
-  const [shipping, setShipping] = useState("standard");
+  const [shipping, setShipping] = useState("delivery");
   const [details, setDetails] = useState<DetailsForm>({
     firstName: "", lastName: "", email: "", phone: "",
     address: "", city: "", zip: "", notes: "",
+    invoiceName: "", companyRegNumber: "", israeliId: "",
   });
   const [ordered, setOrdered] = useState(false);
+  // Item 13: snapshot of the cart at the moment of order placement, since
+  // clearCart() empties `items` right after — the confirmation screen needs
+  // something to show the product images from.
+  const [orderedItems, setOrderedItems] = useState<CartItem[]>([]);
   const [paying, setPaying] = useState(false);
   const [payError, setPayError] = useState<string | null>(null);
+
+  // Item 32/33 — Terms & Conditions checkbox, required, with a direct link.
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   // Item 21 — account options on the order page
   const [createAccount, setCreateAccount] = useState(false);
@@ -56,18 +84,21 @@ export default function CheckoutPage() {
     setShowLogin(false);
   };
 
+  // Item 26: home delivery is free above the threshold; store pickup is
+  // always free.
   const shippingCost = (() => {
-    const opt = SHIPPING_OPTIONS.find((o) => o.id === shipping);
-    if (!opt) return 0;
-    if (opt.id === "free") return totalPrice >= 200 ? 0 : 28;
-    return opt.price;
+    if (shipping === "pickup") return 0;
+    return totalPrice >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING_FEE;
   })();
   const total = totalPrice + shippingCost;
+
+  // Item 25: mandatory Israeli ID field once the order total passes ₪5,000.
+  const requiresIsraeliId = total > 5000;
 
   const stepIdx = STEPS.findIndex((s) => s.key === step);
 
   const next = () => {
-    const order: Step[] = ["details", "shipping", "payment", "confirm"];
+    const order: Step[] = ["details", "confirm"];
     const i = order.indexOf(step);
     if (i < order.length - 1) setStep(order[i + 1]);
   };
@@ -77,6 +108,7 @@ export default function CheckoutPage() {
 
     // No WordPress backend configured (local dev with mocks) — simulate.
     if (!isWpConfigured()) {
+      setOrderedItems(items);
       setOrdered(true);
       clearCart?.();
       return;
@@ -97,8 +129,11 @@ export default function CheckoutPage() {
         city: details.city,
         zip: details.zip,
         notes: details.notes || undefined,
+        invoice_name: details.invoiceName || undefined,
+        company_reg_number: details.companyRegNumber || undefined,
+        israeli_id: requiresIsraeliId ? details.israeliId : undefined,
       },
-      shipping_method: shipping as "standard" | "express" | "free",
+      shipping_method: shipping as "delivery" | "pickup",
     });
 
     if (!session || "error" in session) {
@@ -128,22 +163,44 @@ export default function CheckoutPage() {
     );
   }
 
-  // Success screen
+  // Success screen — item 13: redesigned, premium confirmation card with
+  // product images (from the pre-clear cart snapshot).
   if (ordered) {
     return (
       <PageLayout>
-        <div className="min-h-[60vh] flex flex-col items-start justify-center text-right px-10 py-20">
-          <div className="w-20 h-20 rounded-full bg-[#f0faf2] flex items-center justify-center mb-6">
-            <i className="ri-check-line text-4xl text-[#2d7a3a]"></i>
+        <div className="min-h-[60vh] flex items-center justify-center px-4 py-20">
+          <div className="w-full max-w-lg bg-white rounded-3xl border border-[#ede9e1] shadow-[0_20px_60px_rgba(0,0,0,0.06)] p-8 sm:p-10 text-center">
+            <div className="w-20 h-20 rounded-full bg-[#f0faf2] flex items-center justify-center mb-6 mx-auto">
+              <i className="ri-check-line text-4xl text-[#2d7a3a]"></i>
+            </div>
+            <h2 className="font-serif text-3xl font-semibold tracking-tight text-[#1a1410] mb-2">ההזמנה התקבלה!</h2>
+            <p className="text-sm text-[#6a5e52] mb-1">תודה, {details.firstName || "לקוח יקר"}.</p>
+            <p className="text-sm text-[#9a8a7a] mb-6 max-w-xs mx-auto">
+              אישור ישלח אל {details.email || "כתובת האימייל שלך"} בקרוב.
+            </p>
+
+            <div className="inline-block bg-[#faf9f7] rounded-2xl py-3 px-6 mb-6">
+              <p className="text-[10px] text-[#9a8a7a] uppercase tracking-wider mb-1">מספר הזמנה</p>
+              <p className="text-sm font-bold text-[#1a1410]">#UM{Math.floor(Math.random() * 90000 + 10000)}</p>
+            </div>
+
+            {orderedItems.length > 0 && (
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-8">
+                {orderedItems.map(({ product, qty }) => (
+                  <div key={product.id} className="flex flex-col items-center gap-1.5">
+                    <div className="w-full aspect-square rounded-xl bg-white border border-[#eee] overflow-hidden flex items-center justify-center">
+                      <img src={product.image} alt={product.name} className="w-full h-full object-contain p-2" />
+                    </div>
+                    <span className="text-[10px] text-[#9a8a7a]">×{qty}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <Link to="/" className="inline-block bg-[#1a1410] text-white text-xs font-semibold tracking-widest px-10 py-4 rounded-xl whitespace-nowrap cursor-pointer hover:bg-[#1a1a1a] transition-colors">
+              חזרה לדף הבית
+            </Link>
           </div>
-          <h2 className="font-serif text-3xl font-light text-[#1a1410] mb-3">ההזמנה התקבלה!</h2>
-          <p className="text-sm text-[#6a5e52] mb-2">תודה, {details.firstName || "לקוח יקר"}.</p>
-          <p className="text-sm text-[#9a8a7a] mb-8 max-w-xs">
-            אישור ישלח אל {details.email || "כתובת האימייל שלך"} בקרוב. מספר הזמנה: <strong>#UM{Math.floor(Math.random() * 90000 + 10000)}</strong>
-          </p>
-          <Link to="/" className="bg-[#1a1410] text-white text-xs font-semibold tracking-widest px-8 py-3.5 rounded-xl whitespace-nowrap cursor-pointer hover:bg-[#1a1a1a] transition-colors">
-            חזרה לדף הבית
-          </Link>
         </div>
       </PageLayout>
     );
@@ -296,6 +353,35 @@ export default function CheckoutPage() {
                   {field("עיר", "city", "text", "תל אביב")}
                   {field("מיקוד", "zip", "text", "XXXXXXX")}
                 </div>
+
+                {/* Item 24 — invoice fields (optional, for business orders) */}
+                <hr className="border-[#ede9e1]" />
+                <h3 className="text-sm font-semibold text-[#1a1410] text-right">פרטי חשבונית (אופציונלי, לעסקים)</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {field("שם לחשבונית", "invoiceName", "text", "שם העסק / שם מלא")}
+                  {field("ח.פ / מספר עוסק מורשה", "companyRegNumber", "text", "XXXXXXXXX")}
+                </div>
+
+                {/* Item 25 — mandatory Israeli ID once the order passes ₪5,000 */}
+                {requiresIsraeliId && (
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-semibold text-[#1a1410]">
+                      תעודת זהות <span className="text-[#c0392b]">*</span>
+                      <span className="block text-[11px] font-normal text-[#9a8a7a] mt-0.5">
+                        נדרש עבור הזמנות מעל ₪5,000, בהתאם לדרישות חברת הסליקה.
+                      </span>
+                    </label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={details.israeliId}
+                      onChange={(e) => setDetails((d) => ({ ...d, israeliId: e.target.value }))}
+                      placeholder="9 ספרות"
+                      className="border border-[#ede9e1] rounded-xl px-4 py-3 text-sm text-right text-[#1a1410] placeholder-[#ccc] outline-none focus:border-[#1a1a1a] transition-colors bg-white"
+                    />
+                  </div>
+                )}
+
                 <div className="flex flex-col gap-1.5">
                   <label className="text-xs font-semibold text-[#1a1410]">הערות להזמנה (אופציונלי)</label>
                   <textarea
@@ -339,33 +425,18 @@ export default function CheckoutPage() {
                   </div>
                 )}
 
-                <button
-                  onClick={next}
-                  disabled={!details.firstName || !details.email || !details.phone || !details.address || !details.city || (createAccount && accountPassword.length < 8)}
-                  className="w-full py-4 bg-[#3ab4f2] text-white text-sm font-semibold tracking-widest rounded-xl hover:bg-[#2da0d8] transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
-                >
-                  המשך לאפשרויות משלוח ←
-                </button>
-              </div>
-              </>
-            )}
-
-            {/* Step 2: Shipping */}
-            {step === "shipping" && (
-              <div className="bg-white rounded-2xl border border-[#ede9e1] p-6 sm:p-8 space-y-4">
-                <h2 className="font-serif text-xl font-light text-[#1a1410] text-right">אפשרויות משלוח</h2>
+                {/* Items 28-29 — shipping method, chosen right here on the
+                    Checkout Details step (no separate shipping page). */}
+                <hr className="border-[#ede9e1]" />
+                <h3 className="text-sm font-semibold text-[#1a1410] text-right">אופן המשלוח</h3>
                 <div className="space-y-3">
                   {SHIPPING_OPTIONS.map((opt) => {
-                    const disabled = opt.id === "free" && totalPrice < 200;
+                    const price = opt.id === "pickup" ? 0 : shippingCost;
                     return (
                       <label
                         key={opt.id}
                         className={`flex items-center justify-between gap-4 p-4 rounded-xl border cursor-pointer transition-all ${
-                          shipping === opt.id && !disabled
-                            ? "border-[#1a1a1a] bg-white"
-                            : disabled
-                            ? "border-[#f0ece5] bg-[#f9f9f9] opacity-50 cursor-not-allowed"
-                            : "border-[#ede9e1] hover:border-[#1a1a1a]"
+                          shipping === opt.id ? "border-[#1a1a1a] bg-white" : "border-[#ede9e1] hover:border-[#1a1a1a]"
                         }`}
                       >
                         <div className="flex items-center gap-3">
@@ -374,8 +445,7 @@ export default function CheckoutPage() {
                             name="shipping"
                             value={opt.id}
                             checked={shipping === opt.id}
-                            onChange={() => !disabled && setShipping(opt.id)}
-                            disabled={disabled}
+                            onChange={() => setShipping(opt.id)}
                             className="accent-[#1a1a1a]"
                           />
                         </div>
@@ -384,62 +454,68 @@ export default function CheckoutPage() {
                           <p className="text-xs text-[#9a8a7a]">{opt.sub}</p>
                         </div>
                         <span className="text-sm font-semibold text-[#1a1410] whitespace-nowrap">
-                          {opt.price === 0 ? "חינם" : `₪${opt.price}`}
+                          {price === 0 ? "חינם" : `₪${price}`}
                         </span>
                       </label>
                     );
                   })}
                 </div>
-                <div className="flex gap-3 pt-2">
-                  <button onClick={() => setStep("details")} className="flex-1 py-3.5 border border-[#ede9e1] rounded-xl text-sm text-[#6a5e52] hover:border-[#1a1a1a] transition-colors cursor-pointer whitespace-nowrap">
-                    ← חזרה
-                  </button>
-                  <button onClick={next} className="flex-1 py-3.5 bg-[#1a1410] text-white text-sm font-semibold tracking-widest rounded-xl hover:bg-[#1a1a1a] transition-colors cursor-pointer whitespace-nowrap">
-                    המשך לתשלום ←
-                  </button>
-                </div>
-              </div>
-            )}
 
-            {/* Step 3: Payment */}
-            {step === "payment" && (
-              <div className="bg-white rounded-2xl border border-[#ede9e1] p-6 sm:p-8 space-y-5">
-                <h2 className="font-serif text-xl font-light text-[#1a1410] text-right">פרטי תשלום</h2>
-                <div className="flex items-center gap-2 text-xs text-[#9a8a7a] justify-end">
-                  <i className="ri-lock-line text-[#1a1a1a]"></i>
-                  תשלום מאובטח ב-SSL — הפרטים מוצפנים
-                </div>
-
+                {/* Item 30 — PlaCard/Pelecard payment selection, also on this
+                    same step (no separate payment page). */}
+                <hr className="border-[#ede9e1]" />
+                <h3 className="text-sm font-semibold text-[#1a1410] text-right">תשלום</h3>
                 <div className="bg-[#fafcff] border border-[#d4e8f8] rounded-xl p-5 text-right space-y-3">
                   <div className="flex items-center gap-2 justify-end">
                     <p className="text-sm font-semibold text-[#1a1410]">תשלום מאובטח באמצעות Pelecard</p>
                     <i className="ri-bank-card-line text-xl text-[#3ab4f2]"></i>
                   </div>
                   <p className="text-xs text-[#6a5e52] leading-relaxed">
-                    בסיום אישור ההזמנה תועברו לעמוד תשלום מאובטח של Pelecard להזנת פרטי כרטיס האשראי.
-                    פרטי הכרטיס מוזנים ישירות אצל ספק הסליקה בתקן PCI-DSS ואינם נשמרים באתר.
+                    לאחר לחיצה על "אישור ומעבר לתשלום" תוזנו פרטי כרטיס האשראי כאן, מאובטח בתקן PCI-DSS —
+                    פרטי הכרטיס אינם נשמרים באתר.
                   </p>
+                  <div className="flex items-center gap-2 text-xs text-[#9a8a7a] justify-end pt-1">
+                    <i className="ri-lock-line text-[#1a1a1a]"></i>
+                    תשלום מאובטח ב-SSL — הפרטים מוצפנים
+                  </div>
+                  <div className="flex items-center justify-end gap-2 pt-1">
+                    {["Visa", "Mastercard", "Amex", "Isracard"].map((c) => (
+                      <span key={c} className="text-[10px] font-medium text-[#999] border border-[#ede9e1] rounded px-2 py-0.5">{c}</span>
+                    ))}
+                  </div>
                 </div>
 
-                {/* Accepted cards */}
-                <div className="flex items-center justify-end gap-2 pt-1">
-                  {["Visa", "Mastercard", "Amex", "Isracard"].map((c) => (
-                    <span key={c} className="text-[10px] font-medium text-[#999] border border-[#ede9e1] rounded px-2 py-0.5">{c}</span>
-                  ))}
-                </div>
+                {/* Items 32-33 — Terms & Conditions checkbox with a direct,
+                    clickable link to the Terms page (and Privacy Policy). */}
+                <hr className="border-[#ede9e1]" />
+                <label className="flex items-start justify-end gap-3 cursor-pointer select-none">
+                  <span className="text-sm text-[#1a1410] leading-relaxed">
+                    קראתי ואני מסכים/ה ל<Link to="/terms" target="_blank" className="text-[#3ab4f2] underline hover:text-[#2da0d8]">תנאי השימוש</Link>
+                    {" "}ול<Link to="/privacy" target="_blank" className="text-[#3ab4f2] underline hover:text-[#2da0d8]">מדיניות הפרטיות</Link>
+                    <span className="text-[#c0392b]"> *</span>
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={acceptedTerms}
+                    onChange={(e) => setAcceptedTerms(e.target.checked)}
+                    className="w-4 h-4 mt-0.5 accent-[#3ab4f2] cursor-pointer flex-shrink-0"
+                  />
+                </label>
 
-                <div className="flex gap-3 pt-2">
-                  <button onClick={() => setStep("shipping")} className="flex-1 py-3.5 border border-[#ede9e1] rounded-xl text-sm text-[#6a5e52] hover:border-[#1a1a1a] transition-colors cursor-pointer whitespace-nowrap">
-                    ← חזרה
-                  </button>
-                  <button
-                    onClick={next}
-                    className="flex-1 py-3.5 bg-[#1a1410] text-white text-sm font-semibold tracking-widest rounded-xl hover:bg-[#1a1a1a] transition-colors cursor-pointer whitespace-nowrap"
-                  >
-                    לסיכום ←
-                  </button>
-                </div>
+                <button
+                  onClick={next}
+                  disabled={
+                    !details.firstName || !details.email || !details.phone || !details.address || !details.city ||
+                    (createAccount && accountPassword.length < 8) ||
+                    (requiresIsraeliId && details.israeliId.trim().length < 5) ||
+                    !acceptedTerms
+                  }
+                  className="w-full py-4 bg-[#3ab4f2] text-white text-sm font-semibold tracking-widest rounded-xl hover:bg-[#2da0d8] transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+                >
+                  המשך לסיכום ←
+                </button>
               </div>
+              </>
             )}
 
             {/* Step 4: Confirmation */}
@@ -487,7 +563,7 @@ export default function CheckoutPage() {
                 )}
 
                 <div className="flex gap-3">
-                  <button onClick={() => setStep("payment")} disabled={paying} className="flex-1 py-3.5 border border-[#ede9e1] rounded-xl text-sm text-[#6a5e52] hover:border-[#1a1a1a] transition-colors cursor-pointer whitespace-nowrap disabled:opacity-40">
+                  <button onClick={() => setStep("details")} disabled={paying} className="flex-1 py-3.5 border border-[#ede9e1] rounded-xl text-sm text-[#6a5e52] hover:border-[#1a1a1a] transition-colors cursor-pointer whitespace-nowrap disabled:opacity-40">
                     ← חזרה
                   </button>
                   <button
@@ -542,26 +618,16 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              {totalPrice >= 200 && (
+              {totalPrice >= FREE_SHIPPING_THRESHOLD && (
                 <p className="mt-3 text-xs text-[#2d7a3a] text-right flex items-center justify-end gap-1.5">
                   <i className="ri-truck-line"></i> זכאי למשלוח חינם!
                 </p>
               )}
             </div>
 
-            {/* Trust badges */}
-            <div className="bg-white rounded-2xl border border-[#ede9e1] p-4 space-y-2">
-              {[
-                { icon: "ri-lock-line", text: "תשלום מאובטח ב-SSL" },
-                { icon: "ri-shield-check-line", text: "אחריות 7 שנים" },
-                { icon: "ri-arrow-go-back-line", text: "החזרה ב-14 יום" },
-              ].map((b) => (
-                <div key={b.text} className="flex items-center justify-end gap-2 text-xs text-[#9a8a7a]">
-                  <span>{b.text}</span>
-                  <i className={`${b.icon} text-[#1a1a1a]`}></i>
-                </div>
-              ))}
-            </div>
+            {/* Item 27: the "SSL Secure Payment" / "7 Year Warranty" /
+                "14 Day Returns" trust-badge block that used to render here
+                was removed entirely per Nik. */}
           </div>
         </div>
       </div>

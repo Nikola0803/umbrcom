@@ -362,3 +362,68 @@ Three separate breaks, found by inspecting the live deployment:
 3. **The plugin's own REST routes are missing on the live server**: `/umbrcom/v1/settings` and `/umbrcom/v1/nav` both 404 (as do the Pelecard routes, flagged earlier). The Store API `extensions.umbrcom` product block IS live, so the plugin is active — the deployed plugin version just predates the REST routes. The frontend degrades gracefully (static nav fallback), but Site Settings (hero video, TikTok, brand colors), live nav, and CMS pages need them. → Deploy the current umbrcom-content-engine version that registers these routes, together with the Pelecard module.
 
 **Deploy order**: CORS mu-plugin → updated plugin (routes + Pelecard + WYSIWYG) → this frontend build. Then products, settings, nav, and checkout all light up.
+
+
+## Update — July 2026 client feedback round (38 items)
+
+`npm run type-check`, `npm run lint`, and `npm run build` all pass clean.
+
+**Mobile**
+1. Header rebuilt: logo centered, wishlist + cart on the left, menu icon on the right (`Navbar.tsx`).
+2. Fixed the horizontal-overflow / clipped-header bug: added `overflow-x: hidden` on `html`/`body`/`#root` site-wide (`index.css`), plus `min-w-0`/`flex-shrink-0` on the mobile header's side clusters so nothing can push the page wider than the viewport.
+3. Sale badge: the homepage "Featured Products" grid was hard-coded to 4 columns with no mobile breakpoint, squeezing cards down to ~80px — small enough that the badge visually covered most of the photo. Now 2 columns on mobile (`FeaturedProducts.tsx`), and the badge itself shrinks on small screens (`ProductCard.tsx`).
+4. Mobile menu: "השוואת מחירים" → "השוואת מוצרים".
+
+**Product page**
+5. Finish/color swatches now come only from products in the *same series* (same SKU prefix, e.g. `5509-001`/`5509-002`), not the whole category. See `src/lib/series.ts` for why SKU prefix is the reliable signal today — swap for a real `seriesId` once wp-admin exposes one.
+6. Removed the "7 Year Warranty" and "Free Shipping" tabs/sections and the "Coating" (PVD) feature card entirely.
+7. Removed the gray (#f6f6f6) image backgrounds on the product page — white with a hairline border instead.
+8. Product title: semibold + tight tracking instead of thin font-light, for a stronger on-brand look.
+9. SKU: now a dark, bold, monospace chip instead of 10px/#ccc near-invisible text.
+10. Removed the "Order via WhatsApp" button.
+11-12. Technical Specifications: the frontend already auto-renders whatever's in the product's custom spec fields (`techSpecsHtml`/`specTable`) — this was already wired from an earlier round. **Needs from you**: enabling rich table input in those custom fields is a wp-admin/plugin change (WYSIWYG patch from an earlier round covers this — confirm it's deployed).
+13. Order Confirmation: both the `/checkout` (no-backend/demo) and `/checkout/result` (real Pelecard) confirmation screens are redesigned — centered card, order number + total pills, product image grid. **Needs from you**: `/checkout/result`'s images only show if the backend returns line items; `OrderResult.items` (name/image/qty/price) was added to the frontend type as optional and ready to receive them — the `/umbrcom/v1/pelecard/confirm` and `/order-status` endpoints need to start returning that array.
+14. PlaCard/Pelecard Cardholder Name — per Nik, this is a wp-admin plugin settings toggle, not a frontend change. No code change made; flagging so it doesn't get lost.
+
+**Category & archive pages**
+15. Finish/color filtering already existed (`ShopFilters.tsx`) — confirmed working, no change needed.
+16. Added sorting: Recommended / Price low-high / Price high-low / Newest / Popularity (`src/lib/sort.ts` + `shop/page.tsx`). Newest/Popularity use product ID and review data as the best available proxy until a real created-date/sales-count field exists.
+17. Category title typography aligned with the same semibold/tight treatment as the product title.
+18. Category description now sits directly below the title (was below a divider line further down).
+
+**Homepage**
+19. Hero video slider was already wp-admin-configurable (`waterfall_hero_video` setting) from an earlier round — confirmed still wired. **Needs from you**: the real brand video file.
+20. TikTok section already pulls real videos from wp-admin (official TikTok embed SDK) — improved so admin can paste a full `tiktok.com/.../video/ID` URL instead of hunting for the bare numeric ID. **Needs from you**: 3 real TikTok video links.
+
+**Footer**
+21. Footer logo now explicitly the Waterfall wordmark (settings-overridable), was mislabeled "UMBRCOM" in the code before even though it was already the same file.
+22. Contact info added: דוד סהרוב 18, ראשון לציון · 03-620-8197 (settings-overridable).
+23. Accessibility Statement page: contact email → service@umbrcom.co.il (also fixed a missing `href` on that link).
+
+**Checkout** — biggest change this round, `checkout/page.tsx`:
+24. Added Invoice Name + Company Registration Number (ח.פ) fields (optional, business orders).
+25. Israeli ID field appears and becomes mandatory automatically once the order total passes ₪5,000.
+26. Free shipping threshold updated to ₪250 everywhere (checkout, cart drawer nudge).
+27. Removed the "SSL Secure Payment" / "7 Year Warranty" / "14 Day Returns" trust-badge block. Order Summary above it is untouched (item 31).
+28. Shipping methods reduced to exactly two: "משלוח עד הבית" (free above ₪250, else ₪28) and "איסוף עצמי מהחנות" (Store Pickup, always free) — the old "Fast Shipping" tier is gone.
+29-30. Checkout is now 2 steps instead of 4: shipping method AND the PlaCard/Pelecard payment info both live directly on the "Checkout Details" step; "Confirm" is the only other step.
+31. Order Summary sidebar left completely untouched, as requested.
+32-33. Added a required Terms & Conditions checkbox to the Personal Details section with direct clickable links to `/terms` and `/privacy` — and audited every other consent checkbox site-wide (Business, Contact, Warranty, Cancellation, Newsletter, Customer Service forms) to add the same clickable links, since they previously had plain unlinked text.
+
+**Navigation & branding**
+34. Brand switch confirmed/fixed to match the spec exactly: Umbrcom is the default (black), clicking the Waterfall logo switches the whole site to Waterfall (light blue) *immediately* — the old version opened a dropdown menu first; that's removed. Both logos are always clickable.
+35. Main navigation simplified to exactly 5 items (Kitchen/Bathroom/Cold Water Faucets, Shower Sets, Waterfall Series) on both desktop and mobile — removed the "מבצעים / מועדון לקוחות / שירות לקוחות" links and the old "all categories" dropdown.
+
+**Series page**
+36. Replaced the repetitive "1 hero + uniform 2-up grid" layout with a real masonry rhythm (large banner → 2 medium → 3 small, repeating) that keeps varying as more series come in from `/umbrcom/v1/nav` — already pulls series live from the site's categories.
+
+**General**
+37. See item 32-33 — every legal checkbox site-wide now links directly to the relevant page.
+38. Typography/spacing pass folded into the items above (product & category titles, SKU emphasis, gray-background removal) rather than a separate blanket pass — flag specific pages if you want more.
+
+### Needs from you (assets/config I don't have)
+- Real hero video file + 3 real TikTok video links (items 19-20)
+- Confirm the WYSIWYG tech-specs plugin patch is deployed (items 11-12)
+- `/umbrcom/v1/pelecard/confirm` + `/order-status` to return order line items with images (item 13)
+- Enable the Cardholder Name field in the Pelecard/PlaCard plugin settings in wp-admin (item 14) — not a code change
+- Backend support for saving Invoice Name / Company Reg. Number / Israeli ID on the order (item 24-25) — the frontend now sends them in the checkout payload (`invoice_name`, `company_reg_number`, `israeli_id` on `CheckoutPayload.customer`), the plugin needs to store them on the WooCommerce order

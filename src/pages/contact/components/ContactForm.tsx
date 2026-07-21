@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const CONTACT_FORM_URL = "https://readdy.ai/api/form/d70o48eth28qd804cuu0";
 
@@ -90,7 +91,7 @@ export default function ContactForm() {
                   className="mt-1 cursor-pointer accent-[#1a1a1a]"
                 />
                 <label htmlFor="consent" className="text-xs text-[#888] cursor-pointer leading-relaxed">
-                  קראתי ואני מסכים/ה למדיניות הפרטיות ותנאי השימוש, ומאשר/ת יצירת קשר עמי.
+                  קראתי ואני מסכים/ה ל<Link to="/privacy" target="_blank" className="underline text-[#1a1a1a] hover:text-[#555]">מדיניות הפרטיות</Link> ו<Link to="/terms" target="_blank" className="underline text-[#1a1a1a] hover:text-[#555]">תנאי השימוש</Link>, ומאשר/ת יצירת קשר עמי.
                 </label>
               </div>
               {status === "error" && <p className="text-red-500 text-xs">שגיאה. אנא נסו שוב.</p>}

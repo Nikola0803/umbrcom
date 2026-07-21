@@ -160,25 +160,25 @@ export default function CartDrawer() {
               <span className="text-sm text-[#6a5e52]">סה״כ לפני משלוח</span>
             </div>
 
-            {/* Free shipping nudge */}
-            {totalPrice < 200 && (
+            {/* Free shipping nudge — item 26: threshold is ₪250 */}
+            {totalPrice < 250 && (
               <div className="bg-white rounded-xl px-4 py-2.5 text-right">
                 <p className="text-xs text-[#9a8a7a]">
                   הוסף עוד{" "}
                   <span className="font-semibold text-[#1a1a1a]">
-                    ₪{(200 - totalPrice).toLocaleString("he-IL")}
+                    ₪{(250 - totalPrice).toLocaleString("he-IL")}
                   </span>{" "}
                   לקבלת משלוח חינם
                 </p>
                 <div className="mt-1.5 h-1.5 bg-[#ede9e1] rounded-full overflow-hidden">
                   <div
                     className="h-full bg-[#1a1a1a] rounded-full transition-all duration-500"
-                    style={{ width: `${Math.min((totalPrice / 200) * 100, 100)}%` }}
+                    style={{ width: `${Math.min((totalPrice / 250) * 100, 100)}%` }}
                   />
                 </div>
               </div>
             )}
-            {totalPrice >= 200 && (
+            {totalPrice >= 250 && (
               <div className="bg-[#f0faf2] rounded-xl px-4 py-2.5 text-right">
                 <p className="text-xs text-[#2d7a3a] font-medium flex items-center justify-end gap-1.5">
                   <i className="ri-truck-line"></i>

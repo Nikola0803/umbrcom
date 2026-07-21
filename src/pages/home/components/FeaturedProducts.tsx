@@ -55,8 +55,12 @@ export default function FeaturedProducts({
 
       {/* Grid — skeleton while the live catalog loads so we never render
           clickable mock cards whose old-install IDs 404 on the live API */}
-      <div className="max-w-6xl mx-auto px-8">
-        <div className="grid grid-cols-4 gap-5">
+      <div className="max-w-6xl mx-auto px-4 sm:px-8">
+        {/* Item 3 fix: this grid was a hard-coded 4 columns with no mobile
+            breakpoint, which squeezed each mobile card down to ~80px wide —
+            small enough that the Sale badge (sized for a full card) visually
+            covered the middle of the product photo. 2 columns on mobile. */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-5">
           {!products && loading
             ? Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="animate-pulse">

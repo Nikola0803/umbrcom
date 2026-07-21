@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Product, allProducts } from "../../../mocks/products";
+import { Product } from "../../../mocks/products";
 import { useCart } from "@/context/CartContext";
 import { useBrand } from "@/hooks/useBrand";
+import { useLiveProducts } from "@/hooks/useLiveProducts";
+import { seriesCodeOf } from "@/lib/series";
 
 interface ProductCardProps {
   product: Product;
@@ -44,11 +46,14 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   const originalPrice = Math.round(product.price * 1.2);
 
-  // Available finishes for the same faucet family (same category) — shown
-  // as small square swatches like the reference design.
+  // Item 5: available finishes come ONLY from products in the same faucet
+  // series (same SKU prefix), not the whole category — shown as small
+  // square swatches like the reference design.
+  const { products: liveCatalog } = useLiveProducts();
+  const seriesCode = seriesCodeOf(product.sku);
   const finishes = Array.from(
     new Set(
-      allProducts.filter((p) => p.category === product.category).map((p) => p.color)
+      liveCatalog.filter((p) => seriesCodeOf(p.sku) === seriesCode).map((p) => p.color)
     )
   ).slice(0, 4);
 
@@ -58,8 +63,9 @@ export default function ProductCard({ product }: ProductCardProps) {
       {/* Image fills the whole tile edge-to-edge (Nik, July 2026) — no gray
           backdrop, no inner padding: object-cover instead of padded contain. */}
       <div className="relative w-full aspect-square overflow-hidden rounded-2xl bg-white">
-        {/* Sale tag — quiet text badge, top right */}
-        <span className="absolute top-4 right-4 z-10 text-[10px] font-semibold tracking-[0.15em] uppercase text-[#1a1a1a] bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-full">
+        {/* Sale tag — quiet text badge, corner-pinned, never covering the
+            product (item 3). Scales down on mobile where cards are narrower. */}
+        <span className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10 text-[8px] sm:text-[10px] font-semibold tracking-[0.1em] sm:tracking-[0.15em] uppercase text-[#1a1a1a] bg-white/90 backdrop-blur-sm px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded-full whitespace-nowrap">
           מבצע
         </span>
 

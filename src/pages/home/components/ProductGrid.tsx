@@ -47,7 +47,7 @@ export default function ProductGrid() {
       </div>
 
       {/* Grid */}
-      <div className="grid grid-cols-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6">
         {productImages.map((img, idx) => (
           <Link
             key={idx}

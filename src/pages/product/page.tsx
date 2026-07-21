@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import PageLayout from "../../components/feature/PageLayout";
-import { allProducts as mockProducts, colorFilters, Product } from "../../mocks/products";
+import { allProducts as mockProducts, Product } from "../../mocks/products";
 import { useLiveProducts } from "@/hooks/useLiveProducts";
 import ProductCard from "../shop/components/ProductCard";
 import ModelViewer3D from "./components/ModelViewer3D";
 import { useCart } from "@/context/CartContext";
 import { fetchProductById, fetchProductBySku, isWpConfigured } from "@/lib/wp-api";
 import { trackViewItem } from "@/lib/analytics";
+import { seriesCodeOf } from "@/lib/series";
 
 type LiveProduct = Product & {
   images?: string[];
@@ -134,7 +135,7 @@ function GalleryCarousel({ images, name }: { images: string[]; name: string }) {
           <button
             key={i}
             onClick={() => setActive(i)}
-            className="relative bg-[#f6f6f6] rounded-2xl overflow-hidden flex-shrink-0 cursor-pointer transition-all duration-500"
+            className="relative bg-white border border-[#eee] rounded-2xl overflow-hidden flex-shrink-0 cursor-pointer transition-all duration-500"
             style={{
               width: i === active ? 260 : 180,
               height: i === active ? 260 : 190,
@@ -195,7 +196,7 @@ export default function ProductPage() {
 
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
-  const [activeTab, setActiveTab] = useState<"desc" | "specs" | "video" | "ai" | "package" | "warranty" | "shipping" | "3d">("desc");
+  const [activeTab, setActiveTab] = useState<"desc" | "specs" | "video" | "ai" | "package" | "3d">("desc");
 
   if (loading) {
     return (
@@ -230,6 +231,13 @@ export default function ProductPage() {
     .filter((p) => p.category === product.category && p.id !== product.id)
     .slice(0, 4);
 
+  // Item 5: finish/color swatches are scoped to this product's series only
+  // (same SKU prefix) — see src/lib/series.ts for why that's the reliable
+  // signal until a real series field is wired from wp-admin.
+  const seriesCode = seriesCodeOf(product.sku);
+  const seriesProducts = linkSafeCatalog.filter((p) => seriesCodeOf(p.sku) === seriesCode);
+  const seriesColors = Array.from(new Set(seriesProducts.map((p) => p.color)));
+
   const handleAdd = () => {
     if (!product) return;
     addItem(product, qty);
@@ -261,7 +269,7 @@ export default function ProductPage() {
 
             {/* ── Gallery column — page is fully RTL (item 19, July 2026) ── */}
             <div dir="rtl" className="space-y-4 lg:sticky lg:top-56">
-              <div className="w-full aspect-square rounded-2xl bg-[#f6f6f6] overflow-hidden flex items-center justify-center">
+              <div className="w-full aspect-square rounded-2xl bg-white border border-[#eee] overflow-hidden flex items-center justify-center">
                 <img
                   src={product.image}
                   alt={product.name}
@@ -272,7 +280,7 @@ export default function ProductPage() {
                 {galleryImages.map((img, i) => (
                   <div
                     key={i}
-                    className="aspect-square rounded-xl bg-[#f6f6f6] overflow-hidden cursor-pointer hover:ring-1 hover:ring-[#1a1a1a]/30 transition-all"
+                    className="aspect-square rounded-xl bg-white border border-[#eee] overflow-hidden cursor-pointer hover:ring-1 hover:ring-[#1a1a1a]/30 transition-all"
                   >
                     <img src={img} alt={`${product.name} ${i + 1}`} className="w-full h-full object-contain p-3" />
                   </div>
@@ -287,7 +295,10 @@ export default function ProductPage() {
                 <span className="inline-block text-[9px] font-semibold tracking-[0.4em] text-[#888] uppercase mb-3">
                   {product.category === "kitchen" ? "ברזי מטבח" : product.category === "bathroom" ? "ברזי כיור רחצה" : "ברזי מים קרים"} — {product.brandLabel || "Waterfall"}
                 </span>
-                <h1 className="font-serif text-3xl sm:text-4xl font-light text-[#1a1410] leading-tight">
+                {/* Item 8: stronger, on-brand title treatment — semibold +
+                    tight tracking reads as premium/confident rather than
+                    the previous thin font-light weight. */}
+                <h1 className="font-serif text-3xl sm:text-[2.75rem] font-semibold tracking-tight text-[#1a1410] leading-[1.15]">
                   {product.name}
                 </h1>
                 {/* Stars */}
@@ -306,16 +317,12 @@ export default function ProductPage() {
                 </div>
               </div>
 
-              {/* Feature cards */}
+              {/* Feature cards — item 6: the old defaults (7-Year Warranty /
+                  Free Shipping / Coating) were removed site-wide. Only
+                  render this block when the CMS actually supplies cards. */}
+              {product.featureCards && product.featureCards.length > 0 && (
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-                {(product.featureCards && product.featureCards.length > 0
-                  ? product.featureCards
-                  : [
-                      { icon: "ri-shield-check-line", title: "אחריות 7 שנים", sub: "מלאה על כל חלקי הברז" },
-                      { icon: "ri-truck-line", title: "משלוח חינם", sub: "הזמנות מעל ₪200" },
-                      { icon: "ri-medal-line", title: "ציפוי PVD", sub: "עמיד לאורך שנים" },
-                    ]
-                ).map((f) => (
+                {product.featureCards.map((f) => (
                   <div key={f.title} className="flex flex-col items-end text-right bg-white rounded-xl p-4 border border-[#eaeaea]">
                     <i className={`${f.icon} text-[#1a1a1a] text-xl mb-2`}></i>
                     <p className="text-xs font-semibold text-[#1a1410]">{f.title}</p>
@@ -323,6 +330,7 @@ export default function ProductPage() {
                   </div>
                 ))}
               </div>
+              )}
 
               {/* Short description */}
               <div className="text-right text-sm text-[#6a5e52] leading-relaxed border-r-2 border-[#1a1a1a] pr-4">
@@ -331,8 +339,15 @@ export default function ProductPage() {
                   : `ברז פרמיום מסדרת ${product.brandLabel || "Waterfall"} — עשוי פליז איכותי עם ציפוי ${product.color} עמיד לאורך שנים. מנגנון קרמיקה מבטיח פעולה חלקה ואטימה מושלמת ללא טפטוף.`}
               </div>
 
-              {/* SKU */}
-              <p className="text-[10px] text-[#ccc] text-right">מק״ט: {product.sku}</p>
+              {/* SKU — item 9: much more visual emphasis than the old
+                  10px/#ccc near-invisible line; a dark monospace-style chip
+                  that reads as a real product identifier. */}
+              <div className="flex justify-end">
+                <span className="inline-flex items-center gap-1.5 bg-[#1a1410] text-white text-xs font-bold tracking-wider px-3.5 py-1.5 rounded-lg" style={{ fontFamily: "'Courier New', monospace" }}>
+                  <span className="opacity-60 font-normal">מק״ט</span>
+                  {product.sku}
+                </span>
+              </div>
 
               {/* Purchase panel — white (item 11) */}
               <div className="bg-white rounded-2xl border border-[#eaeaea] p-6 text-right space-y-5">
@@ -357,38 +372,39 @@ export default function ProductPage() {
 
               <div className="border-t border-[#ede9e1]" />
 
-              {/* Color */}
-              <div>
-                <p className="text-xs font-semibold text-[#1a1410] mb-3">
-                  גימור: <span className="font-normal text-[#6a5e52]">{product.color}</span>
-                </p>
-                <div className="flex items-center justify-end gap-2 flex-wrap">
-                  {colorFilters.map((c) => (
-                    <button
-                      key={c.value}
-                      title={c.label}
-                      className={`relative w-9 h-9 rounded-md transition-all duration-200 cursor-pointer flex-shrink-0 ${
-                        product.color === c.value
-                          ? "ring-2 ring-offset-2 ring-[#1a1a1a]"
-                          : "hover:ring-1 hover:ring-offset-1 hover:ring-[#999]"
-                      }`}
-                      style={{ backgroundColor: COLOR_DOT[c.value] ?? "#999" }}
-                      onClick={() => {
-                        const same = catalog.find(
-                          (p) => p.category === product.category && p.color === c.value && p.id !== product.id
-                        );
-                        if (same) navigate(`/product/${same.id}`);
-                      }}
-                    >
-                      {product.color === c.value && (
-                        <span className="absolute inset-0 flex items-center justify-center">
-                          <i className="ri-check-line text-white text-xs drop-shadow-sm" />
-                        </span>
-                      )}
-                    </button>
-                  ))}
+              {/* Color — item 5: only finishes that actually exist within
+                  this product's series (not the whole category / catalog) */}
+              {seriesColors.length > 0 && (
+                <div>
+                  <p className="text-xs font-semibold text-[#1a1410] mb-3">
+                    גימור: <span className="font-normal text-[#6a5e52]">{product.color}</span>
+                  </p>
+                  <div className="flex items-center justify-end gap-2 flex-wrap">
+                    {seriesColors.map((c) => (
+                      <button
+                        key={c}
+                        title={c}
+                        className={`relative w-9 h-9 rounded-md transition-all duration-200 cursor-pointer flex-shrink-0 ${
+                          product.color === c
+                            ? "ring-2 ring-offset-2 ring-[#1a1a1a]"
+                            : "hover:ring-1 hover:ring-offset-1 hover:ring-[#999]"
+                        }`}
+                        style={{ backgroundColor: COLOR_DOT[c] ?? "#999" }}
+                        onClick={() => {
+                          const same = seriesProducts.find((p) => p.color === c && p.id !== product.id);
+                          if (same) navigate(`/product/${same.id}`);
+                        }}
+                      >
+                        {product.color === c && (
+                          <span className="absolute inset-0 flex items-center justify-center">
+                            <i className="ri-check-line text-white text-xs drop-shadow-sm" />
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Qty */}
               <div>
@@ -433,16 +449,6 @@ export default function ProductPage() {
                   <i className="ri-box-3-line text-base"></i>
                   תצוגה תלת-מימדית
                 </button>
-
-                <a
-                  href={`https://wa.me/97236208197?text=${encodeURIComponent(`שלום, אני מעוניין ב-${product.name} (מק״ט: ${product.sku})`)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full py-3 text-sm font-medium rounded-xl border border-[#e0dbd4] text-[#6a5e52] hover:border-[#25D366] hover:text-[#25D366] transition-colors whitespace-nowrap cursor-pointer flex items-center justify-center gap-2"
-                >
-                  <i className="ri-whatsapp-line text-base"></i>
-                  הזמן דרך WhatsApp
-                </a>
               </div>
               </div>
             </div>
@@ -461,7 +467,8 @@ export default function ProductPage() {
         </div>
       </section>
 
-      {/* ── Tabs: Description / Specs / Shipping / 3D ── */}
+      {/* ── Tabs: Description / Specs / 3D — item 6 removed the standalone
+          "7 Year Warranty" and "Free Shipping" tabs/sections. ── */}
       <section className="w-full bg-white border-y border-[#ede9e1] py-12">
         <div className="max-w-5xl mx-auto px-4 sm:px-8">
           {/* Tab bar */}
@@ -477,8 +484,6 @@ export default function ProductPage() {
                 ...(product.packageContents && product.packageContents.length > 0
                   ? [{ key: "package", label: "תכולת האריזה" }]
                   : []),
-                ...(product.warranty ? [{ key: "warranty", label: "אחריות" }] : []),
-                { key: "shipping", label: "משלוח והחזרות" },
                 { key: "3d", label: "תצוגה תלת-מימדית" },
               ] as { key: typeof activeTab; label: string }[]
             ).map((t) => (
@@ -614,37 +619,6 @@ export default function ProductPage() {
                   </ul>
                 )
               ))}
-
-            {activeTab === "warranty" && product.warranty && (
-              <div dir="rtl" className="space-y-4 text-sm text-[#5a4e42] leading-relaxed text-right">
-                <div className="flex items-center gap-2 justify-end text-sm font-semibold text-[#1a1410]">
-                  <span>אחריות</span>
-                  <i className="ri-shield-check-line text-lg text-[#1a1a1a]"></i>
-                </div>
-                <RichField value={product.warranty} />
-              </div>
-            )}
-
-            {activeTab === "shipping" && (
-              <div className="space-y-5 text-sm text-[#5a4e42] leading-relaxed">
-                {(product.shippingInfo && product.shippingInfo.length > 0
-                  ? product.shippingInfo
-                  : [
-                      { icon: "ri-truck-line", title: "משלוח חינם מעל ₪200", text: "משלוח סטנדרטי: 3-5 ימי עסקים. משלוח מהיר (יומיים): +₪29. שליח עד הבית ברחבי הארץ." },
-                      { icon: "ri-arrow-go-back-line", title: "החזרה קלה תוך 14 יום", text: "לא מרוצים? ניצור איתכם קשר ונדאג לאיסוף והחזר כספי מלא — ללא שאלות." },
-                      { icon: "ri-shield-check-line", title: "אחריות יצרן 7 שנים", text: `כל מוצרי ${product.brandLabel || "Waterfall"} מגיעים עם אחריות מלאה של 7 שנים על חלקי הברז ומנגנון הקרמיקה.` },
-                    ]
-                ).map((block, i) => (
-                  <div key={i} className="flex gap-4 items-start flex-row-reverse">
-                    <i className={`${block.icon} text-xl text-[#1a1a1a] flex-shrink-0 mt-0.5`}></i>
-                    <div>
-                      <p className="font-semibold text-[#1a1410] mb-1">{block.title}</p>
-                      <p>{block.text}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
 
             {activeTab === "3d" && product && (
               <div className="max-w-3xl mr-auto">

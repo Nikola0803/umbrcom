@@ -57,7 +57,7 @@ export default function WarrantyForm() {
             className="mt-1 cursor-pointer accent-[#1a1a1a]"
           />
           <label htmlFor="warranty-consent" className="text-xs text-[#888] cursor-pointer leading-relaxed">
-            קראתי ואני מסכים/ה למדיניות הפרטיות ותנאי השימוש, ומאשר/ת יצירת קשר עמי.
+            קראתי ואני מסכים/ה ל<Link to="/privacy" target="_blank" className="underline text-[#1a1a1a] hover:text-[#555]">מדיניות הפרטיות</Link> ו<Link to="/terms" target="_blank" className="underline text-[#1a1a1a] hover:text-[#555]">תנאי השימוש</Link>, ומאשר/ת יצירת קשר עמי.
           </label>
         </div>
         <button

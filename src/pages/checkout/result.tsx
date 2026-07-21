@@ -77,23 +77,53 @@ export default function CheckoutResultPage() {
         )}
 
         {state === "done" && paid && result && (
-          <>
-            <div className="w-20 h-20 rounded-full bg-[#f0faf2] flex items-center justify-center mb-6">
-              <i className="ri-check-line text-4xl text-[#2d7a3a]"></i>
+          // Item 13 — redesigned, premium confirmation card with the
+          // purchased products' images (when the backend supplies `items`).
+          <div className="w-full max-w-lg self-center mx-auto">
+            <div className="bg-white rounded-3xl border border-[#ede9e1] shadow-[0_20px_60px_rgba(0,0,0,0.06)] p-8 sm:p-10 text-center">
+              <div className="w-20 h-20 rounded-full bg-[#f0faf2] flex items-center justify-center mb-6 mx-auto">
+                <i className="ri-check-line text-4xl text-[#2d7a3a]"></i>
+              </div>
+              <h2 className="font-serif text-3xl font-semibold tracking-tight text-[#1a1410] mb-2">ההזמנה אושרה!</h2>
+              <p className="text-sm text-[#6a5e52] mb-1">תודה, {result.first_name || "לקוח יקר"}.</p>
+              <p className="text-sm text-[#9a8a7a] mb-6 leading-relaxed">
+                אישור הזמנה נשלח אל {result.email}
+              </p>
+
+              <div className="flex items-center justify-center gap-6 bg-[#faf9f7] rounded-2xl py-4 px-6 mb-6">
+                <div className="text-center">
+                  <p className="text-[10px] text-[#9a8a7a] uppercase tracking-wider mb-1">מספר הזמנה</p>
+                  <p className="text-sm font-bold text-[#1a1410]">#{result.order_number}</p>
+                </div>
+                <div className="w-px h-8 bg-[#ede9e1]" />
+                <div className="text-center">
+                  <p className="text-[10px] text-[#9a8a7a] uppercase tracking-wider mb-1">סה״כ שולם</p>
+                  <p className="text-sm font-bold text-[#1a1410]">₪{result.total.toLocaleString("he-IL")}</p>
+                </div>
+              </div>
+
+              {/* Product images — shown when the backend returns line items */}
+              {result.items && result.items.length > 0 && (
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-8">
+                  {result.items.map((it, i) => (
+                    <div key={i} className="flex flex-col items-center gap-1.5">
+                      <div className="w-full aspect-square rounded-xl bg-white border border-[#eee] overflow-hidden flex items-center justify-center">
+                        <img src={it.image} alt={it.name} className="w-full h-full object-contain p-2" />
+                      </div>
+                      <span className="text-[10px] text-[#9a8a7a]">×{it.qty}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <Link
+                to="/"
+                className="inline-block bg-[#1a1410] text-white text-xs font-semibold tracking-widest px-10 py-4 rounded-xl whitespace-nowrap cursor-pointer hover:bg-[#1a1a1a] transition-colors"
+              >
+                חזרה לדף הבית
+              </Link>
             </div>
-            <h2 className="font-serif text-3xl font-light text-[#1a1410] mb-3">התשלום התקבל!</h2>
-            <p className="text-sm text-[#6a5e52] mb-2">תודה, {result.first_name || "לקוח יקר"}.</p>
-            <p className="text-sm text-[#9a8a7a] mb-8 max-w-sm leading-relaxed">
-              אישור הזמנה נשלח אל {result.email}. מספר הזמנה: <strong>#{result.order_number}</strong>
-              {" · "}סה״כ שולם: <strong>₪{result.total.toLocaleString("he-IL")}</strong>
-            </p>
-            <Link
-              to="/"
-              className="bg-[#1a1410] text-white text-xs font-semibold tracking-widest px-8 py-3.5 rounded-xl whitespace-nowrap cursor-pointer hover:bg-[#1a1a1a] transition-colors"
-            >
-              חזרה לדף הבית
-            </Link>
-          </>
+          </div>
         )}
 
         {state === "done" && !paid && (

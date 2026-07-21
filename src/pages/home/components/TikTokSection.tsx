@@ -17,12 +17,27 @@ const DEFAULT_VIDEOS = [
 // one of them triggers a 400 from TikTok plus a wall of embed-SDK console
 // noise. Filter them out everywhere so only real videos ever render.
 const isPlaceholderId = (id: string) => /^74480{12}\d{3}$/.test(id);
+
+// Items 19-20 (July 2026): whoever fills in wp-admin → Site Settings →
+// TikTok shouldn't have to hunt for the bare numeric ID — accept a full
+// tiktok.com/@handle/video/ID URL (or vm.tiktok.com short link resolved
+// elsewhere) pasted directly into the "id" field and extract the ID here,
+// so "paste the link and it just works" is actually true.
+function extractVideoId(raw: string): string {
+  const trimmed = raw.trim();
+  const m = trimmed.match(/\/video\/(\d+)/);
+  if (m) return m[1];
+  return trimmed;
+}
+
 const realOnly = (v: { id: string; caption: string }[]) =>
-  v.filter((x) => x.id && !isPlaceholderId(x.id));
+  v
+    .map((x) => ({ ...x, id: extractVideoId(x.id) }))
+    .filter((x) => x.id && !isPlaceholderId(x.id));
 
 declare global {
-  interface Window { // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    tiktokEmbedded?: any;
+  interface Window {
+    tiktokEmbedded?: unknown;
   }
 }
 

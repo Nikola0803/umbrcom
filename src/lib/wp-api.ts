@@ -432,8 +432,17 @@ export interface CheckoutPayload {
     city: string;
     zip: string;
     notes?: string;
+    // Item 24 — optional business invoice fields.
+    invoice_name?: string;
+    company_reg_number?: string;
+    // Item 25 — required once the order total passes ₪5,000. Sending it
+    // through today so the field is ready the moment wp-admin/the plugin
+    // is updated to store it on the order (see CHANGES.md).
+    israeli_id?: string;
   };
-  shipping_method: "standard" | "express" | "free";
+  // Item 28 — "standard"/"express" tiers were removed; "delivery" replaces
+  // "standard" (free above the threshold), "pickup" is new (item 28/29).
+  shipping_method: "delivery" | "pickup";
 }
 
 export interface CheckoutSession {
@@ -450,6 +459,12 @@ export interface OrderResult {
   total: number;
   email: string;
   first_name: string;
+  // Item 13 (July 2026): line items with product images for the redesigned
+  // Order Confirmation page. Optional because the current
+  // /umbrcom/v1/pelecard/confirm + /order-status responses don't include
+  // them yet — see CHANGES.md for what the plugin needs to add. The page
+  // renders a graceful fallback (no image grid) until this is populated.
+  items?: { name: string; image: string; qty: number; price: number }[];
 }
 
 /** Creates the WooCommerce order server-side and returns the Pelecard

@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import PageLayout from "../../components/feature/PageLayout";
 import ProductCard from "./components/ProductCard";
 import ShopFilters from "./components/ShopFilters";
+import { SortOption } from "@/lib/sort";
 import { ProductColor, ProductType, ProductCategory } from "../../mocks/products";
 import { useLiveProducts } from "@/hooks/useLiveProducts";
 
@@ -33,6 +34,7 @@ export default function ShopPage() {
   const { category } = useParams<{ category?: string }>();
   const [selectedColors, setSelectedColors] = useState<ProductColor[]>([]);
   const [selectedType, setSelectedType] = useState<ProductType | ''>('');
+  const [sort, setSort] = useState<SortOption>('default');
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   const meta = category ? CATEGORY_META[category] : null;
@@ -49,8 +51,34 @@ export default function ShopPage() {
     if (selectedType) {
       list = list.filter((p) => p.type === selectedType);
     }
+
+    // Item 16 — standard WooCommerce-style sorting. "Newest" and
+    // "Popularity" use id / review data as the best available proxy until
+    // a real created-date / sales-count field is wired from wp-admin.
+    list = [...list];
+    switch (sort) {
+      case "price-asc":
+        list.sort((a, b) => a.price - b.price);
+        break;
+      case "price-desc":
+        list.sort((a, b) => b.price - a.price);
+        break;
+      case "newest":
+        list.sort((a, b) => Number(b.id) - Number(a.id));
+        break;
+      case "popularity": {
+        const score = (p: typeof list[number]) =>
+          ((p as unknown as { reviewCount?: number }).reviewCount ?? 0) *
+          (1 + ((p as unknown as { averageRating?: number }).averageRating ?? 0));
+        list.sort((a, b) => score(b) - score(a));
+        break;
+      }
+      default:
+        break;
+    }
+
     return list;
-  }, [meta, selectedColors, selectedType, allProducts]);
+  }, [meta, selectedColors, selectedType, sort, allProducts]);
 
   const handleColorToggle = (color: ProductColor) => {
     setSelectedColors((prev) =>
@@ -81,15 +109,18 @@ export default function ShopPage() {
           <p className="text-[10px] font-medium tracking-[0.4em] text-[#666] uppercase mb-3">
             {meta ? "קטגוריה — Waterfall" : "כל המוצרים"}
           </p>
-          <h1 className="font-serif text-4xl sm:text-5xl font-light text-white">{title}</h1>
-          <div className="mt-4 flex justify-end">
-            <span className="block w-12 h-px bg-white/20"></span>
-          </div>
+          {/* Item 17: category title typography aligned with the
+              brand-wide semibold/tight treatment (see product page item 8). */}
+          <h1 className="font-serif text-4xl sm:text-5xl font-semibold tracking-tight text-white">{title}</h1>
+          {/* Item 18: category description directly below the title. */}
           {meta && (
-            <p className="text-sm text-[#888] max-w-xl mt-5 leading-relaxed">
+            <p className="text-sm text-[#aaa] max-w-xl mt-4 leading-relaxed">
               {subtitle}
             </p>
           )}
+          <div className="mt-4 flex justify-end">
+            <span className="block w-12 h-px bg-white/20"></span>
+          </div>
         </div>
       </div>
 
@@ -98,6 +129,8 @@ export default function ShopPage() {
         <ShopFilters
           selectedColors={selectedColors}
           selectedType={selectedType}
+          sort={sort}
+          onSortChange={setSort}
           onColorToggle={handleColorToggle}
           onTypeChange={(t) => {
             setSelectedType(t);
