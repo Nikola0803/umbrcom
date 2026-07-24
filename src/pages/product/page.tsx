@@ -167,6 +167,7 @@ export default function ProductPage() {
 
   useEffect(() => {
     setProduct(mockProduct);
+    setActiveImage(0);
     if (!isWpConfigured() || !id) {
       setLoading(false);
       if (mockProduct) trackViewItem(mockProduct);
@@ -190,6 +191,7 @@ export default function ProductPage() {
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   const [activeTab, setActiveTab] = useState<"desc" | "specs" | "video" | "ai" | "package" | "3d">("desc");
+  const [activeImage, setActiveImage] = useState(0);
 
   if (loading) {
     return (
@@ -264,19 +266,24 @@ export default function ProductPage() {
             <div dir="rtl" className="space-y-4 lg:sticky lg:top-56">
               <div className="w-full aspect-square rounded-2xl bg-white border border-[#eee] overflow-hidden flex items-center justify-center">
                 <img
-                  src={product.image}
+                  src={galleryImages[activeImage] ?? product.image}
                   alt={product.name}
                   className="w-full h-full object-contain p-10"
                 />
               </div>
-              <div className="grid grid-cols-4 gap-3">
+              {/* Thumbnails — horizontal-scroll carousel, not a grid, per
+                  Nik's follow-up. Clicking one swaps the main image. */}
+              <div className="flex gap-3 overflow-x-auto pb-1" style={{ scrollbarWidth: "thin" }}>
                 {galleryImages.map((img, i) => (
-                  <div
+                  <button
                     key={i}
-                    className="aspect-square rounded-xl bg-white border border-[#eee] overflow-hidden cursor-pointer hover:ring-1 hover:ring-[#1a1a1a]/30 transition-all"
+                    onClick={() => setActiveImage(i)}
+                    className={`aspect-square w-20 flex-shrink-0 rounded-xl bg-white border overflow-hidden cursor-pointer transition-all ${
+                      activeImage === i ? "border-[#1a1a1a] ring-1 ring-[#1a1a1a]" : "border-[#eee] hover:ring-1 hover:ring-[#1a1a1a]/30"
+                    }`}
                   >
                     <img src={img} alt={`${product.name} ${i + 1}`} className="w-full h-full object-contain p-3" />
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
@@ -310,6 +317,18 @@ export default function ProductPage() {
                 </div>
               </div>
 
+              {/* SKU — item 9: much more visual emphasis than the old
+                  10px/#ccc near-invisible line; a dark chip that reads as a
+                  real product identifier. Moved above the short description
+                  (was below it), font is Assistant like the rest of the
+                  site (was Courier New) — matches the Mashiach layout. */}
+              <div className="text-right">
+                <span className="inline-flex items-center gap-1.5 bg-[#1a1410] text-white text-xs font-bold tracking-wider px-3.5 py-1.5 rounded-lg">
+                  <span className="opacity-60 font-normal">מק״ט</span>
+                  {product.sku}
+                </span>
+              </div>
+
               {/* Feature cards — item 6: the old defaults (7-Year Warranty /
                   Free Shipping / Coating) were removed site-wide. Only
                   render this block when the CMS actually supplies cards. */}
@@ -332,33 +351,18 @@ export default function ProductPage() {
                   : `ברז פרמיום מסדרת ${product.brandLabel || "Waterfall"} — עשוי פליז איכותי עם ציפוי ${product.color} עמיד לאורך שנים. מנגנון קרמיקה מבטיח פעולה חלקה ואטימה מושלמת ללא טפטוף.`}
               </div>
 
-              {/* SKU — item 9: much more visual emphasis than the old
-                  10px/#ccc near-invisible line; a dark monospace-style chip
-                  that reads as a real product identifier. */}
-              <div className="flex justify-end">
-                <span className="inline-flex items-center gap-1.5 bg-[#1a1410] text-white text-xs font-bold tracking-wider px-3.5 py-1.5 rounded-lg" style={{ fontFamily: "'Courier New', monospace" }}>
-                  <span className="opacity-60 font-normal">מק״ט</span>
-                  {product.sku}
-                </span>
-              </div>
-
               {/* Purchase panel — white (item 11) */}
               <div className="bg-white rounded-2xl border border-[#eaeaea] p-6 text-right space-y-5">
-              {/* Price — real WooCommerce regular/sale price when available */}
-              <div className="flex items-start justify-between flex-row-reverse">
-                <div>
-                  <span className="text-3xl font-bold text-[#1a1410]">
-                    ₪{product.price.toLocaleString("he-IL")}
-                  </span>
-                  {(product.regularPrice ?? Math.round(product.price * 1.2)) > product.price && (
-                    <span className="text-sm text-[#bbb] line-through mr-2">
-                      ₪{(product.regularPrice ?? Math.round(product.price * 1.2)).toLocaleString("he-IL")}
-                    </span>
-                  )}
-                </div>
-                {(product.discountPercent ?? 17) > 0 && (
-                  <span className="text-xs font-bold text-white bg-[#1a1a1a] px-2.5 py-1 rounded-full">
-                    חיסכון {product.discountPercent ?? 17}%
+              {/* Price — "Save X%" badge removed; price right-aligned
+                  (the old flex-row-reverse + justify-between combo was
+                  pushing it left). */}
+              <div className="text-right">
+                <span className="text-3xl font-bold text-[#1a1410]">
+                  ₪{product.price.toLocaleString("he-IL")}
+                </span>
+                {(product.regularPrice ?? Math.round(product.price * 1.2)) > product.price && (
+                  <span className="text-sm text-[#bbb] line-through mr-2">
+                    ₪{(product.regularPrice ?? Math.round(product.price * 1.2)).toLocaleString("he-IL")}
                   </span>
                 )}
               </div>
@@ -366,13 +370,14 @@ export default function ProductPage() {
               <div className="border-t border-[#ede9e1]" />
 
               {/* Color — item 5: only finishes that actually exist within
-                  this product's series (not the whole category / catalog) */}
+                  this product's series (not the whole category / catalog).
+                  Swatches right-aligned (were rendering on the left). */}
               {seriesColors.length > 0 && (
                 <div>
                   <p className="text-xs font-semibold text-[#1a1410] mb-3">
                     גימור: <span className="font-normal text-[#6a5e52]">{product.color}</span>
                   </p>
-                  <div className="flex items-center justify-end gap-2 flex-wrap">
+                  <div className="flex items-center justify-start gap-2 flex-wrap">
                     {seriesColors.map((c) => (
                       <button
                         key={c}
