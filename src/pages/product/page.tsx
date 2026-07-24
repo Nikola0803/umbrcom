@@ -8,6 +8,7 @@ import ModelViewer3D from "./components/ModelViewer3D";
 import { useCart } from "@/context/CartContext";
 import { fetchProductById, fetchProductBySku, isWpConfigured } from "@/lib/wp-api";
 import { trackViewItem } from "@/lib/analytics";
+import { trackMetaViewContent } from "@/lib/metaPixel";
 import { seriesCodeOf } from "@/lib/series";
 import { youtubeEmbedUrl } from "@/lib/youtube";
 
@@ -170,7 +171,7 @@ export default function ProductPage() {
     setActiveImage(0);
     if (!isWpConfigured() || !id) {
       setLoading(false);
-      if (mockProduct) trackViewItem(mockProduct);
+      if (mockProduct) { trackViewItem(mockProduct); trackMetaViewContent(mockProduct); }
       return;
     }
     setLoading(true);
@@ -183,7 +184,7 @@ export default function ProductPage() {
       if (live) setProduct(live);
       setLoading(false);
       const viewed = live ?? mockProduct;
-      if (viewed) trackViewItem(viewed);
+      if (viewed) { trackViewItem(viewed); trackMetaViewContent(viewed); }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
@@ -302,7 +303,7 @@ export default function ProductPage() {
                   {product.name}
                 </h1>
                 {/* Stars */}
-                <div className="flex items-center justify-end gap-1 mt-3">
+                <div className="flex items-center justify-start gap-1 mt-3">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <i
                       key={i}

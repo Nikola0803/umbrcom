@@ -306,7 +306,7 @@ export default function Navbar() {
               <Link
                 key={nl.path}
                 to={nl.path}
-                className={`flex items-center justify-between px-5 py-3.5 text-sm border-b border-gray-100 transition-colors ${
+                className={`flex items-center justify-start gap-2 px-5 py-3.5 text-sm border-b border-gray-100 transition-colors ${
                   isActive(nl.path) ? "font-semibold text-[#1a1a1a]" : "text-[#444] hover:text-[#1a1a1a]"
                 }`}
               >
@@ -327,7 +327,7 @@ export default function Navbar() {
                 <Link
                   key={l.path}
                   to={l.path}
-                  className="flex items-center justify-end gap-2 px-8 py-3 text-xs text-gray-600 hover:text-[#1a1a1a] border-b border-gray-100"
+                  className="flex items-center justify-start gap-2 px-8 py-3 text-xs text-gray-600 hover:text-[#1a1a1a] border-b border-gray-100"
                 >
                   {l.label}
                   <i className={`${l.icon} text-sm`} style={{ color: NAV_INK }}></i>

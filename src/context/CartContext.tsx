@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useCallback, ReactNode } from "react";
 import { Product } from "@/mocks/products";
 import { trackAddToCart, trackRemoveFromCart } from "@/lib/analytics";
+import { trackMetaAddToCart } from "@/lib/metaPixel";
 
 export interface CartItem {
   product: Product;
@@ -28,6 +29,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const addItem = useCallback((product: Product, qty = 1) => {
     trackAddToCart(product, qty);
+    trackMetaAddToCart(product, qty);
     setItems((prev) => {
       const existing = prev.find((i) => i.product.id === product.id);
       if (existing) {

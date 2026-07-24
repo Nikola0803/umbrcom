@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://umbrcom.co.il/sitemap.xml

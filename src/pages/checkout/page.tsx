@@ -4,6 +4,7 @@ import PageLayout from "../../components/feature/PageLayout";
 import { useCart, type CartItem } from "@/context/CartContext";
 import { createPelecardCheckout, isWpConfigured } from "@/lib/wp-api";
 import { trackBeginCheckout } from "@/lib/analytics";
+import { trackMetaInitiateCheckout, trackMetaPurchase } from "@/lib/metaPixel";
 
 // Items 28-30 (July 2026): checkout simplified to two steps — everything
 // that used to live on separate "shipping" and "payment" pages (the
@@ -105,11 +106,13 @@ export default function CheckoutPage() {
 
   const placeOrder = async () => {
     trackBeginCheckout(items, total);
+    trackMetaInitiateCheckout(items, total);
 
     // No WordPress backend configured (local dev with mocks) — simulate.
     if (!isWpConfigured()) {
       setOrderedItems(items);
       setOrdered(true);
+      trackMetaPurchase({ order_number: `DEMO${Date.now()}`, total });
       clearCart?.();
       return;
     }

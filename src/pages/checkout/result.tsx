@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import PageLayout from "../../components/feature/PageLayout";
 import { confirmPelecardPayment, fetchOrderStatus, OrderResult } from "@/lib/wp-api";
 import { trackPurchase } from "@/lib/analytics";
+import { trackMetaPurchase } from "@/lib/metaPixel";
 
 /**
  * /checkout/result — Pelecard sends the shopper back here after the hosted
@@ -59,6 +60,7 @@ export default function CheckoutResultPage() {
       setState("done");
       if (res.status === "paid") {
         trackPurchase({ order_number: res.order_number, total: res.total });
+        trackMetaPurchase({ order_number: res.order_number, total: res.total });
       }
     })();
   }, [params]);

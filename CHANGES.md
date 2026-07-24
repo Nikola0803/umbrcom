@@ -427,3 +427,38 @@ Three separate breaks, found by inspecting the live deployment:
 - `/umbrcom/v1/pelecard/confirm` + `/order-status` to return order line items with images (item 13)
 - Enable the Cardholder Name field in the Pelecard/PlaCard plugin settings in wp-admin (item 14) — not a code change
 - Backend support for saving Invoice Name / Company Reg. Number / Israeli ID on the order (item 24-25) — the frontend now sends them in the checkout payload (`invoice_name`, `company_reg_number`, `israeli_id` on `CheckoutPayload.customer`), the plugin needs to store them on the WooCommerce order
+
+## Update — July 2026, second follow-up round (font, videos, nav, product page, tracking, SEO)
+
+**Site-wide font — root-cause fix**
+1. Found and fixed the actual bug behind the recurring "font isn't Assistant" reports: Tailwind's own utility classes (`.font-serif`, `.font-sans`) live in a CSS layer that always wins over the old override in `index.css`, regardless of how specific that override was. So the site was silently ignoring the Assistant override everywhere `font-serif`/`font-sans` was used. Fixed at the source in `tailwind.config.ts` (`theme.extend.fontFamily`) so the utility classes themselves now generate Assistant — this can't be silently overridden again the same way.
+
+**Real media**
+2. Hero video (both homepages) now embeds the real YouTube video you sent (`youtu.be/QY_FWg5Pwrw`) as a full-bleed background using the standard oversized-iframe "cover" technique, replacing the placeholder `.mp4`.
+3. TikTok section, `/ambercom`, and `/umbrcom` now use the 3 real video IDs and handle (`umbrcomisrarl`) you sent, replacing all placeholders.
+
+**Navigation**
+4. Added the 4 extra buttons you asked for — All Categories / Customer Service / Series / Special Offers — to both the desktop nav (second row) and the mobile drawer.
+
+**Footer**
+5. Fixed the address spelling to דוד סחרוב 18, ראשון לציון (was סהרוב) — also removed a stale wp-admin setting that was silently overriding the correct address with an old wrong one, so this can't regress again from the backend side.
+6. Moved the contact icons from the right side of the phone/address lines to the left, as requested.
+
+**Product page redesign**
+7. SKU now sits directly under the title/star-rating block, above the short description (matches the Mashiach Technical Equipment reference layout) — no longer down by the tabs.
+8. Removed the "Save 17%" discount badge.
+9. Price, color/finish swatches, and the star-rating row are now right-aligned along with the rest of the product info panel.
+10. Gallery thumbnails converted from a 4-column grid to a horizontally-scrollable carousel strip; clicking a thumbnail swaps the main image (previously the thumbnails weren't even clickable).
+
+**Tracking**
+11. Added Meta Pixel (Dataset "umbrcom web", ID `1047516431063735` — confirmed active) alongside the existing GA4 setup: base snippet in `index.html`, plus matching events fired everywhere GA4 already fires them — page views on every route change, ViewContent on product pages, AddToCart, InitiateCheckout, and a deduped Purchase on order confirmation. Wrapped the same way as GA4 so an ad-blocker or blocked `fbq` can never break the shop.
+
+**SEO — sitemap & product feed**
+12. Added `scripts/generate-sitemap-feed.mjs`, wired as an npm `prebuild` step (`npm run build` now regenerates these automatically; can also run manually via `npm run generate:seo`). Pulls live products from the same WooCommerce Store API the site uses and writes, into `public/`:
+    - `sitemap.xml` — every static route, category route, and live `/product/:id` URL
+    - `feed.xml` — Google Merchant Center / Meta Catalog–compatible RSS product feed (name, price, sale price, image, availability, link per product)
+    - `robots.txt` — points at the sitemap
+    If the WP API is unreachable at build time it falls back to a static-routes-only sitemap rather than failing the build.
+
+### Needs from you (this round)
+- Nothing blocking — everything above is live in the code. Once deployed, submit `https://umbrcom.co.il/sitemap.xml` to Google Search Console and Meta Catalog can pull directly from `https://umbrcom.co.il/feed.xml`.
