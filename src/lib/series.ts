@@ -17,3 +17,36 @@ export function seriesCodeOf(sku: string | undefined | null): string {
   const i = sku.lastIndexOf("-");
   return i > 0 ? sku.slice(0, i) : sku;
 }
+
+/**
+ * Finish/color swatches were showing the same silver-ish "כרום" (chrome)
+ * dot on every single product, because `attributes` comes back as `[]` for
+ * every product in the live WooCommerce catalog right now — no color/גימור
+ * attribute has ever been configured in wp-admin, so `findAttributeTerm`
+ * in wp-api.ts always falls through to its "כרום" default regardless of
+ * the product's real finish.
+ *
+ * The real finish is not lost, though — it's spelled out in the product
+ * title itself (e.g. "ערכת פינוק כרום מסדרת Angel" vs "...שחור..." for the
+ * same 7704 series). This scans the title for those same finish words as a
+ * fallback. Once someone configures a real color/גימור attribute in
+ * wp-admin, findAttributeTerm (wp-api.ts) takes over automatically and this
+ * fallback simply stops being used — no call-site changes needed then.
+ */
+const NAME_COLOR_KEYWORDS: [string, string][] = [
+  ["זהב מוברש", "זהב מוברש"],
+  ["ניקל מוברש", "ניקל מוברש"],
+  ["רוז גולד", "רוז גולד"],
+  ["שחור מט", "שחור"],
+  ["שחור", "שחור"],
+  ["זהב", "זהב"],
+  ["כרום", "כרום"],
+];
+
+export function colorFromName(name: string | undefined | null): string | undefined {
+  if (!name) return undefined;
+  for (const [keyword, color] of NAME_COLOR_KEYWORDS) {
+    if (name.includes(keyword)) return color;
+  }
+  return undefined;
+}

@@ -16,6 +16,7 @@
 
 import type { Product, ProductCategory, ProductColor, ProductType } from "@/mocks/products";
 import type { BlogPost } from "@/pages/blog/components/BlogCard";
+import { colorFromName } from "@/lib/series";
 
 const BASE = import.meta.env.VITE_WP_API_URL as string | undefined;
 
@@ -284,7 +285,14 @@ export function mapStoreApiProduct(p: StoreApiProduct): Product & {
   const stripTags = (html: string) =>
     html.replace(/<br\s*\/?>/gi, "\n").replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").trim();
 
-  const color = (findAttributeTerm(p.attributes, ["color", "צבע", "גימור"]) ?? "כרום") as ProductColor;
+  // The live catalog's `attributes` array is empty on every product today
+  // (no color/גימור attribute has been configured in wp-admin yet), so
+  // findAttributeTerm always misses — fall back to reading the finish out
+  // of the product title before giving up and defaulting to "כרום"; see
+  // colorFromName in lib/series.ts for why that's a reliable signal today.
+  const color = (findAttributeTerm(p.attributes, ["color", "צבע", "גימור"]) ??
+    colorFromName(p.name) ??
+    "כרום") as ProductColor;
   const type = (findAttributeTerm(p.attributes, ["type", "סוג"]) ?? "נשלף") as ProductType;
 
   const minorUnit = p.prices.currency_minor_unit;

@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchSettings } from "@/lib/wp-api";
-import { youtubeBackgroundEmbedUrl } from "@/lib/youtube";
+import { youtubeBackgroundEmbedUrl, youtubeIdFrom, loadYouTubeIframeApi, YTPlayerInstance } from "@/lib/youtube";
 
 // ── ITEM 19 (July 2026): real hero video supplied by Ben — a YouTube link,
 //    not an .mp4 file, so it renders as a chrome-free autoplaying/looping
@@ -52,6 +52,43 @@ export default function Hero({
   }, [video]);
   const videoSrc = video === VIDEO_SRC && settingsVideo ? settingsVideo : video;
   const youtubeBg = youtubeBackgroundEmbedUrl(videoSrc);
+  const youtubeId = youtubeIdFrom(videoSrc);
+
+  // Belt-and-suspenders autoplay: the `autoplay=1&mute=1` URL params on the
+  // iframe below work in most browsers, but silently fail to autoplay in
+  // some (notably Safari/iOS). Once the YouTube IFrame API is ready we grab
+  // the same iframe as a player and explicitly call mute()+playVideo(),
+  // which is Google's documented fix for that gap.
+  const playerRef = useRef<YTPlayerInstance | null>(null);
+  const iframeIdRef = useRef(`hero-yt-${Math.random().toString(36).slice(2, 9)}`);
+  useEffect(() => {
+    if (!youtubeId) return;
+    let cancelled = false;
+    loadYouTubeIframeApi().then(() => {
+      if (cancelled || !window.YT?.Player) return;
+      playerRef.current = new window.YT.Player(iframeIdRef.current, {
+        videoId: youtubeId,
+        events: {
+          onReady: (e) => {
+            e.target.mute();
+            e.target.playVideo();
+          },
+          onStateChange: (e) => {
+            // Belt-and-suspenders loop, in case the `loop`+`playlist` URL
+            // params don't take effect for a player constructed this way.
+            if (window.YT?.PlayerState && e.data === window.YT.PlayerState.ENDED) {
+              e.target.seekTo(0, true);
+              e.target.playVideo();
+            }
+          },
+        },
+      });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [youtubeId]);
+
   return (
     <section
       className="relative w-full overflow-hidden"
@@ -64,6 +101,7 @@ export default function Hero({
       {youtubeBg ? (
         <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
           <iframe
+            id={iframeIdRef.current}
             src={youtubeBg}
             title="Waterfall — hero video"
             allow="autoplay; encrypted-media"

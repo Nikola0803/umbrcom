@@ -462,3 +462,21 @@ Three separate breaks, found by inspecting the live deployment:
 
 ### Needs from you (this round)
 - Nothing blocking — everything above is live in the code. Once deployed, submit `https://umbrcom.co.il/sitemap.xml` to Google Search Console and Meta Catalog can pull directly from `https://umbrcom.co.il/feed.xml`.
+
+## Update — July 2026, third follow-up round (hero autoplay, swatch colors, series page — all traced to backend data gaps)
+
+All three of these turned out to be real bugs, and I dug into the live API to find the actual root cause of each rather than guessing:
+
+**Hero video never autoplaying**
+The `autoplay=1&mute=1` URL params on the YouTube iframe are correct, but relying on them alone is known to silently fail in a meaningful number of real browsers (Safari/iOS especially) — the params configure the player but nothing calls play(). Fixed by loading YouTube's actual IFrame Player API and explicitly calling `player.mute()` + `player.playVideo()` once the player reports itself ready (`src/lib/youtube.ts` — `loadYouTubeIframeApi`; wired into `Hero.tsx`), which is Google's own documented fix for this gap. Also added an explicit loop fallback (`seekTo(0)` + replay on the `ENDED` event) in case the `loop`/`playlist` URL params don't take on a player constructed this way.
+
+**Product swatches always showing the same gray/chrome dot**
+Traced this to the live WooCommerce catalog: every single product's `attributes` array comes back empty from the Store API (`GET /wc/store/v1/products`) — no color/finish attribute has ever been configured in wp-admin for any product — so the frontend's attribute lookup always fell through to its "כרום" (chrome) default, which renders as a silvery-gray dot. Every product, every series, same swatch. The finish info isn't actually missing though — it's right there in the product title (e.g. "ערכת פינוק **כרום** מסדרת Angel" vs "...**שחור**..." for the same 7704 series) — so added a fallback that reads the finish out of the product name when no attribute exists (`colorFromName` in `src/lib/series.ts`, wired into `mapStoreApiProduct` in `wp-api.ts`). The moment a real color/גימור attribute gets added in wp-admin, that takes over automatically and this fallback stops being needed.
+- **Needs from you** (real fix, not just the frontend patch): add a "Color"/"צבע"/"גימור" attribute to your WooCommerce products in wp-admin with the actual finish per product. Until then you're relying on the finish being spelled out correctly in every product title, which won't hold up for future products.
+
+**`/series` page not matching the real catalog**
+Same root cause pattern: `GET /umbrcom/v1/nav` returns an empty `series` array on the live site (nobody's populated that field), so the page was silently falling back to entirely fictional placeholder series — "Atlas", "Primo", "Aqua", "Luxe", "Delta", "Wave" — with AI-generated stock photos that have nothing to do with your actual products. Meanwhile the real named series (Ella, Hilo, Loïs, Sora, Dett, Goma, Lani, Nara, Nima, Toma) already exist as real WooCommerce categories with real images and product counts — they just weren't being read. Fixed the page to derive its list from those real "סדרת <Name>" categories when the dedicated `series` field is empty, so it now shows your actual product series with real photos and correct counts instead of the mock data. The dedicated `series` field (richer copy — tagline/description per series) still takes priority automatically if it's ever populated in wp-admin.
+
+### Needs from you (this round)
+- Add a color/finish attribute to products in wp-admin so swatches reflect real per-product data instead of the title-text fallback (see above).
+- If you want the `/series` page to have real tagline/description copy per series (not just name/image/count), that needs the `series` field on `/umbrcom/v1/nav` populated — otherwise it'll keep using the real category data with no flavor text, which is still accurate, just plainer.

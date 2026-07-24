@@ -5,9 +5,9 @@ import { fetchNav } from "@/lib/wp-api";
 
 interface SeriesTile {
   name: string;
-  nameHe: string;
-  tagline: string;
-  description: string;
+  nameHe?: string;
+  tagline?: string;
+  description?: string;
   image: string;
   color: string;
   products: number;
@@ -83,20 +83,50 @@ export default function SeriesPage() {
 
   useEffect(() => {
     fetchNav().then((nav) => {
-      if (!nav || nav.series.length === 0) return;
-      const mapped: SeriesTile[] = nav.series.map((s) => ({
-        name: s.name,
-        nameHe: s.name_he,
-        tagline: s.tagline,
-        description: s.description,
-        image: s.image,
-        color: s.color,
-        products: s.products,
-        path: s.path,
-        isFeatured: s.is_featured,
+      if (!nav) return;
+
+      // Preferred source: the dedicated `series` field — richer copy
+      // (tagline/description), once someone wires it up in wp-admin.
+      if (nav.series.length > 0) {
+        const mapped: SeriesTile[] = nav.series.map((s) => ({
+          name: s.name,
+          nameHe: s.name_he,
+          tagline: s.tagline,
+          description: s.description,
+          image: s.image,
+          color: s.color,
+          products: s.products,
+          path: s.path,
+          isFeatured: s.is_featured,
+        }));
+        mapped.sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
+        setSeries(mapped);
+        return;
+      }
+
+      // `series` is empty on the live site right now — but the real named
+      // series (Ella, Hilo, Loïs, Sora, Dett, Goma, Lani, Nara, Nima, Toma…)
+      // already exist as real WooCommerce categories named "סדרת <Name>",
+      // each with a real image and product count. This is exactly why the
+      // page was showing fake placeholder series (Atlas/Primo/Aqua…) that
+      // don't match the real catalog the homepage category tile links to —
+      // derive the list from those real categories instead, same fallback
+      // pattern used elsewhere (seriesCodeOf, colorFromName) until the
+      // dedicated `series` field is actually populated.
+      const stripNbsp = (s: string) => s.replace(new RegExp(" ", "g"), " ").trim();
+      const seriesCategories = nav.categories.filter((c) => {
+        const label = stripNbsp(c.label);
+        return label.startsWith("סדרת ") && label !== "סדרות";
+      });
+      if (seriesCategories.length === 0) return; // keep DEFAULT_SERIES (offline/dev fallback)
+
+      const mapped: SeriesTile[] = seriesCategories.map((c) => ({
+        name: stripNbsp(c.label).replace(/^סדרת\s+/, ""),
+        image: c.image,
+        color: "#3ab4f2",
+        products: c.count,
+        path: c.link,
       }));
-      // Featured series first, rest in the order returned (menu_order).
-      mapped.sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
       setSeries(mapped);
     });
   }, []);
@@ -147,7 +177,7 @@ export default function SeriesPage() {
             >
               <img
                 src={featured.image}
-                alt={`${featured.nameHe} — ${featured.name}`}
+                alt={featured.nameHe ? `${featured.nameHe} — ${featured.name}` : featured.name}
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-l from-black/70 via-black/25 to-transparent" />
@@ -159,8 +189,14 @@ export default function SeriesPage() {
                   <h2 className="font-serif text-5xl sm:text-6xl font-light text-white leading-none mb-2">
                     {featured.name}
                   </h2>
-                  <p className="text-lg text-white/85 font-light mb-3">{featured.nameHe} · {featured.tagline}</p>
-                  <p className="hidden sm:block text-sm text-white/60 leading-relaxed mb-6">{featured.description}</p>
+                  {(featured.nameHe || featured.tagline) && (
+                    <p className="text-lg text-white/85 font-light mb-3">
+                      {[featured.nameHe, featured.tagline].filter(Boolean).join(" · ")}
+                    </p>
+                  )}
+                  {featured.description && (
+                    <p className="hidden sm:block text-sm text-white/60 leading-relaxed mb-6">{featured.description}</p>
+                  )}
                   <span
                     className="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.2em] text-white px-7 py-3 rounded-full transition-transform duration-300 group-hover:-translate-x-1"
                     style={{ backgroundColor: featured.color }}
@@ -190,7 +226,7 @@ export default function SeriesPage() {
                 >
                   <img
                     src={s.image}
-                    alt={`${s.nameHe} — ${s.name}`}
+                    alt={s.nameHe ? `${s.nameHe} — ${s.name}` : s.name}
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
@@ -198,7 +234,11 @@ export default function SeriesPage() {
                     <h2 className={`font-serif ${tile.nameSize} font-light text-white leading-none mb-1.5`}>
                       {s.name}
                     </h2>
-                    <p className="text-sm text-white/80 mb-4">{s.nameHe} · {s.tagline}</p>
+                    {(s.nameHe || s.tagline) && (
+                      <p className="text-sm text-white/80 mb-4">
+                        {[s.nameHe, s.tagline].filter(Boolean).join(" · ")}
+                      </p>
+                    )}
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-medium text-white/60 bg-black/40 backdrop-blur-sm px-3 py-1 rounded-full">
                         {s.products} מוצרים
