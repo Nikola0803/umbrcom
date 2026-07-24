@@ -1,5 +1,5 @@
 const socialLinks = [
-  { icon: "ri-tiktok-line", href: "https://www.tiktok.com/@1umbrcom", label: "TikTok", color: "#000" },
+  { icon: "ri-tiktok-line", href: "https://www.tiktok.com/@umbrcomisrarl", label: "TikTok", color: "#000" },
   { icon: "ri-youtube-line", href: "https://www.youtube.com/@umbrcom", label: "YouTube", color: "#FF0000" },
   { icon: "ri-facebook-circle-line", href: "https://www.facebook.com/profile.php?id=61577915652778", label: "Facebook", color: "#1877F2" },
   { icon: "ri-whatsapp-line", href: "#", label: "WhatsApp", color: "#25D366" },

@@ -8,8 +8,11 @@ import { fetchSettings } from "@/lib/wp-api";
 const DEFAULT_WATERFALL_LOGO_URL =
   "https://admin.umbrcom.co.il/wp-content/uploads/2026/07/%D7%9C%D7%95%D7%92%D7%95-%D7%9C%D7%90%D7%95%D7%A8%D7%9A-500-x-170-%D7%A4%D7%99%D7%A7%D7%A1%D7%9C-500-x-100-%D7%A4%D7%99%D7%A7%D7%A1%D7%9C-8.png";
 
-// Item 22 — updated footer contact info.
-const DEFAULT_ADDRESS = "דוד סהרוב 18, ראשון לציון";
+// Item 22 — updated footer contact info. Fixed spelling per Nik's
+// follow-up (סחרוב, not סהרוב). This is intentionally NOT overridden by
+// wp-admin Site Settings (see below) — the live settings.contact.address
+// had a stale/different address, which is why this kept drifting.
+const DEFAULT_ADDRESS = "דוד סחרוב 18, ראשון לציון";
 const DEFAULT_PHONE = "03-620-8197";
 
 const SOCIAL_ICON: Record<string, string> = {
@@ -22,7 +25,7 @@ const SOCIAL_ICON: Record<string, string> = {
 };
 
 const DEFAULT_SOCIAL_LINKS = [
-  { icon: "ri-tiktok-line", href: "https://www.tiktok.com/@1umbrcom", label: "TikTok" },
+  { icon: "ri-tiktok-line", href: "https://www.tiktok.com/@umbrcomisrarl", label: "TikTok" },
   { icon: "ri-youtube-line", href: "https://www.youtube.com/@umbrcom", label: "YouTube" },
   { icon: "ri-instagram-line", href: "https://www.instagram.com/umbrcomisrael/", label: "Instagram" },
   { icon: "ri-facebook-circle-line", href: "https://www.facebook.com/profile.php?id=61577915652778", label: "Facebook" },
@@ -83,7 +86,8 @@ export default function Footer() {
   const [socialLinks, setSocialLinks] = useState(DEFAULT_SOCIAL_LINKS);
   const [logoUrl, setLogoUrl] = useState(DEFAULT_WATERFALL_LOGO_URL);
   const [phone, setPhone] = useState(DEFAULT_PHONE);
-  const [address, setAddress] = useState(DEFAULT_ADDRESS);
+  // Fixed — not wp-admin-driven, see note below.
+  const address = DEFAULT_ADDRESS;
 
   useEffect(() => {
     fetchSettings().then((settings) => {
@@ -98,7 +102,10 @@ export default function Footer() {
       }
       if (settings?.brand?.waterfall_logo) setLogoUrl(settings.brand.waterfall_logo);
       if (settings?.contact?.phone) setPhone(settings.contact.phone);
-      if (settings?.contact?.address) setAddress(settings.contact.address);
+      // Address intentionally does NOT read from wp-admin Site Settings —
+      // that value was stale/wrong and kept overriding the correct one.
+      // Fixed to DEFAULT_ADDRESS above; update wp-admin separately if you
+      // want it editable there again.
     });
   }, []);
 
@@ -111,15 +118,16 @@ export default function Footer() {
           <Link to="/">
             <img src={logoUrl} alt="Waterfall" className="h-10 object-contain brightness-0 invert opacity-90" />
           </Link>
-          {/* Item 22: contact info */}
+          {/* Item 22: contact info — icons moved to the left of the text
+              per Nik's follow-up (were on the right). */}
           <div className="text-right sm:text-right space-y-1.5">
             <p className="text-sm text-[#999] flex items-center gap-2 justify-end">
-              {address}
               <i className="ri-map-pin-line text-[#666]"></i>
+              {address}
             </p>
             <a href={`tel:+972${phone.replace(/^0/, "")}`} className="text-sm text-[#999] hover:text-white transition-colors flex items-center gap-2 justify-end">
-              {phone}
               <i className="ri-phone-line text-[#666]"></i>
+              {phone}
             </a>
           </div>
           {/* Social icons */}

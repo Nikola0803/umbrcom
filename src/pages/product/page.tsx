@@ -9,6 +9,7 @@ import { useCart } from "@/context/CartContext";
 import { fetchProductById, fetchProductBySku, isWpConfigured } from "@/lib/wp-api";
 import { trackViewItem } from "@/lib/analytics";
 import { seriesCodeOf } from "@/lib/series";
+import { youtubeEmbedUrl } from "@/lib/youtube";
 
 type LiveProduct = Product & {
   images?: string[];
@@ -90,14 +91,6 @@ const SPECS = [
   { label: "אחריות", value: "7 שנים" },
 ];
 
-/** Extracts the video ID from any YouTube URL shape (watch?v=, youtu.be,
- *  shorts/, embed/) so the CMS field accepts whatever the editor pastes. */
-function youtubeEmbedUrl(url: string): string | null {
-  const m = url.match(
-    /(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{11})/
-  );
-  return m ? `https://www.youtube.com/embed/${m[1]}` : null;
-}
 
 // ─── Gallery Carousel ─────────────────────────────────────────────────────
 function GalleryCarousel({ images, name }: { images: string[]; name: string }) {

@@ -35,6 +35,15 @@ const DEFAULT_WHATSAPP = "97236208197";
 
 const MOBILE_NAV = DEFAULT_CATEGORIES;
 
+// Added back per Nik's follow-up: 4 extra buttons alongside the 5-item
+// main nav — All Categories / Customer Service / Series / Special Offers.
+const EXTRA_NAV_LINKS = [
+  { label: "כל הקטגוריות", path: "/shop" },
+  { label: "שירות לקוחות", path: "/customer-service" },
+  { label: "סדרות", path: "/series" },
+  { label: "מבצעים", path: "/shop" },
+];
+
 // Reference layout (client WhatsApp screenshot): icon cluster fixed left,
 // dual logo fixed right, search fixed left on row 2, nav links + a white
 // "all categories" pill fixed right. Each cluster below is pinned with
@@ -185,8 +194,9 @@ export default function Navbar() {
               </div>
             </div>
 
-            {/* RIGHT — main navigation (item 35): exactly these 5 links,
-                nothing else, for now. */}
+            {/* RIGHT — main navigation (item 35: 5 category links) plus the
+                4 extra buttons Nik asked to add back: All Categories /
+                Customer Service / Series / Special Offers. */}
             <div dir="ltr" className="flex items-center gap-6">
               {categories.map((cat) => (
                 <Link
@@ -196,6 +206,17 @@ export default function Navbar() {
                   style={{ color: isActive(cat.path) ? NAV_INK : SUB_INK, fontWeight: isActive(cat.path) ? 700 : 500 }}
                 >
                   {cat.label}
+                </Link>
+              ))}
+              <span className="h-4 w-px" style={{ backgroundColor: HAIRLINE }} />
+              {EXTRA_NAV_LINKS.map((l, i) => (
+                <Link
+                  key={`${l.path}-${i}`}
+                  to={l.path}
+                  className="text-sm font-medium hover:opacity-70 transition-opacity cursor-pointer whitespace-nowrap"
+                  style={{ color: isActive(l.path) ? NAV_INK : SUB_INK, fontWeight: isActive(l.path) ? 700 : 500 }}
+                >
+                  {l.label}
                 </Link>
               ))}
             </div>
@@ -296,6 +317,8 @@ export default function Navbar() {
 
             <div className="bg-[#f8f8f8] py-1">
               {[
+                { label: "כל הקטגוריות", path: "/shop", icon: "ri-grid-fill" },
+                { label: "מבצעים", path: "/shop", icon: "ri-price-tag-3-line" },
                 { label: "הרשמה / התחברות", path: "/auth", icon: "ri-user-3-line" },
                 { label: "המועדפים שלי", path: "/wishlist", icon: "ri-heart-line" },
                 { label: "השוואת מוצרים", path: "/compare", icon: "ri-shopping-bag-3-line" },

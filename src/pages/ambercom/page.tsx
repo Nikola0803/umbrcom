@@ -190,15 +190,16 @@ function StaticAmbercom() {
         </div>
       </section>
 
-      {/* ── TikTok template — shared with the Waterfall homepage (item 20) ── */}
+      {/* ── TikTok template — shared with the Waterfall homepage (item 20).
+          Real videos supplied by Ben, from @umbrcomisrarl. ── */}
       <TikTokSection
         brandName="Ambercom"
-        handle="1umbrcom"
+        handle="umbrcomisrarl"
         accent={AMBERCOM_COLOR}
         videos={[
-          { id: "7448000000000000004", caption: "ציפוי Amber Gold מקרוב" },
-          { id: "7448000000000000005", caption: "EMBER Pro במטבח אמיתי" },
-          { id: "7448000000000000006", caption: "מאחורי הקלעים — Ambercom" },
+          { id: "7663435911702629640", caption: "צפו בסרטון שלנו ב-TikTok" },
+          { id: "7663435758354582802", caption: "צפו בסרטון שלנו ב-TikTok" },
+          { id: "7663434776338058503", caption: "צפו בסרטון שלנו ב-TikTok" },
         ]}
       />
     </>

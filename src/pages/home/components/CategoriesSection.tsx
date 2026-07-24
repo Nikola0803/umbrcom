@@ -95,14 +95,15 @@ export default function CategoriesSection({
         </h2>
       </div>
 
-      {/* cards */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-8 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
+      {/* cards — 3 per row on mobile, 4 per row on desktop, per Nik's
+          follow-up (was 1/3). Card height + type scale down on the
+          narrower mobile columns so the tiles don't look cramped. */}
+      <div className="max-w-6xl mx-auto px-3 sm:px-8 grid grid-cols-3 md:grid-cols-4 gap-2 sm:gap-5">
         {shownCategories.map((cat) => (
           <Link
             key={cat.key}
             to={cat.path}
-            className="group relative overflow-hidden rounded-2xl cursor-pointer block"
-            style={{ height: "420px" }}
+            className="group relative overflow-hidden rounded-xl sm:rounded-2xl cursor-pointer block h-[170px] sm:h-[320px] md:h-[420px]"
           >
             {/* Image */}
             <img
@@ -113,15 +114,16 @@ export default function CategoriesSection({
             {/* Gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent transition-all duration-300 group-hover:from-black/85" />
 
-            {/* Content at bottom */}
-            <div className="absolute bottom-0 right-0 left-0 p-7 text-right">
-              <p className="text-[10px] font-medium tracking-[0.3em] text-[#888888] uppercase mb-1.5">
+            {/* Content at bottom — typography aligned with the site-wide
+                semibold/tight-tracking title treatment. */}
+            <div className="absolute bottom-0 right-0 left-0 p-2.5 sm:p-7 text-right">
+              <p className="hidden sm:block text-[10px] font-medium tracking-[0.3em] text-[#888888] uppercase mb-1.5">
                 {cat.subtitle}
               </p>
-              <h3 className="font-serif text-2xl font-medium text-white mb-4">
+              <h3 className="font-serif text-xs sm:text-xl md:text-2xl font-semibold tracking-tight text-white mb-1 sm:mb-4 leading-tight">
                 {cat.title}
               </h3>
-              <span className="inline-flex items-center gap-2 text-xs font-medium tracking-widest text-white/70 group-hover:text-white border-b border-white/30 group-hover:border-white pb-0.5 transition-all duration-300">
+              <span className="hidden sm:inline-flex items-center gap-2 text-xs font-medium tracking-widest text-white/70 group-hover:text-white border-b border-white/30 group-hover:border-white pb-0.5 transition-all duration-300">
                 לצפייה בקטגוריה
                 <i className="ri-arrow-left-line text-xs"></i>
               </span>

@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchSettings } from "@/lib/wp-api";
+import { youtubeBackgroundEmbedUrl } from "@/lib/youtube";
 
-// ── ITEM 5 (July 2026): the homepage hero video. The real brand video can
-//    be set in wp-admin → UMBRCOM → Site Settings → "Waterfall hero video"
-//    (field `waterfall_hero_video`) and it will be used automatically.
-//    Until then, this placeholder plays. To hard-code it instead, replace
-//    the URL below.
-const VIDEO_SRC =
-  "https://assets.mixkit.co/videos/preview/mixkit-hands-adjusting-a-modern-bathroom-faucet-40413-large.mp4";
+// ── ITEM 19 (July 2026): real hero video supplied by Ben — a YouTube link,
+//    not an .mp4 file, so it renders as a chrome-free autoplaying/looping
+//    YouTube embed (see youtubeBackgroundEmbedUrl) instead of a plain
+//    <video> tag. Still overridable from wp-admin → UMBRCOM → Site Settings
+//    → "Waterfall hero video" (field `waterfall_hero_video`) — that field
+//    accepts either a YouTube link or a direct .mp4 URL, detected below.
+const VIDEO_SRC = "https://youtu.be/QY_FWg5Pwrw";
 
 const POSTER =
   "https://readdy.ai/api/search-image?query=ultra+luxury+modern+bathroom+interior+freestanding+marble+bathtub+elegant+brushed+gold+faucet+large+floor-to-ceiling+windows+soft+morning+light&width=1920&height=1080&seq=hero-video-poster-v1&orientation=landscape";
@@ -50,21 +51,38 @@ export default function Hero({
     });
   }, [video]);
   const videoSrc = video === VIDEO_SRC && settingsVideo ? settingsVideo : video;
+  const youtubeBg = youtubeBackgroundEmbedUrl(videoSrc);
   return (
     <section
       className="relative w-full overflow-hidden"
       style={{ height: "calc(100vh - 160px)", minHeight: "560px" }}
     >
-      {/* ── Background video ── */}
-      <video
-        className="absolute inset-0 w-full h-full object-cover"
-        src={videoSrc}
-        autoPlay
-        muted
-        loop
-        playsInline
-        poster={poster}
-      />
+      {/* ── Background video — YouTube embed when the source is a YouTube
+          link, plain <video> for a direct .mp4 URL. The iframe is
+          oversized + centered so it always covers the section like
+          object-fit: cover would on a native <video>. ── */}
+      {youtubeBg ? (
+        <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+          <iframe
+            src={youtubeBg}
+            title="Waterfall — hero video"
+            allow="autoplay; encrypted-media"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+            style={{ width: "177.78vh", height: "100vh", minWidth: "100%", minHeight: "56.25vw" }}
+            frameBorder={0}
+          />
+        </div>
+      ) : (
+        <video
+          className="absolute inset-0 w-full h-full object-cover"
+          src={videoSrc}
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster={poster}
+        />
+      )}
 
       {/* Gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/10" />

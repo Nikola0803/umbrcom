@@ -2,15 +2,13 @@ import { useEffect, useState } from "react";
 import { fetchSettings } from "@/lib/wp-api";
 
 // ── Reusable TikTok video template — used on BOTH homepages ──────────────
-// ITEM 7 (July 2026): the 3 real TikTok videos can be set in wp-admin →
-// UMBRCOM → Site Settings → TikTok (video ID + caption per row) and they
-// will replace these placeholders automatically. To hard-code instead,
-// paste the real IDs below — the ID is the number in the video URL:
-// tiktok.com/@1umbrcom/video/VIDEO_ID_HERE
+// Items 19-20 (July 2026): real videos supplied by Ben, from @umbrcomisrarl.
+// Still overridable from wp-admin → UMBRCOM → Site Settings → TikTok — a
+// value set there takes priority over these hard-coded defaults.
 const DEFAULT_VIDEOS = [
-  { id: "7448000000000000001", caption: "ברז מטבח Waterfall חדש" },
-  { id: "7448000000000000002", caption: "ציפוי רוז גולד — מדהים" },
-  { id: "7448000000000000003", caption: "התקנה פשוטה בדקות" },
+  { id: "7663435911702629640", caption: "צפו בסרטון שלנו ב-TikTok" },
+  { id: "7663435758354582802", caption: "צפו בסרטון שלנו ב-TikTok" },
+  { id: "7663434776338058503", caption: "צפו בסרטון שלנו ב-TikTok" },
 ];
 
 // Placeholder IDs (7448000000000000xxx) are not real TikTok videos — every
@@ -53,7 +51,7 @@ export interface TikTokSectionProps {
 
 export default function TikTokSection({
   brandName = "Waterfall",
-  handle = "1umbrcom",
+  handle = "umbrcomisrarl",
   accent = "#3ab4f2",
   videos = DEFAULT_VIDEOS,
 }: TikTokSectionProps) {
