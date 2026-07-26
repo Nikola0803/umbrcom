@@ -480,3 +480,17 @@ Same root cause pattern: `GET /umbrcom/v1/nav` returns an empty `series` array o
 ### Needs from you (this round)
 - Add a color/finish attribute to products in wp-admin so swatches reflect real per-product data instead of the title-text fallback (see above).
 - If you want the `/series` page to have real tagline/description copy per series (not just name/image/count), that needs the `series` field on `/umbrcom/v1/nav` populated — otherwise it'll keep using the real category data with no flavor text, which is still accurate, just plainer.
+
+## Update — July 2026, fourth follow-up round (mobile nav icons/list, shop color filter, footer)
+
+**Mobile nav menu**
+1. Icon position was fixed with `justify-start` last round, but that clearly didn't hold up in the browser — this codebase's RTL flex behavior isn't consistent enough to trust justify-*/flex-order alone. Replaced it with an unambiguous technique: the chevron/utility icons are now pinned with `absolute right-*` inside a `relative` row, so they render at the right edge regardless of that quirk.
+2. Added the missing "סדרות" (Series) entry to the mobile drawer's secondary section so it has the same 4 extra links as desktop (All Categories / Customer Service / Series / Special Offers) — it was present in the main 5-item category list but missing from the secondary list. Also added `min-h-0` to the scrollable nav area, a common flexbox fix for content silently overflowing past a `flex-1 overflow-y-auto` container instead of actually scrolling within it — if items were still getting cut off/hidden, this was almost certainly why.
+   - **Still need from you:** if two categories are still missing after this deploys, please send a screenshot or the rendered HTML like you did for the swatches/footer — I couldn't reproduce a data-level bug in the category list itself (all 5 are in the code), so it's most likely a rendering/overflow issue I need to see directly to pin down.
+
+**Shop page color filter**
+3. The color swatches in the shop filter bar are functional multi-select toggles (click to filter by finish) but only showed a subtle ring difference — no real indication they're checkboxes. Added a checkmark badge overlay when selected, plus proper `role="checkbox"`/`aria-checked` semantics, so it's unambiguous these are filter checkboxes rather than plain decorative photos.
+
+**Footer**
+4. Swapped the footer logo back to the UMBRCOM wordmark (was showing the Waterfall mark from an earlier round's decision) — same white treatment as before (`brightness-0 invert`), just the UMBRCOM asset instead.
+5. Found the real cause of "text not all the way right": the brand column (logo, address, social icons) used Tailwind's `items-start`, which compiles to a **physical** `align-items: flex-start` — it does not flip for `dir="rtl"` the way `justify-start`/`text-right` do. That was quietly left-aligning the whole column. Changed to `items-end` so it hugs the true right edge; icon-to-text order within each line is untouched, as asked.

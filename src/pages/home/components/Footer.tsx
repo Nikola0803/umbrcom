@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchSettings } from "@/lib/wp-api";
 
-// Item 21 (July 2026): footer now shows the WATERFALL logo (was mislabeled
-// "UMBRCOM" here before, even though the file was already the Waterfall
-// wordmark) — settings-overridable exactly like the Navbar's Waterfall mark.
-const DEFAULT_WATERFALL_LOGO_URL =
-  "https://admin.umbrcom.co.il/wp-content/uploads/2026/07/%D7%9C%D7%95%D7%92%D7%95-%D7%9C%D7%90%D7%95%D7%A8%D7%9A-500-x-170-%D7%A4%D7%99%D7%A7%D7%A1%D7%9C-500-x-100-%D7%A4%D7%99%D7%A7%D7%A1%D7%9C-8.png";
+// Item 21 flipped back per Nik's explicit follow-up ("umbrcom logo in white
+// needed here") — footer now shows the UMBRCOM parent-brand wordmark, same
+// asset as the Navbar's mobile-header logo, not the Waterfall mark.
+const DEFAULT_UMBRCOM_LOGO_URL =
+  "https://admin.umbrcom.co.il/wp-content/uploads/2026/07/%D7%9C%D7%95%D7%92%D7%95-%D7%9C%D7%92%D7%A8%D7%A1%D7%AA-%D7%A0%D7%99%D7%99%D7%93-5.png";
 
 // Item 22 — updated footer contact info. Fixed spelling per Nik's
 // follow-up (סחרוב, not סהרוב). This is intentionally NOT overridden by
@@ -84,7 +84,7 @@ function FLink({ link }: { link: FLink }) {
 
 export default function Footer() {
   const [socialLinks, setSocialLinks] = useState(DEFAULT_SOCIAL_LINKS);
-  const [logoUrl, setLogoUrl] = useState(DEFAULT_WATERFALL_LOGO_URL);
+  const [logoUrl] = useState(DEFAULT_UMBRCOM_LOGO_URL);
   const [phone, setPhone] = useState(DEFAULT_PHONE);
   // Fixed — not wp-admin-driven, see note below.
   const address = DEFAULT_ADDRESS;
@@ -100,7 +100,6 @@ export default function Footer() {
           }))
         );
       }
-      if (settings?.brand?.waterfall_logo) setLogoUrl(settings.brand.waterfall_logo);
       if (settings?.contact?.phone) setPhone(settings.contact.phone);
       // Address intentionally does NOT read from wp-admin Site Settings —
       // that value was stale/wrong and kept overriding the correct one.
@@ -113,10 +112,15 @@ export default function Footer() {
     <footer className="bg-[#0f0f0f]/95 backdrop-blur-sm rounded-t-3xl border-t border-white/5 overflow-hidden">
       {/* Main columns */}
       <div className="max-w-7xl mx-auto px-6 sm:px-10 pt-12 pb-10 grid grid-cols-2 sm:grid-cols-4 gap-8 sm:gap-10">
-        {/* Col 1: Brand */}
-        <div className="flex flex-col items-start gap-6">
+        {/* Col 1: Brand — items-end (not items-start): Tailwind's
+            items-start/items-end compile to physical flex-start/flex-end,
+            which don't flip for dir="rtl" on their own, so items-start was
+            quietly left-aligning this whole column (logo, address, social
+            icons) instead of hugging the right edge like the rest of the
+            RTL layout. */}
+        <div className="flex flex-col items-end gap-6">
           <Link to="/">
-            <img src={logoUrl} alt="Waterfall" className="h-10 object-contain brightness-0 invert opacity-90" />
+            <img src={logoUrl} alt="UMBRCOM" className="h-10 object-contain brightness-0 invert opacity-90" />
           </Link>
           {/* Item 22: contact info — icons moved to the left of the text
               per Nik's follow-up (were on the right). */}
@@ -172,7 +176,7 @@ export default function Footer() {
       {/* Bottom bar */}
       <div className="max-w-7xl mx-auto px-6 sm:px-10 py-6 flex items-center justify-between flex-wrap gap-4">
         <Link to="/" className="cursor-pointer opacity-60 hover:opacity-100 transition-opacity">
-          <img src={logoUrl} alt="Waterfall" className="h-7 object-contain brightness-0 invert" />
+          <img src={logoUrl} alt="UMBRCOM" className="h-7 object-contain brightness-0 invert" />
         </Link>
         <p className="text-[#555] text-xs">
           ט.ל.ח | כל התמונות והסרטונים באתר להמחשה בלבד.

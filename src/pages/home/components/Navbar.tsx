@@ -301,23 +301,32 @@ export default function Navbar() {
             <img src={UMBRCOM_LOGO_URL} alt="UMBRCOM" className="h-9 object-contain" style={logoStyle} />
           </div>
 
-          <nav className="flex-1 overflow-y-auto py-2">
+          {/* min-h-0 is required for a flex child to actually become
+              scrollable instead of overflowing past the drawer's bottom —
+              a classic flexbox gotcha (flex items default to min-height:
+              auto, which ignores overflow-y-auto otherwise). */}
+          <nav className="flex-1 min-h-0 overflow-y-auto py-2">
             {MOBILE_NAV.map((nl) => (
+              // Icon pinned with `absolute right-*` instead of relying on
+              // justify-*/flex order, which kept rendering inconsistently
+              // in this RTL layout — absolute positioning is unambiguous
+              // regardless of that quirk.
               <Link
                 key={nl.path}
                 to={nl.path}
-                className={`flex items-center justify-start gap-2 px-5 py-3.5 text-sm border-b border-gray-100 transition-colors ${
+                className={`relative flex items-center px-5 py-3.5 text-sm border-b border-gray-100 transition-colors ${
                   isActive(nl.path) ? "font-semibold text-[#1a1a1a]" : "text-[#444] hover:text-[#1a1a1a]"
                 }`}
               >
-                {nl.label}
-                <i className="ri-arrow-left-s-line text-gray-300"></i>
+                <i className="ri-arrow-left-s-line text-gray-300 absolute right-5 top-1/2 -translate-y-1/2"></i>
+                <span className="w-full text-right pr-6">{nl.label}</span>
               </Link>
             ))}
 
             <div className="bg-[#f8f8f8] py-1">
               {[
                 { label: "כל הקטגוריות", path: "/shop", icon: "ri-grid-fill" },
+                { label: "סדרות", path: "/series", icon: "ri-collage-line" },
                 { label: "מבצעים", path: "/shop", icon: "ri-price-tag-3-line" },
                 { label: "הרשמה / התחברות", path: "/auth", icon: "ri-user-3-line" },
                 { label: "המועדפים שלי", path: "/wishlist", icon: "ri-heart-line" },
@@ -327,10 +336,10 @@ export default function Navbar() {
                 <Link
                   key={l.path}
                   to={l.path}
-                  className="flex items-center justify-start gap-2 px-8 py-3 text-xs text-gray-600 hover:text-[#1a1a1a] border-b border-gray-100"
+                  className="relative flex items-center px-8 py-3 text-xs text-gray-600 hover:text-[#1a1a1a] border-b border-gray-100"
                 >
-                  {l.label}
-                  <i className={`${l.icon} text-sm`} style={{ color: NAV_INK }}></i>
+                  <i className={`${l.icon} text-sm absolute right-8 top-1/2 -translate-y-1/2`} style={{ color: NAV_INK }}></i>
+                  <span className="w-full text-right pr-6">{l.label}</span>
                 </Link>
               ))}
             </div>

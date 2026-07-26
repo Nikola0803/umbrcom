@@ -26,10 +26,18 @@ export default function ShopFilters({
           {colorFilters.map((cf) => {
             const active = selectedColors.includes(cf.value);
             return (
+              // Real checkbox semantics (role/aria-checked) plus a visible
+              // checkmark badge when selected — these are multi-select
+              // filter toggles, not just decorative swatches, so it needs
+              // to actually look/behave like a checkbox rather than only
+              // a subtle ring difference.
               <button
                 key={cf.value}
                 onClick={() => onColorToggle(cf.value)}
                 title={cf.label}
+                role="checkbox"
+                aria-checked={active}
+                aria-label={cf.label}
                 className={`relative w-12 h-12 rounded-full overflow-hidden transition-all duration-200 cursor-pointer ${
                   active
                     ? "ring-2 ring-[#1a1a1a] ring-offset-2 scale-110"
@@ -41,6 +49,13 @@ export default function ShopFilters({
                   alt={cf.label}
                   className="w-full h-full object-cover"
                 />
+                {active && (
+                  <span className="absolute inset-0 flex items-center justify-center bg-black/25">
+                    <span className="w-5 h-5 rounded-full bg-[#1a1a1a] flex items-center justify-center">
+                      <i className="ri-check-line text-white text-xs"></i>
+                    </span>
+                  </span>
+                )}
               </button>
             );
           })}
