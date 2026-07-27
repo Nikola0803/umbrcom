@@ -494,3 +494,7 @@ Same root cause pattern: `GET /umbrcom/v1/nav` returns an empty `series` array o
 **Footer**
 4. Swapped the footer logo back to the UMBRCOM wordmark (was showing the Waterfall mark from an earlier round's decision) — same white treatment as before (`brightness-0 invert`), just the UMBRCOM asset instead.
 5. Found the real cause of "text not all the way right": the brand column (logo, address, social icons) used Tailwind's `items-start`, which compiles to a **physical** `align-items: flex-start` — it does not flip for `dir="rtl"` the way `justify-start`/`text-right` do. That was quietly left-aligning the whole column. Changed to `items-end` so it hugs the true right edge; icon-to-text order within each line is untouched, as asked.
+
+## Update — July 2026, fifth follow-up round (mobile "All Categories" as an accordion)
+
+Per Nik's markup on a screenshot of the live drawer: the 5 category links (kitchen/bathroom/cold-water/shower-sets/Waterfall series) were sitting as their own top-level rows above the "כל הקטגוריות" (All Categories) entry — the ask was to nest them inside it instead. "כל הקטגוריות" is now a collapsible accordion toggle (chevron rotates open/closed); tapping it reveals the 5 category links indented underneath, collapsed by default. Everything else in that section (Series/Offers/Login/Wishlist/Compare/Customer Service) is unchanged below it.

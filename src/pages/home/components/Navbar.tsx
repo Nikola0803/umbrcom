@@ -51,6 +51,7 @@ const EXTRA_NAV_LINKS = [
 // of the page's own RTL flow; Hebrew text inside still shapes correctly.
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [searchVal, setSearchVal] = useState("");
   const location = useLocation();
   const { totalCount, openCart } = useCart();
@@ -306,26 +307,40 @@ export default function Navbar() {
               a classic flexbox gotcha (flex items default to min-height:
               auto, which ignores overflow-y-auto otherwise). */}
           <nav className="flex-1 min-h-0 overflow-y-auto py-2">
-            {MOBILE_NAV.map((nl) => (
-              // Icon pinned with `absolute right-*` instead of relying on
-              // justify-*/flex order, which kept rendering inconsistently
-              // in this RTL layout — absolute positioning is unambiguous
-              // regardless of that quirk.
-              <Link
-                key={nl.path}
-                to={nl.path}
-                className={`relative flex items-center px-5 py-3.5 text-sm border-b border-gray-100 transition-colors ${
-                  isActive(nl.path) ? "font-semibold text-[#1a1a1a]" : "text-[#444] hover:text-[#1a1a1a]"
-                }`}
+            <div className="bg-[#f8f8f8]">
+              {/* "כל הקטגוריות" is now an accordion toggle — the 5 category
+                  links (kitchen/bathroom/cold-water/shower-sets/series)
+                  nest underneath it instead of sitting as separate
+                  top-level rows above this section, per Nik's markup. */}
+              <button
+                onClick={() => setCategoriesOpen((v) => !v)}
+                className="relative flex items-center w-full px-8 py-3 text-xs text-gray-700 font-semibold hover:text-[#1a1a1a] border-b border-gray-100 cursor-pointer"
               >
-                <i className="ri-arrow-left-s-line text-gray-300 absolute right-5 top-1/2 -translate-y-1/2"></i>
-                <span className="w-full text-right pr-6">{nl.label}</span>
-              </Link>
-            ))}
+                <i className="ri-grid-fill text-sm absolute right-8 top-1/2 -translate-y-1/2" style={{ color: NAV_INK }}></i>
+                <span className="w-full text-right pr-6">כל הקטגוריות</span>
+                <i
+                  className={`ri-arrow-down-s-line text-base absolute left-4 top-1/2 -translate-y-1/2 transition-transform duration-200 ${
+                    categoriesOpen ? "rotate-180" : ""
+                  }`}
+                ></i>
+              </button>
+              {categoriesOpen && (
+                <div className="bg-white">
+                  {MOBILE_NAV.map((nl) => (
+                    <Link
+                      key={nl.path}
+                      to={nl.path}
+                      className={`relative flex items-center pr-12 pl-5 py-3 text-xs border-b border-gray-100 transition-colors ${
+                        isActive(nl.path) ? "font-semibold text-[#1a1a1a]" : "text-[#666] hover:text-[#1a1a1a]"
+                      }`}
+                    >
+                      <span className="w-full text-right">{nl.label}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
 
-            <div className="bg-[#f8f8f8] py-1">
               {[
-                { label: "כל הקטגוריות", path: "/shop", icon: "ri-grid-fill" },
                 { label: "סדרות", path: "/series", icon: "ri-collage-line" },
                 { label: "מבצעים", path: "/shop", icon: "ri-price-tag-3-line" },
                 { label: "הרשמה / התחברות", path: "/auth", icon: "ri-user-3-line" },
