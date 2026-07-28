@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import PageLayout from "../../components/feature/PageLayout";
 import ProductCard from "./components/ProductCard";
 import ShopFilters from "./components/ShopFilters";
@@ -32,6 +32,11 @@ const CATEGORY_META: Record<string, { title: string; subtitle: string; key: Prod
 
 export default function ShopPage() {
   const { category } = useParams<{ category?: string }>();
+  // The Navbar search box was never wired to anything — it just tracked its
+  // own local state and did nothing on Enter/click. It now navigates to
+  // /shop?search=<query>; this is the other half — actually filtering by it.
+  const [searchParams] = useSearchParams();
+  const searchQuery = (searchParams.get("search") ?? "").trim();
   const [selectedColors, setSelectedColors] = useState<ProductColor[]>([]);
   const [selectedType, setSelectedType] = useState<ProductType | ''>('');
   const [sort, setSort] = useState<SortOption>('default');
@@ -44,6 +49,19 @@ export default function ShopPage() {
     let list = meta
       ? allProducts.filter((p) => p.category === meta.key)
       : allProducts;
+
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      list = list.filter((p) => {
+        const categoryLabel = CATEGORY_META[p.category]?.title ?? "";
+        return (
+          p.name.toLowerCase().includes(q) ||
+          p.sku.toLowerCase().includes(q) ||
+          p.color.toLowerCase().includes(q) ||
+          categoryLabel.toLowerCase().includes(q)
+        );
+      });
+    }
 
     if (selectedColors.length > 0) {
       list = list.filter((p) => selectedColors.includes(p.color));
@@ -78,7 +96,7 @@ export default function ShopPage() {
     }
 
     return list;
-  }, [meta, selectedColors, selectedType, sort, allProducts]);
+  }, [meta, searchQuery, selectedColors, selectedType, sort, allProducts]);
 
   const handleColorToggle = (color: ProductColor) => {
     setSelectedColors((prev) =>
@@ -86,8 +104,12 @@ export default function ShopPage() {
     );
   };
 
-  const title = meta ? meta.title : 'חנות';
-  const subtitle = meta ? meta.subtitle : 'כאן אפשר לעיין במוצרים שבחנות.';
+  const title = searchQuery ? `תוצאות חיפוש` : meta ? meta.title : 'חנות';
+  const subtitle = searchQuery
+    ? `${filtered.length} תוצאות עבור "${searchQuery}"`
+    : meta
+    ? meta.subtitle
+    : 'כאן אפשר לעיין במוצרים שבחנות.';
 
   return (
     <PageLayout>
@@ -107,13 +129,13 @@ export default function ShopPage() {
         {/* Content */}
         <div className="relative z-10 flex flex-col items-start justify-center py-16 px-8 text-right">
           <p className="text-[10px] font-medium tracking-[0.4em] text-[#666] uppercase mb-3">
-            {meta ? "קטגוריה — Waterfall" : "כל המוצרים"}
+            {searchQuery ? "חיפוש" : meta ? "קטגוריה — Waterfall" : "כל המוצרים"}
           </p>
           {/* Item 17: category title typography aligned with the
               brand-wide semibold/tight treatment (see product page item 8). */}
           <h1 className="font-serif text-4xl sm:text-5xl font-semibold tracking-tight text-white">{title}</h1>
           {/* Item 18: category description directly below the title. */}
-          {meta && (
+          {(meta || searchQuery) && (
             <p className="text-sm text-[#aaa] max-w-xl mt-4 leading-relaxed">
               {subtitle}
             </p>

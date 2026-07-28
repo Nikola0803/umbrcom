@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import { useBrand } from "@/hooks/useBrand";
 import { useBrandContext } from "@/context/BrandContext";
@@ -54,6 +54,7 @@ export default function Navbar() {
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [searchVal, setSearchVal] = useState("");
   const location = useLocation();
+  const navigate = useNavigate();
   const { totalCount, openCart } = useCart();
   const brand = useBrand();
   const { setBrandKey: setBrand } = useBrandContext();
@@ -89,6 +90,18 @@ export default function Navbar() {
 
   const isActive = (path: string) =>
     path === "/" ? location.pathname === "/" : location.pathname.startsWith(path);
+
+  // Search was never actually wired to anything — the input only updated
+  // local state, the button had no onClick, and nothing navigated anywhere
+  // on Enter, so typing a search and hitting enter/search did nothing.
+  // Sends the shopper to /shop?search=<query>, which now reads that param
+  // and filters the catalog by it (see shop/page.tsx).
+  const submitSearch = () => {
+    const q = searchVal.trim();
+    if (!q) return;
+    navigate(`/shop?search=${encodeURIComponent(q)}`);
+    setMobileOpen(false);
+  };
 
   return (
     <>
@@ -181,11 +194,13 @@ export default function Navbar() {
                   type="text"
                   value={searchVal}
                   onChange={(e) => setSearchVal(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") submitSearch(); }}
                   placeholder="חיפוש מוצר, מותג או קטגוריה..."
                   className={`flex-1 text-sm text-right outline-none bg-transparent ${dark ? "placeholder-white/50 text-white" : "placeholder-[#999] text-[#111]"}`}
                   dir="rtl"
                 />
                 <button
+                  onClick={submitSearch}
                   className="w-8 h-8 -ml-1 flex-shrink-0 rounded-full flex items-center justify-center transition-colors cursor-pointer"
                   style={{ backgroundColor: NAV_INK }}
                   aria-label="חיפוש"
@@ -271,10 +286,19 @@ export default function Navbar() {
               type="text"
               value={searchVal}
               onChange={(e) => setSearchVal(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") submitSearch(); }}
               placeholder="חיפוש מוצר..."
               className={`flex-1 text-sm text-right outline-none bg-transparent ${dark ? "placeholder-white/50 text-white" : "placeholder-[#999] text-[#111]"}`}
               dir="rtl"
             />
+            <button
+              onClick={submitSearch}
+              className="w-7 h-7 flex-shrink-0 rounded-full flex items-center justify-center cursor-pointer"
+              style={{ backgroundColor: NAV_INK }}
+              aria-label="חיפוש"
+            >
+              <i className={`ri-search-line text-xs ${dark ? "text-[#111]" : "text-white"}`}></i>
+            </button>
           </div>
         </div>
       </header>

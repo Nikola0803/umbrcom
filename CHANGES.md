@@ -505,3 +505,11 @@ The two footer logos are now intentionally different marks, as asked:
 - Main brand column (top): UMBRCOM wordmark, enlarged (h-10 → h-16).
 - Bottom bar (small, next to the copyright line): swapped back to the Waterfall mark — restored as a settings-overridable field (`brand.waterfall_logo` in wp-admin Site Settings), same as before.
 Both stay white via the existing `brightness-0 invert` filter. The brand column's right-alignment (logo/address/phone/social icons) was already fixed to `items-end` last round, so that carries over unchanged.
+
+## Update — July 2026, seventh follow-up round (product URLs, site search)
+
+**Product URLs — slug instead of numeric ID**
+`/product/42` is now `/product/<real-slug>` (e.g. `/product/ערכת-פינוק-כרום-מסדרת-angel-מבית-waterfall`) — readable and much better for SEO than an opaque ID. `fetchProductBySlug` already existed in `wp-api.ts` but nothing used it; the route (`/product/:slug`), every `Link` that builds a product URL (product cards, cart drawer, compare page), and the sitemap/feed generator now all go through one shared helper (`src/lib/productUrl.ts`) instead of each hardcoding `/product/${id}`. Old bookmarked or indexed `/product/<id>` links still resolve (falls back to the numeric-ID and SKU lookups that existed before) and now silently redirect to the canonical slug URL once resolved, so old links don't die and search engines converge on the new URL. WooCommerce returns Hebrew slugs percent-encoded even inside its JSON responses — decoded once in `mapStoreApiProduct` so the address bar shows real Hebrew, not `%d7%xx` escapes.
+
+**Site search — was completely unwired**
+Found the actual bug: both search boxes (desktop header, mobile compact row) only updated their own local state on typing — the search button had no `onClick`, and there was no `onKeyDown`/Enter handling anywhere, so nothing ever happened no matter what you typed or how you submitted it. Wired both inputs to actually search: Enter or tapping the search button now sends you to `/shop?search=<query>`, and the shop page reads that param and filters the catalog by product name, SKU, color/finish, and category — showing a "תוצאות חיפוש" heading with the result count. This was a straight-up missing feature, not a backend/data issue like the other bugs this week.
