@@ -498,3 +498,10 @@ Same root cause pattern: `GET /umbrcom/v1/nav` returns an empty `series` array o
 ## Update — July 2026, fifth follow-up round (mobile "All Categories" as an accordion)
 
 Per Nik's markup on a screenshot of the live drawer: the 5 category links (kitchen/bathroom/cold-water/shower-sets/Waterfall series) were sitting as their own top-level rows above the "כל הקטגוריות" (All Categories) entry — the ask was to nest them inside it instead. "כל הקטגוריות" is now a collapsible accordion toggle (chevron rotates open/closed); tapping it reveals the 5 category links indented underneath, collapsed by default. Everything else in that section (Series/Offers/Login/Wishlist/Compare/Customer Service) is unchanged below it.
+
+## Update — July 2026, sixth follow-up round (footer logos)
+
+The two footer logos are now intentionally different marks, as asked:
+- Main brand column (top): UMBRCOM wordmark, enlarged (h-10 → h-16).
+- Bottom bar (small, next to the copyright line): swapped back to the Waterfall mark — restored as a settings-overridable field (`brand.waterfall_logo` in wp-admin Site Settings), same as before.
+Both stay white via the existing `brightness-0 invert` filter. The brand column's right-alignment (logo/address/phone/social icons) was already fixed to `items-end` last round, so that carries over unchanged.

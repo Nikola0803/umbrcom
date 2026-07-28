@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
+import { productPath } from "@/lib/productUrl";
 
 export default function CartDrawer() {
   const { items, isOpen, closeCart, removeItem, updateQty, totalCount, totalPrice } = useCart();
@@ -86,7 +87,7 @@ export default function CartDrawer() {
                 >
                   {/* Image */}
                   <Link
-                    to={`/product/${product.id}`}
+                    to={productPath(product)}
                     onClick={closeCart}
                     className="w-20 h-20 flex-shrink-0 bg-white rounded-xl overflow-hidden border border-[#ede9e1] flex items-center justify-center cursor-pointer"
                   >
@@ -100,7 +101,7 @@ export default function CartDrawer() {
                   {/* Info */}
                   <div className="flex-1 min-w-0">
                     <Link
-                      to={`/product/${product.id}`}
+                      to={productPath(product)}
                       onClick={closeCart}
                       className="text-sm font-medium text-[#1a1410] leading-snug line-clamp-2 hover:text-[#1a1a1a] transition-colors cursor-pointer"
                     >

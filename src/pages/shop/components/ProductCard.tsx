@@ -5,6 +5,7 @@ import { useCart } from "@/context/CartContext";
 import { useBrand } from "@/hooks/useBrand";
 import { useLiveProducts } from "@/hooks/useLiveProducts";
 import { seriesCodeOf } from "@/lib/series";
+import { productPath } from "@/lib/productUrl";
 
 interface ProductCardProps {
   product: Product;
@@ -58,7 +59,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   ).slice(0, 4);
 
   return (
-    <Link to={`/product/${product.id}`} className="group cursor-pointer flex flex-col">
+    <Link to={productPath(product)} className="group cursor-pointer flex flex-col">
       {/* ── Image tile — soft gray, no border ── */}
       {/* Image fills the whole tile edge-to-edge (Nik, July 2026) — no gray
           backdrop, no inner padding: object-cover instead of padded contain. */}

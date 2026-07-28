@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import PageLayout from "../../components/feature/PageLayout";
 import { useLiveProducts } from "@/hooks/useLiveProducts";
+import { productPath } from "@/lib/productUrl";
 
 const SAMPLE_SKUS = ["5508-003", "5503-001", "5506-005"]; // stable across ID migrations
 
@@ -46,7 +47,7 @@ export default function ComparePage() {
                     <th className="text-right text-xs text-[#aaa] font-medium pb-6 w-32">מאפיין</th>
                     {compareProducts.map((p) => (
                       <th key={p.id} className="text-right pb-6 px-4">
-                        <Link to={`/product/${p.id}`} className="group block">
+                        <Link to={productPath(p)} className="group block">
                           <div className="w-24 h-24 bg-[#f6f6f6] rounded-xl overflow-hidden mb-3 group-hover:shadow-md transition-shadow">
                             <img src={p.image} alt={p.name} className="w-full h-full object-contain p-2" />
                           </div>
@@ -85,7 +86,7 @@ export default function ComparePage() {
                     {compareProducts.map((p) => (
                       <td key={p.id} className="text-right py-5 px-4">
                         <Link
-                          to={`/product/${p.id}`}
+                          to={productPath(p)}
                           className="inline-block bg-[#1a1a1a] hover:bg-[#333] text-white text-xs font-semibold tracking-widest px-5 py-2.5 rounded-full transition-colors cursor-pointer"
                         >
                           לעמוד המוצר

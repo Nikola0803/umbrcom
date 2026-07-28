@@ -6,10 +6,11 @@ import { useLiveProducts } from "@/hooks/useLiveProducts";
 import ProductCard from "../shop/components/ProductCard";
 import ModelViewer3D from "./components/ModelViewer3D";
 import { useCart } from "@/context/CartContext";
-import { fetchProductById, fetchProductBySku, isWpConfigured } from "@/lib/wp-api";
+import { fetchProductById, fetchProductBySku, fetchProductBySlug, isWpConfigured } from "@/lib/wp-api";
 import { trackViewItem } from "@/lib/analytics";
 import { trackMetaViewContent } from "@/lib/metaPixel";
 import { seriesCodeOf } from "@/lib/series";
+import { productPath } from "@/lib/productUrl";
 import { youtubeEmbedUrl } from "@/lib/youtube";
 
 type LiveProduct = Product & {
@@ -158,10 +159,13 @@ function GalleryCarousel({ images, name }: { images: string[]; name: string }) {
 }
 
 export default function ProductPage() {
-  const { id } = useParams<{ id: string }>();
+  // Route param is now the product's slug (readable URL / better SEO), not
+  // the numeric WooCommerce ID — but it's still named generically since old
+  // bookmarked/indexed `/product/<id>` links need to keep resolving too.
+  const { slug: routeParam } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { products: catalog, isLive } = useLiveProducts();
-  const mockProduct = mockProducts.find((p) => p.id === id);
+  const mockProduct = mockProducts.find((p) => p.id === routeParam);
   const [product, setProduct] = useState<LiveProduct | undefined>(mockProduct);
   const [loading, setLoading] = useState(isWpConfigured());
   const { addItem } = useCart();
@@ -169,25 +173,39 @@ export default function ProductPage() {
   useEffect(() => {
     setProduct(mockProduct);
     setActiveImage(0);
-    if (!isWpConfigured() || !id) {
+    if (!isWpConfigured() || !routeParam) {
       setLoading(false);
       if (mockProduct) { trackViewItem(mockProduct); trackMetaViewContent(mockProduct); }
       return;
     }
     setLoading(true);
-    fetchProductById(id).then(async (live) => {
-      // Old-install ID? (pre-migration URLs / links rendered from mocks)
-      // — the ID is dead but the SKU survived the migration: resolve it.
+    (async () => {
+      // Slug is the canonical URL now — try it first.
+      let live = await fetchProductBySlug(routeParam);
+      let resolvedViaLegacyId = false;
+      if (!live) {
+        // Old-install numeric ID / a stale bookmarked or indexed
+        // `/product/<id>` link — the ID may or may not be dead post-
+        // migration, but resolve it either way and redirect to the
+        // canonical slug URL below so it doesn't keep happening.
+        live = await fetchProductById(routeParam);
+        resolvedViaLegacyId = Boolean(live);
+      }
       if (!live && mockProduct?.sku) {
         live = await fetchProductBySku(mockProduct.sku);
       }
-      if (live) setProduct(live);
+      if (live) {
+        setProduct(live);
+        if (resolvedViaLegacyId && live.slug && live.slug !== routeParam) {
+          navigate(`/product/${live.slug}`, { replace: true });
+        }
+      }
       setLoading(false);
       const viewed = live ?? mockProduct;
       if (viewed) { trackViewItem(viewed); trackMetaViewContent(viewed); }
-    });
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [routeParam]);
 
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
@@ -391,7 +409,7 @@ export default function ProductPage() {
                         style={{ backgroundColor: COLOR_DOT[c] ?? "#999" }}
                         onClick={() => {
                           const same = seriesProducts.find((p) => p.color === c && p.id !== product.id);
-                          if (same) navigate(`/product/${same.id}`);
+                          if (same) navigate(productPath(same));
                         }}
                       >
                         {product.color === c && (

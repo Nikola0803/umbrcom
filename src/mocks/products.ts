@@ -4,6 +4,10 @@ export type ProductCategory = 'kitchen' | 'bathroom' | 'cold-water';
 
 export interface Product {
   id: string;
+  /** Human-readable slug for the /product/:slug URL — only present on
+   *  products loaded from the live WooCommerce API; mock-catalog products
+   *  don't have one, so URL building always falls back to `id`. */
+  slug?: string;
   sku: string;
   name: string;
   price: number;

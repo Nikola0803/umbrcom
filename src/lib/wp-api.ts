@@ -303,9 +303,19 @@ export function mapStoreApiProduct(p: StoreApiProduct): Product & {
       ? Math.round(((regularPrice - salePrice) / regularPrice) * 100)
       : undefined;
 
+  // WooCommerce returns Hebrew slugs percent-encoded (e.g. "%d7%a2%d7%a8..."),
+  // even inside JSON — decode once here so every consumer gets a readable
+  // Hebrew slug and the /product/:slug URL shows real text, not %xx escapes.
+  let slug = p.slug;
+  try {
+    slug = decodeURIComponent(p.slug);
+  } catch {
+    /* malformed encoding — fall back to the raw slug rather than crash */
+  }
+
   return {
     id: String(p.id),
-    slug: p.slug,
+    slug,
     sku: p.sku,
     name: p.name,
     price: minorUnitToNumber(p.prices.price, minorUnit),

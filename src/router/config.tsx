@@ -32,7 +32,7 @@ const routes: RouteObject[] = [
   { path: "/contact", element: <ContactPage /> },
   { path: "/customer-service", element: <CustomerServicePage /> },
   { path: "/blog", element: <BlogPage /> },
-  { path: "/product/:id", element: <ProductPage /> },
+  { path: "/product/:slug", element: <ProductPage /> },
   { path: "/checkout", element: <CheckoutPage /> },
   { path: "/checkout/result", element: <CheckoutResultPage /> },
   { path: "/terms", element: <TermsPage /> },

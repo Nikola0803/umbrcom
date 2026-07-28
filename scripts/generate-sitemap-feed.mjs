@@ -68,12 +68,26 @@ async function fetchAllProducts() {
   return products;
 }
 
+// Product URLs are slug-based now (/product/<slug>), matching the frontend
+// (src/lib/productUrl.ts) — falls back to the numeric id if a product is
+// ever missing a slug. WooCommerce returns Hebrew slugs percent-encoded
+// even inside JSON, so decode for a readable URL, same as the frontend.
+function productPath(p) {
+  let slug = p.slug;
+  try {
+    slug = decodeURIComponent(p.slug);
+  } catch {
+    /* malformed encoding — fall back to the raw slug rather than crash */
+  }
+  return `/product/${slug || p.id}`;
+}
+
 function buildSitemap(products) {
   const today = new Date().toISOString().slice(0, 10);
   const urls = [
     ...STATIC_ROUTES,
     ...CATEGORY_ROUTES,
-    ...products.map((p) => `/product/${p.id}`),
+    ...products.map(productPath),
   ];
   const entries = urls
     .map(
@@ -105,7 +119,7 @@ function buildFeed(products) {
       const regularPrice = p.prices?.regular_price ? minorUnitToNumber(p.prices.regular_price, minorUnit) : price;
       const salePrice = p.prices?.sale_price ? minorUnitToNumber(p.prices.sale_price, minorUnit) : null;
       const image = p.images?.[0]?.src ?? "";
-      const link = `${SITE_URL}/product/${p.id}`;
+      const link = `${SITE_URL}${productPath(p)}`;
       const availability = (p.is_in_stock ?? true) ? "in stock" : "out of stock";
       const description = (p.short_description || p.description || p.name || "")
         .replace(/<[^>]+>/g, "")
