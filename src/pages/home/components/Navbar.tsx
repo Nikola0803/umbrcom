@@ -158,12 +158,36 @@ export default function Navbar() {
                 aria-label="עבור למותג Waterfall"
                 title="Waterfall"
               >
-                {/* No brightness-0/invert filter here (unlike the UMBRCOM
-                    mark below): per the reference screenshot, the Waterfall
-                    wordmark shows in its own blue, not forced black-then-
-                    inverted-white — that filter combo was wiping out the
-                    brand color entirely. */}
-                <img src={logoUrl} alt="Waterfall" className="h-9 sm:h-10 w-auto object-contain" />
+                {/* Both logo files are dark-artwork-on-transparent, so this
+                    can't just drop the filter — that renders literal black,
+                    invisible on the black header. State-dependent, matching
+                    Nik's confirmed behavior: black (native art, no filter)
+                    while UMBRCOM is the active brand; Waterfall BLUE only
+                    once Waterfall becomes the active brand (persisted via
+                    the brand switcher, not a hover/click flash). A CSS
+                    mask — not brightness/invert filters, which can't turn
+                    black into an arbitrary hue — recolors the artwork to
+                    the exact brand blue on activation. */}
+                {dark ? (
+                  <span
+                    role="img"
+                    aria-label="Waterfall"
+                    className="h-9 sm:h-10 w-[110px] sm:w-[130px] inline-block"
+                    style={{
+                      backgroundColor: "#3ab4f2",
+                      WebkitMaskImage: `url(${logoUrl})`,
+                      maskImage: `url(${logoUrl})`,
+                      WebkitMaskSize: "contain",
+                      maskSize: "contain",
+                      WebkitMaskRepeat: "no-repeat",
+                      maskRepeat: "no-repeat",
+                      WebkitMaskPosition: "center",
+                      maskPosition: "center",
+                    }}
+                  />
+                ) : (
+                  <img src={logoUrl} alt="Waterfall" className="h-9 sm:h-10 w-auto object-contain" />
+                )}
               </button>
 
               <div className="hidden sm:block h-9 w-px" style={{ backgroundColor: HAIRLINE }} />
