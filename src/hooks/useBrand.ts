@@ -22,12 +22,13 @@ export const WATERFALL: Brand = {
   color: "#3ab4f2",
   colorHover: "#2da0d8",
   tint: "rgba(58,180,242,0.08)",
-  // Per Nik's explicit follow-up: header itself should be the official
-  // Waterfall blue, not black — was previously "black header, blue only on
-  // buttons/accents" by an earlier round's design choice; that's now
-  // reversed.
-  headerBg: "#3ab4f2",
-  headerInk: "#ffffff",
+  // Per Nik's reference screenshot: the header background stays BLACK when
+  // Waterfall is active — it's the icons/logo/nav text ("ink") that turn
+  // Waterfall blue, not the background itself. An earlier round had this
+  // backwards (solid blue background, white ink) — reversed here to match
+  // the actual reference image.
+  headerBg: "#0a0a0a",
+  headerInk: "#3ab4f2",
 };
 
 /** The parent brand. NOTE: "Ambercom" was a naming mistake — אמברקום IS

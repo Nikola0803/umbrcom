@@ -64,7 +64,7 @@ export default function Navbar() {
   const dark = brand.key === "waterfall";
   const NAV_BG = brand.headerBg;
   const NAV_INK = brand.headerInk;
-  const SUB_INK = dark ? "rgba(255,255,255,0.72)" : "#333333";
+  const SUB_INK = dark ? "rgba(58,180,242,0.8)" : "#333333";
   const SURFACE = dark ? "rgba(255,255,255,0.13)" : "#f2f2f2";
   const HAIRLINE = dark ? "rgba(255,255,255,0.16)" : "rgba(0,0,0,0.08)";
   // Both logo files are dark-on-transparent — invert to white on the black header.
@@ -158,7 +158,12 @@ export default function Navbar() {
                 aria-label="עבור למותג Waterfall"
                 title="Waterfall"
               >
-                <img src={logoUrl} alt="Waterfall" className="h-9 sm:h-10 w-auto object-contain brightness-0" style={logoStyle} />
+                {/* No brightness-0/invert filter here (unlike the UMBRCOM
+                    mark below): per the reference screenshot, the Waterfall
+                    wordmark shows in its own blue, not forced black-then-
+                    inverted-white — that filter combo was wiping out the
+                    brand color entirely. */}
+                <img src={logoUrl} alt="Waterfall" className="h-9 sm:h-10 w-auto object-contain" />
               </button>
 
               <div className="hidden sm:block h-9 w-px" style={{ backgroundColor: HAIRLINE }} />

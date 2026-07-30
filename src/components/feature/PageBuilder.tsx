@@ -119,13 +119,25 @@ export default function PageBuilder({ sections }: PageBuilderProps) {
             const brandSettings = settings?.tiktok?.[brandKey];
             const accent =
               brandKey === "ambercom" ? settings?.brand?.ambercom_color : settings?.brand?.waterfall_color;
+            // wp-admin's Site Settings → TikTok videos list is currently
+            // empty ([]) — passing that empty array through as the `videos`
+            // prop explicitly overrode TikTokSection's own hard-coded real
+            // videos (React default params only kick in for `undefined`,
+            // not an empty array), so the section silently rendered nothing
+            // on the CMS-driven homepage even though the static fallback
+            // page had the real videos. Only pass it through when it
+            // actually has entries.
+            const normalizedVideos =
+              brandSettings?.videos && brandSettings.videos.length > 0
+                ? brandSettings.videos.map((v) => ({ src: v.src || v.id || "", caption: v.caption })).filter((v) => v.src)
+                : undefined;
             return (
               <TikTokSection
                 key={i}
                 brandName={brandKey === "ambercom" ? "UMBRCOM" : "Waterfall"}
                 handle={brandSettings?.handle}
                 accent={accent}
-                videos={brandSettings?.videos}
+                videos={normalizedVideos && normalizedVideos.length > 0 ? normalizedVideos : undefined}
               />
             );
           }
