@@ -158,36 +158,27 @@ export default function Navbar() {
                 aria-label="עבור למותג Waterfall"
                 title="Waterfall"
               >
-                {/* Both logo files are dark-artwork-on-transparent, so this
-                    can't just drop the filter — that renders literal black,
-                    invisible on the black header. State-dependent, matching
-                    Nik's confirmed behavior: black (native art, no filter)
-                    while UMBRCOM is the active brand; Waterfall BLUE only
-                    once Waterfall becomes the active brand (persisted via
-                    the brand switcher, not a hover/click flash). A CSS
-                    mask — not brightness/invert filters, which can't turn
-                    black into an arbitrary hue — recolors the artwork to
-                    the exact brand blue on activation. */}
-                {dark ? (
-                  <span
-                    role="img"
-                    aria-label="Waterfall"
-                    className="h-9 sm:h-10 w-[110px] sm:w-[130px] inline-block"
-                    style={{
-                      backgroundColor: "#3ab4f2",
-                      WebkitMaskImage: `url(${logoUrl})`,
-                      maskImage: `url(${logoUrl})`,
-                      WebkitMaskSize: "contain",
-                      maskSize: "contain",
-                      WebkitMaskRepeat: "no-repeat",
-                      maskRepeat: "no-repeat",
-                      WebkitMaskPosition: "center",
-                      maskPosition: "center",
-                    }}
-                  />
-                ) : (
-                  <img src={logoUrl} alt="Waterfall" className="h-9 sm:h-10 w-auto object-contain" />
-                )}
+                {/* Both logo files are dark-artwork-on-transparent. Black
+                    (native art, no filter) while UMBRCOM is the active
+                    brand; Waterfall BLUE only once Waterfall becomes the
+                    active brand. A prior CSS mask-image attempt inverted
+                    unpredictably (mask-image defaults to LUMINANCE-based
+                    masking per spec in some engines vs. alpha-based in
+                    others — dark artwork gets treated opposite depending
+                    on the browser). SVG feFlood+feComposite("in") instead:
+                    explicit alpha compositing, no luminance ambiguity. */}
+                <img
+                  src={logoUrl}
+                  alt="Waterfall"
+                  className="h-9 sm:h-10 w-auto object-contain"
+                  style={dark ? { filter: "url(#waterfall-blue-recolor)" } : undefined}
+                />
+                <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true">
+                  <filter id="waterfall-blue-recolor">
+                    <feFlood floodColor="#3ab4f2" result="flood" />
+                    <feComposite in="flood" in2="SourceGraphic" operator="in" />
+                  </filter>
+                </svg>
               </button>
 
               <div className="hidden sm:block h-9 w-px" style={{ backgroundColor: HAIRLINE }} />
