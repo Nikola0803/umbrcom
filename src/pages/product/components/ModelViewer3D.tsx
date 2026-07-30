@@ -38,6 +38,13 @@ declare global {
 }
 
 export default function ModelViewer3D({ productName, productSku, modelUrl, modelUsdzUrl }: ModelViewer3DProps) {
+  // No real product has a .glb uploaded in wp-admin yet (model_3d_url comes
+  // back empty from the API for every product) — silently falling back to
+  // a generic demo astronaut model made this tab look broken/wrong rather
+  // than like a placeholder: clicking a faucet's 3D tab and getting a space
+  // astronaut reads as a bug. Show an honest "not available yet" state
+  // instead of loading the demo model, per Nik's decision.
+  const hasRealModel = Boolean(modelUrl);
   const glbSrc = modelUrl || DEMO_MODEL_URL;
   const usdzSrc = modelUsdzUrl || DEMO_USDZ_URL;
   const [scriptLoaded, setScriptLoaded] = useState(false);
@@ -50,6 +57,7 @@ export default function ModelViewer3D({ productName, productSku, modelUrl, model
   const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(arUrl)}&color=1a1410&bgcolor=faf8f5&margin=10`;
 
   useEffect(() => {
+    if (!hasRealModel) return;
     if (document.querySelector('script[data-mv-loader]')) {
       setScriptLoaded(true);
       return;
@@ -60,7 +68,7 @@ export default function ModelViewer3D({ productName, productSku, modelUrl, model
     script.setAttribute("data-mv-loader", "true");
     script.onload = () => setScriptLoaded(true);
     document.head.appendChild(script);
-  }, []);
+  }, [hasRealModel]);
 
   const toggleRotate = () => {
     const mv = viewerRef.current as any;
@@ -72,6 +80,20 @@ export default function ModelViewer3D({ productName, productSku, modelUrl, model
     }
     setIsRotating((r) => !r);
   };
+
+  if (!hasRealModel) {
+    return (
+      <div className="w-full" dir="rtl">
+        <div className="relative bg-[#f2f2f2] overflow-hidden flex flex-col items-center justify-center gap-3 text-center" style={{ height: 320 }}>
+          <i className="ri-box-3-line text-4xl text-[#c4bcb0]"></i>
+          <div>
+            <p className="text-sm font-medium text-[#1a1410] mb-1">תצוגה תלת-מימדית תגיע בקרוב</p>
+            <p className="text-xs text-[#9a8a7a]">המודל התלת-מימדי למוצר זה עדיין לא הועלה למערכת.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full" dir="rtl">

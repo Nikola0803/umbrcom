@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import PageLayout from "../../components/feature/PageLayout";
 import ProductCard from "./components/ProductCard";
@@ -6,6 +6,7 @@ import ShopFilters from "./components/ShopFilters";
 import { SortOption } from "@/lib/sort";
 import { ProductColor, ProductType, ProductCategory } from "../../mocks/products";
 import { useLiveProducts } from "@/hooks/useLiveProducts";
+import { fetchNav } from "@/lib/wp-api";
 
 const PAGE_SIZE = 16;
 
@@ -45,9 +46,35 @@ export default function ShopPage() {
   const meta = category ? CATEGORY_META[category] : null;
   const { products: allProducts, loading } = useLiveProducts();
 
+  // /shop/:category only ever worked for the 3 hardcoded buckets above
+  // (kitchen/bathroom/cold-water) — anything else (a named series like
+  // Ella/Hilo, "ערכות פינוק", etc.) silently fell through to `meta` being
+  // null, which showed the ENTIRE unfiltered catalog with a generic "כל
+  // המוצרים" heading — functionally indistinguishable from the plain shop
+  // page even though the URL looked category-specific. Falls back to
+  // matching the real WooCommerce category slug (`categorySlugs`) instead.
+  const [dynamicLabel, setDynamicLabel] = useState<string | null>(null);
+  useEffect(() => {
+    if (!category || meta) {
+      setDynamicLabel(null);
+      return;
+    }
+    let cancelled = false;
+    fetchNav().then((nav) => {
+      if (cancelled || !nav) return;
+      const match = nav.categories.find((c) => decodeURIComponent(c.slug) === category);
+      if (match) setDynamicLabel(match.label.replace(/ /g, " ").trim());
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [category, meta]);
+
   const filtered = useMemo(() => {
     let list = meta
       ? allProducts.filter((p) => p.category === meta.key)
+      : category
+      ? allProducts.filter((p) => p.categorySlugs?.includes(category))
       : allProducts;
 
     if (searchQuery) {
@@ -96,7 +123,7 @@ export default function ShopPage() {
     }
 
     return list;
-  }, [meta, searchQuery, selectedColors, selectedType, sort, allProducts]);
+  }, [meta, category, searchQuery, selectedColors, selectedType, sort, allProducts]);
 
   const handleColorToggle = (color: ProductColor) => {
     setSelectedColors((prev) =>
@@ -104,7 +131,13 @@ export default function ShopPage() {
     );
   };
 
-  const title = searchQuery ? `תוצאות חיפוש` : meta ? meta.title : 'חנות';
+  const title = searchQuery
+    ? `תוצאות חיפוש`
+    : meta
+    ? meta.title
+    : dynamicLabel
+    ? dynamicLabel
+    : 'חנות';
   const subtitle = searchQuery
     ? `${filtered.length} תוצאות עבור "${searchQuery}"`
     : meta
@@ -129,7 +162,7 @@ export default function ShopPage() {
         {/* Content */}
         <div className="relative z-10 flex flex-col items-start justify-center py-16 px-8 text-right">
           <p className="text-[10px] font-medium tracking-[0.4em] text-[#666] uppercase mb-3">
-            {searchQuery ? "חיפוש" : meta ? "קטגוריה — Waterfall" : "כל המוצרים"}
+            {searchQuery ? "חיפוש" : meta || dynamicLabel ? "קטגוריה — Waterfall" : "כל המוצרים"}
           </p>
           {/* Item 17: category title typography aligned with the
               brand-wide semibold/tight treatment (see product page item 8). */}

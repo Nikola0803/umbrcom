@@ -304,8 +304,13 @@ export default function Navbar() {
       </header>
 
       {/* ══ Mobile drawer ══ */}
+      {/* z-[60] (not z-40): the site's own fixed mobile header (top bar +
+          search row, ~124px tall) is z-50 — with the drawer below that, the
+          header rendered on top of the drawer's top region, covering its
+          own header row and the first nav item ("כל הקטגוריות") underneath
+          it. This is the actual cause of that item looking "hidden". */}
       <div
-        className={`fixed inset-0 z-40 transition-all duration-300 md:hidden ${
+        className={`fixed inset-0 z-[60] transition-all duration-300 md:hidden ${
           mobileOpen ? "pointer-events-auto" : "pointer-events-none"
         }`}
       >

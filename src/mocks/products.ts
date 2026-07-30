@@ -13,6 +13,12 @@ export interface Product {
   price: number;
   image: string;
   category: ProductCategory;
+  /** Every real WooCommerce category slug this product belongs to (decoded,
+   *  readable Hebrew) — `category` above only buckets into kitchen/
+   *  bathroom/cold-water, so this is what /shop/:category falls back to
+   *  for everything else (named series, "ערכות פינוק", etc). Only present
+   *  on products loaded from the live API. */
+  categorySlugs?: string[];
   color: ProductColor;
   type: ProductType;
 }
@@ -253,11 +259,16 @@ export const allProducts: Product[] = [
   },
 ];
 
+// Fixed the same broken-image bug as the live catalog (see useLiveProducts.ts):
+// these pointed at umbrcom.co.il, which is the React SPA's own domain since
+// the WordPress move to admin.umbrcom.co.il — every one of these was
+// resolving to index.html instead of an image, hence the broken-image /
+// question-mark icons in the shop color filter.
 export const colorFilters = [
-  { label: 'ניקל מוברש', value: 'ניקל מוברש' as ProductColor, image: 'https://umbrcom.co.il/wp-content/uploads/2026/03/2-1.png' },
-  { label: 'זהב מוברש', value: 'זהב מוברש' as ProductColor, image: 'https://umbrcom.co.il/wp-content/uploads/2026/03/3-1.png' },
-  { label: 'רוז גולד', value: 'רוז גולד' as ProductColor, image: 'https://umbrcom.co.il/wp-content/uploads/2026/03/1-1.png' },
-  { label: 'שחור', value: 'שחור' as ProductColor, image: 'https://umbrcom.co.il/wp-content/uploads/2026/03/4-1.png' },
-  { label: 'זהב', value: 'זהב' as ProductColor, image: 'https://umbrcom.co.il/wp-content/uploads/2026/03/3-1.png' },
-  { label: 'כרום', value: 'כרום' as ProductColor, image: 'https://umbrcom.co.il/wp-content/uploads/2026/03/2-1.png' },
+  { label: 'ניקל מוברש', value: 'ניקל מוברש' as ProductColor, image: 'https://admin.umbrcom.co.il/wp-content/uploads/2026/03/2-1.png' },
+  { label: 'זהב מוברש', value: 'זהב מוברש' as ProductColor, image: 'https://admin.umbrcom.co.il/wp-content/uploads/2026/03/3-1.png' },
+  { label: 'רוז גולד', value: 'רוז גולד' as ProductColor, image: 'https://admin.umbrcom.co.il/wp-content/uploads/2026/03/1-1.png' },
+  { label: 'שחור', value: 'שחור' as ProductColor, image: 'https://admin.umbrcom.co.il/wp-content/uploads/2026/03/4-1.png' },
+  { label: 'זהב', value: 'זהב' as ProductColor, image: 'https://admin.umbrcom.co.il/wp-content/uploads/2026/03/3-1.png' },
+  { label: 'כרום', value: 'כרום' as ProductColor, image: 'https://admin.umbrcom.co.il/wp-content/uploads/2026/03/2-1.png' },
 ];

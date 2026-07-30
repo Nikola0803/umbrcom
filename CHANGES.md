@@ -513,3 +513,31 @@ Both stay white via the existing `brightness-0 invert` filter. The brand column'
 
 **Site search — was completely unwired**
 Found the actual bug: both search boxes (desktop header, mobile compact row) only updated their own local state on typing — the search button had no `onClick`, and there was no `onKeyDown`/Enter handling anywhere, so nothing ever happened no matter what you typed or how you submitted it. Wired both inputs to actually search: Enter or tapping the search button now sends you to `/shop?search=<query>`, and the shop page reads that param and filters the catalog by product name, SKU, color/finish, and category — showing a "תוצאות חיפוש" heading with the result count. This was a straight-up missing feature, not a backend/data issue like the other bugs this week.
+
+## Update — July 2026, eighth follow-up round (12-item bug list)
+
+**3. Mobile menu "All Categories" hidden under header** — real z-index bug: the site's own fixed mobile header (top bar + search row, ~124px) is `z-50`, but the drawer wrapper was only `z-40` — the header was rendering on top of the drawer's own top region, covering its header row and the first item beneath it. Bumped the drawer to `z-[60]`.
+
+**4. Product page mobile scroll stuck at the tabs section** — the tab bar (up to 6 tabs: description/specs/video/AI/package/3D) had no overflow handling at all on a row that clearly doesn't fit a mobile screen, which is a known cause of mobile browsers capturing a touch-drag as a failed horizontal-scroll attempt on that element instead of passing it up to scroll the page. Made the tab row horizontally scrollable instead of letting it silently overflow.
+
+**5. Product Contents section RTL alignment** — same `justify-end`-doesn't-reliably-mean-right issue seen elsewhere in this codebase; swapped to icon-first DOM order + `justify-start`, matching the technique that's actually held up (footer, mobile nav).
+
+**6. Product gallery carousel on mobile** — the main image had zero swipe support, only tap-a-thumbnail. Added real touch-swipe (swipe left/right to change image) plus auto-scrolling the active thumbnail into view in the strip, since it could end up scrolled out of sight after a swipe.
+
+**7. TikTok videos** — checked: already implemented correctly via TikTok's own oEmbed `blockquote.tiktok-embed` (the standard no-API-key approach) with the 3 real video IDs from an earlier round. No change needed.
+
+**8. Category/series links landing on the general shop page — real, confirmed bug.** `/shop/:category` only ever recognized 3 hardcoded slugs (kitchen/bathroom/cold-water); every product's internal `category` field defaulted to "kitchen" for anything else too. So any real category or named series (Ella, Hilo, Loïs, Sora, the "ערכות פינוק" set, etc.) fell through silently and just showed the entire unfiltered catalog with a generic heading — same URL, but functionally identical to the plain shop page. Added a `categorySlugs` field (every real WooCommerce category the product belongs to) and a fallback filter/title lookup for anything outside the 3 hardcoded buckets, so these now actually filter.
+
+**9. Color filter showing broken-image question marks — real, confirmed bug.** Found it: the 6 color-filter swatch images in the shop filter bar pointed at `umbrcom.co.il` — that's the React frontend's own domain since the move to `admin.umbrcom.co.il` for WordPress, so every one of those URLs was resolving to `index.html` instead of an image. Same exact bug class as the one already documented for the product catalog (`useLiveProducts.ts`). Fixed to point at `admin.umbrcom.co.il`.
+
+**10. Footer contact info right-alignment** — already fixed two rounds ago (`items-end` on the brand column) and confirmed still in place. If it's still showing misaligned live, that'd mean the deploy hasn't picked it up rather than a new bug — let me know if it's still off after redeploying.
+
+**12. Add to Cart button color — real, confirmed bug.** It was hardcoded to Waterfall blue (`#3ab4f2`) no matter what — never actually read the active brand. Now uses `brand.color`/`brand.colorHover`, same as the rest of the site's brand-driven buttons: black for UMBRCOM, blue for Waterfall.
+
+**1. Waterfall desktop header color** — confirmed: you want the header itself to be Waterfall blue, not black. Changed `WATERFALL.headerBg` from `#111111` to `#3ab4f2` in `useBrand.ts` — the header (and everything already driven by `brand.headerBg`) now turns blue when Waterfall is selected, ink stays white.
+
+**11. 3D product viewer** — confirmed: show an honest "not available yet" placeholder instead of the generic demo astronaut model when a product has no real `.glb` uploaded (which is every product right now). `ModelViewer3D` now renders a clean "תצוגה תלת-מימדית תגיע בקרוב" state and skips loading the model-viewer script entirely in that case, instead of quietly substituting an unrelated demo model that read as a bug.
+
+### Still needs from you
+- **2. Desktop header layout/buttons "as previously provided"** — I don't have that reference in this session (no screenshot/spec came through). Please re-share it, or just describe directly what's wrong with the current button order/position, and I'll match it.
+- **11 (backend)** — the honest placeholder above is a stopgap; the real fix is uploading a `.glb` (and optionally `.usdz` for iOS) per product in wp-admin so the 3D tab shows the actual faucet.

@@ -276,6 +276,20 @@ export function mapStoreApiProduct(p: StoreApiProduct): Product & {
   const categorySlug = p.categories?.[0]?.slug;
   const category: ProductCategory = CATEGORY_SLUG_MAP[categorySlug ?? ""] ?? "kitchen";
 
+  // The real catalog has way more categories than the 3-bucket kitchen/
+  // bathroom/cold-water split above (that map defaults to "kitchen" for
+  // anything else it doesn't recognize) — series like Ella/Hilo/Loïs, the
+  // "ערכות פינוק" set, etc. Keep every real category slug too, decoded to
+  // match the readable slugs used in URLs/nav, so /shop/:category can
+  // filter correctly for those instead of silently showing everything.
+  const categorySlugs = (p.categories ?? []).map((c) => {
+    try {
+      return decodeURIComponent(c.slug);
+    } catch {
+      return c.slug;
+    }
+  });
+
   // BUGFIX: the Store API returns the plugin's block under `extensions.umbrcom`,
   // not at the top level — without this, none of the custom fields
   // (YouTube video, AI review, tech specs, package contents, warranty…)
@@ -327,6 +341,7 @@ export function mapStoreApiProduct(p: StoreApiProduct): Product & {
     image: p.images?.[0]?.src ?? "",
     images: (p.images ?? []).map((img) => img.src),
     category,
+    categorySlugs,
     color,
     type,
     brandLabel: u?.brand_label || "Waterfall",

@@ -22,7 +22,11 @@ export const WATERFALL: Brand = {
   color: "#3ab4f2",
   colorHover: "#2da0d8",
   tint: "rgba(58,180,242,0.08)",
-  headerBg: "#111111",
+  // Per Nik's explicit follow-up: header itself should be the official
+  // Waterfall blue, not black — was previously "black header, blue only on
+  // buttons/accents" by an earlier round's design choice; that's now
+  // reversed.
+  headerBg: "#3ab4f2",
   headerInk: "#ffffff",
 };
 

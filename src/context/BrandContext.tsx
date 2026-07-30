@@ -7,8 +7,9 @@ import { createContext, useCallback, useContext, useState, type ReactNode } from
  *
  *   - Default: UMBRCOM/Ambercom → the standard black-and-white scheme
  *     (white header, black CTAs incl. Add to Cart).
- *   - Switched to Waterfall → the header turns BLACK and every brand-
- *     colored button goes Waterfall blue (#3ab4f2).
+ *   - Switched to Waterfall → the header AND every brand-colored button
+ *     turn Waterfall blue (#3ab4f2). (Header was black-with-blue-accents
+ *     in an earlier round; reversed per follow-up — header itself is blue.)
  *
  * The /umbrcom route still hard-forces the UMBRCOM brand (legacy landing).
  */

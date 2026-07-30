@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import PageLayout from "../../components/feature/PageLayout";
 import { allProducts as mockProducts, Product } from "../../mocks/products";
@@ -6,6 +6,7 @@ import { useLiveProducts } from "@/hooks/useLiveProducts";
 import ProductCard from "../shop/components/ProductCard";
 import ModelViewer3D from "./components/ModelViewer3D";
 import { useCart } from "@/context/CartContext";
+import { useBrand } from "@/hooks/useBrand";
 import { fetchProductById, fetchProductBySku, fetchProductBySlug, isWpConfigured } from "@/lib/wp-api";
 import { trackViewItem } from "@/lib/analytics";
 import { trackMetaViewContent } from "@/lib/metaPixel";
@@ -169,6 +170,7 @@ export default function ProductPage() {
   const [product, setProduct] = useState<LiveProduct | undefined>(mockProduct);
   const [loading, setLoading] = useState(isWpConfigured());
   const { addItem } = useCart();
+  const brand = useBrand();
 
   useEffect(() => {
     setProduct(mockProduct);
@@ -211,6 +213,15 @@ export default function ProductPage() {
   const [added, setAdded] = useState(false);
   const [activeTab, setActiveTab] = useState<"desc" | "specs" | "video" | "ai" | "package" | "3d">("desc");
   const [activeImage, setActiveImage] = useState(0);
+
+  // These were originally placed after the early returns below — a real
+  // Rules-of-Hooks violation (hooks must run unconditionally on every
+  // render). Moved above them.
+  const touchStartX = useRef<number | null>(null);
+  const activeThumbRef = useRef<HTMLButtonElement | null>(null);
+  useEffect(() => {
+    activeThumbRef.current?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+  }, [activeImage]);
 
   if (loading) {
     return (
@@ -263,6 +274,25 @@ export default function ProductPage() {
   const galleryImages =
     product.images && product.images.length > 0 ? product.images : [product.image, product.image, product.image];
 
+  // The main image previously only changed by tapping a thumbnail — no
+  // swipe gesture at all, which is why it "couldn't be swiped left/right"
+  // on mobile. Track a touch drag on the main image and change the active
+  // image on a real swipe.
+  const handleGalleryTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+  const handleGalleryTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+    touchStartX.current = null;
+    const SWIPE_THRESHOLD = 40;
+    if (Math.abs(deltaX) < SWIPE_THRESHOLD) return;
+    setActiveImage((i) => {
+      const dir = deltaX < 0 ? 1 : -1; // swipe left → next, swipe right → previous
+      return (i + dir + galleryImages.length) % galleryImages.length;
+    });
+  };
+
   return (
     <PageLayout>
       {/* Breadcrumb */}
@@ -283,11 +313,15 @@ export default function ProductPage() {
 
             {/* ── Gallery column — page is fully RTL (item 19, July 2026) ── */}
             <div dir="rtl" className="space-y-4 lg:sticky lg:top-56">
-              <div className="w-full aspect-square rounded-2xl bg-white border border-[#eee] overflow-hidden flex items-center justify-center">
+              <div
+                className="w-full aspect-square rounded-2xl bg-white border border-[#eee] overflow-hidden flex items-center justify-center touch-pan-y"
+                onTouchStart={handleGalleryTouchStart}
+                onTouchEnd={handleGalleryTouchEnd}
+              >
                 <img
                   src={galleryImages[activeImage] ?? product.image}
                   alt={product.name}
-                  className="w-full h-full object-contain p-10"
+                  className="w-full h-full object-contain p-10 select-none pointer-events-none"
                 />
               </div>
               {/* Thumbnails — horizontal-scroll carousel, not a grid, per
@@ -296,6 +330,7 @@ export default function ProductPage() {
                 {galleryImages.map((img, i) => (
                   <button
                     key={i}
+                    ref={activeImage === i ? activeThumbRef : undefined}
                     onClick={() => setActiveImage(i)}
                     className={`aspect-square w-20 flex-shrink-0 rounded-xl bg-white border overflow-hidden cursor-pointer transition-all ${
                       activeImage === i ? "border-[#1a1a1a] ring-1 ring-[#1a1a1a]" : "border-[#eee] hover:ring-1 hover:ring-[#1a1a1a]/30"
@@ -447,13 +482,17 @@ export default function ProductPage() {
 
               {/* CTA */}
               <div className="space-y-2.5 pt-1">
+                {/* Color was hardcoded to Waterfall blue regardless of the
+                    active brand — now follows brand.color like the rest of
+                    the site's brand-driven CTAs (e.g. ProductCard's
+                    quick-add button): black for UMBRCOM, blue for
+                    Waterfall. */}
                 <button
                   onClick={handleAdd}
-                  className={`w-full py-4 text-sm font-semibold tracking-widest rounded-xl transition-all duration-300 whitespace-nowrap cursor-pointer shadow-sm ${
-                    added
-                      ? "bg-[#2d7a3a] text-white"
-                      : "bg-[#3ab4f2] text-white hover:bg-[#2da0d8] hover:shadow-md"
-                  }`}
+                  className="w-full py-4 text-sm font-semibold tracking-widest rounded-xl transition-all duration-300 whitespace-nowrap cursor-pointer shadow-sm text-white hover:shadow-md"
+                  style={{ backgroundColor: added ? "#2d7a3a" : brand.color }}
+                  onMouseEnter={(e) => { if (!added) e.currentTarget.style.backgroundColor = brand.colorHover; }}
+                  onMouseLeave={(e) => { if (!added) e.currentTarget.style.backgroundColor = brand.color; }}
                 >
                   {added ? "✓ נוסף לסל בהצלחה" : "הוספה לסל"}
                 </button>
@@ -491,7 +530,15 @@ export default function ProductPage() {
           {/* Tab bar */}
           {/* PageLayout wraps everything in dir="rtl", so justify-START is the
               visual RIGHT — justify-end was pinning the tabs to the left. */}
-          <div className="flex justify-start gap-0 mb-8 border-b border-[#ede9e1]">
+          {/* overflow-x-auto: up to 6 tabs don't fit a mobile viewport and had
+              no overflow handling at all — the row just silently overflowed
+              past the container. Besides being clipped/ugly, an unclamped
+              overflowing flex row like that is also a known cause of mobile
+              browsers capturing a touch-drag as a failed horizontal-scroll
+              attempt on this element instead of passing it up to scroll the
+              page — which matches "scrolling stops when reaching this
+              section" exactly. */}
+          <div className="flex justify-start gap-0 mb-8 border-b border-[#ede9e1] overflow-x-auto" style={{ scrollbarWidth: "thin" }}>
             {(
               [
                 { key: "desc", label: "תיאור המוצר" },
@@ -507,7 +554,7 @@ export default function ProductPage() {
               <button
                 key={t.key}
                 onClick={() => setActiveTab(t.key)}
-                className={`px-6 py-3 text-sm font-medium rounded-t-xl transition-all cursor-pointer whitespace-nowrap border-b-2 -mb-px flex items-center gap-2 ${
+                className={`px-6 py-3 text-sm font-medium rounded-t-xl transition-all cursor-pointer whitespace-nowrap flex-shrink-0 border-b-2 -mb-px flex items-center gap-2 ${
                   activeTab === t.key
                     ? "border-[#1a1a1a] text-[#1a1a1a]"
                     : "border-transparent text-[#6a5e52] hover:text-[#1a1410]"
@@ -628,9 +675,12 @@ export default function ProductPage() {
                 product.packageContents && (
                   <ul className="list-none space-y-3">
                     {product.packageContents.map((item) => (
-                      <li key={item} className="flex items-center gap-3 justify-end text-sm text-[#5a4e42]">
-                        <span>{item}</span>
+                      // Icon first in DOM (right, since this row is RTL and
+                      // justify-end wasn't reliably producing a true right
+                      // alignment elsewhere in this codebase), text after it.
+                      <li key={item} className="flex items-center gap-3 justify-start text-sm text-[#5a4e42]">
                         <i className="ri-inbox-unarchive-line text-[#1a1a1a] flex-shrink-0"></i>
+                        <span>{item}</span>
                       </li>
                     ))}
                   </ul>
