@@ -158,27 +158,21 @@ export default function Navbar() {
                 aria-label="עבור למותג Waterfall"
                 title="Waterfall"
               >
-                {/* Both logo files are dark-artwork-on-transparent. Black
-                    (native art, no filter) while UMBRCOM is the active
-                    brand; Waterfall BLUE only once Waterfall becomes the
-                    active brand. A prior CSS mask-image attempt inverted
-                    unpredictably (mask-image defaults to LUMINANCE-based
-                    masking per spec in some engines vs. alpha-based in
-                    others — dark artwork gets treated opposite depending
-                    on the browser). SVG feFlood+feComposite("in") instead:
-                    explicit alpha compositing, no luminance ambiguity. */}
+                {/* Confirmed from a live screenshot: the Waterfall logo file
+                    itself is natively BLUE, not black artwork (the two
+                    previous attempts both assumed it was black and tried to
+                    recolor it TO blue — solving the wrong problem). So this
+                    needs the opposite treatment: force it black while
+                    UMBRCOM is active (brightness(0) turns any-color art to
+                    black while preserving its alpha/transparency), and
+                    leave it completely unfiltered — native blue — once
+                    Waterfall is the active brand. */}
                 <img
                   src={logoUrl}
                   alt="Waterfall"
                   className="h-9 sm:h-10 w-auto object-contain"
-                  style={dark ? { filter: "url(#waterfall-blue-recolor)" } : undefined}
+                  style={dark ? undefined : { filter: "brightness(0)" }}
                 />
-                <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true">
-                  <filter id="waterfall-blue-recolor">
-                    <feFlood floodColor="#3ab4f2" result="flood" />
-                    <feComposite in="flood" in2="SourceGraphic" operator="in" />
-                  </filter>
-                </svg>
               </button>
 
               <div className="hidden sm:block h-9 w-px" style={{ backgroundColor: HAIRLINE }} />
