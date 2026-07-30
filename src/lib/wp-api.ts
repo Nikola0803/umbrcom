@@ -82,8 +82,11 @@ export interface WpSettings {
     nav_links: { label: string; url: string; icon: string }[];
   };
   tiktok: {
-    waterfall: { handle: string; videos: { id: string; caption: string }[] };
-    ambercom: { handle: string; videos: { id: string; caption: string }[] };
+    // "src" = direct .mp4 file link (no TikTok API available, so these are
+    // downloaded video files hosted in wp-admin's media library); "id" kept
+    // as a legacy/alternate field name in case it was filled in there too.
+    waterfall: { handle: string; videos: { id?: string; src?: string; caption: string }[] };
+    ambercom: { handle: string; videos: { id?: string; src?: string; caption: string }[] };
   };
   footer: {
     about_text: string;

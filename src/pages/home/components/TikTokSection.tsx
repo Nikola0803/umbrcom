@@ -2,42 +2,28 @@ import { useEffect, useState } from "react";
 import { fetchSettings } from "@/lib/wp-api";
 
 // ── Reusable TikTok video template — used on BOTH homepages ──────────────
-// Items 19-20 (July 2026): real videos supplied by Ben, from @umbrcomisrarl.
-// Still overridable from wp-admin → UMBRCOM → Site Settings → TikTok — a
-// value set there takes priority over these hard-coded defaults.
+// Items 19-20 (July 2026): real videos supplied by Nik, downloaded directly
+// from @umbrcomisrarl (via ssstik.io) and hosted on the WP media library as
+// plain .mp4 files — NOT real TikTok video IDs/URLs. There's no API key for
+// TikTok, so this renders them as native <video> elements instead of trying
+// to use TikTok's oEmbed/blockquote embed (which requires the video to
+// still be live on tiktok.com under its original ID — these are downloaded
+// copies with no such ID, which is exactly why the old blockquote-embed
+// approach silently rendered nothing).
 const DEFAULT_VIDEOS = [
-  { id: "7663435911702629640", caption: "צפו בסרטון שלנו ב-TikTok" },
-  { id: "7663435758354582802", caption: "צפו בסרטון שלנו ב-TikTok" },
-  { id: "7663434776338058503", caption: "צפו בסרטון שלנו ב-TikTok" },
+  {
+    src: "https://admin.umbrcom.co.il/wp-content/uploads/2026/07/ssstik.io_@umbrcomisrarl_1785443508435.mp4",
+    caption: "צפו בסרטון שלנו ב-TikTok",
+  },
+  {
+    src: "https://admin.umbrcom.co.il/wp-content/uploads/2026/07/ssstik.io_@umbrcomisrarl_1785443538815.mp4",
+    caption: "צפו בסרטון שלנו ב-TikTok",
+  },
+  {
+    src: "https://admin.umbrcom.co.il/wp-content/uploads/2026/07/ssstik.io_@umbrcomisrarl_1785443520718.mp4",
+    caption: "צפו בסרטון שלנו ב-TikTok",
+  },
 ];
-
-// Placeholder IDs (7448000000000000xxx) are not real TikTok videos — every
-// one of them triggers a 400 from TikTok plus a wall of embed-SDK console
-// noise. Filter them out everywhere so only real videos ever render.
-const isPlaceholderId = (id: string) => /^74480{12}\d{3}$/.test(id);
-
-// Items 19-20 (July 2026): whoever fills in wp-admin → Site Settings →
-// TikTok shouldn't have to hunt for the bare numeric ID — accept a full
-// tiktok.com/@handle/video/ID URL (or vm.tiktok.com short link resolved
-// elsewhere) pasted directly into the "id" field and extract the ID here,
-// so "paste the link and it just works" is actually true.
-function extractVideoId(raw: string): string {
-  const trimmed = raw.trim();
-  const m = trimmed.match(/\/video\/(\d+)/);
-  if (m) return m[1];
-  return trimmed;
-}
-
-const realOnly = (v: { id: string; caption: string }[]) =>
-  v
-    .map((x) => ({ ...x, id: extractVideoId(x.id) }))
-    .filter((x) => x.id && !isPlaceholderId(x.id));
-
-declare global {
-  interface Window {
-    tiktokEmbedded?: unknown;
-  }
-}
 
 export interface TikTokSectionProps {
   /** Brand title, e.g. "Waterfall" / "UMBRCOM" */
@@ -46,7 +32,7 @@ export interface TikTokSectionProps {
   handle?: string;
   /** Accent color for the follow button hover / decorations */
   accent?: string;
-  videos?: { id: string; caption: string }[];
+  videos?: { src: string; caption: string }[];
 }
 
 export default function TikTokSection({
@@ -56,32 +42,24 @@ export default function TikTokSection({
   videos = DEFAULT_VIDEOS,
 }: TikTokSectionProps) {
   // When no explicit videos prop was passed, use the videos configured in
-  // wp-admin Site Settings, if any.
-  const [settingsVideos, setSettingsVideos] = useState<{ id: string; caption: string }[] | null>(null);
+  // wp-admin Site Settings, if any (same direct-file-link shape as above).
+  const [settingsVideos, setSettingsVideos] = useState<{ src: string; caption: string }[] | null>(null);
   useEffect(() => {
     if (videos !== DEFAULT_VIDEOS) return; // Page Builder already supplied them
     fetchSettings().then((s) => {
-      const v = s?.tiktok?.waterfall?.videos;
-      if (v && v.length > 0) setSettingsVideos(v);
+      const v = s?.tiktok?.waterfall?.videos as { src?: string; id?: string; caption: string }[] | undefined;
+      if (v && v.length > 0) {
+        // Tolerate either shape (src = direct file link, id = legacy field
+        // that may have had a direct link pasted into it too).
+        const normalized = v
+          .map((x) => ({ src: x.src || x.id || "", caption: x.caption }))
+          .filter((x) => x.src);
+        if (normalized.length > 0) setSettingsVideos(normalized);
+      }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const shownVideos = realOnly(
-    videos === DEFAULT_VIDEOS && settingsVideos ? settingsVideos : videos
-  );
-
-  useEffect(() => {
-    // Only pull in TikTok's embed SDK when we actually have real videos —
-    // it's the source of the permissions-policy / webmssdk console spam.
-    if (shownVideos.length === 0) return;
-    if (!document.getElementById("tiktok-embed-script")) {
-      const script = document.createElement("script");
-      script.id = "tiktok-embed-script";
-      script.src = "https://www.tiktok.com/embed.js";
-      script.async = true;
-      document.body.appendChild(script);
-    }
-  }, [shownVideos.length]);
+  const shownVideos = videos === DEFAULT_VIDEOS && settingsVideos ? settingsVideos : videos;
 
   return (
     <section className="w-full bg-[#0a0a0a] py-20 overflow-hidden" dir="rtl">
@@ -113,22 +91,22 @@ export default function TikTokSection({
           </a>
         </div>
 
-        {/* TikTok embed grid — only when real video IDs are configured
-            (wp-admin → UMBRCOM → Site Settings → TikTok) */}
+        {/* Video grid — native <video> tags pointing at the direct .mp4
+            files (no TikTok API/embed available). */}
         {shownVideos.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 justify-items-center">
           {shownVideos.map((v) => (
-            <div key={v.id} className="w-full max-w-[320px]">
-              <blockquote
-                className="tiktok-embed"
-                cite={`https://www.tiktok.com/@${handle}/video/${v.id}`}
-                data-video-id={v.id}
-                style={{ maxWidth: 320, minWidth: 280 }}
-              >
-                <section>
-                  <p className="text-sm text-white/60 mt-3 text-right">{v.caption}</p>
-                </section>
-              </blockquote>
+            <div key={v.src} className="w-full max-w-[320px]">
+              <div className="relative w-full rounded-2xl overflow-hidden bg-black" style={{ aspectRatio: "9 / 16" }}>
+                <video
+                  src={v.src}
+                  controls
+                  playsInline
+                  preload="metadata"
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              </div>
+              <p className="text-sm text-white/60 mt-3 text-right">{v.caption}</p>
             </div>
           ))}
         </div>

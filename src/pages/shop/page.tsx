@@ -31,6 +31,21 @@ const CATEGORY_META: Record<string, { title: string; subtitle: string; key: Prod
   },
 };
 
+// The 4 legacy English routes (/shop/kitchen, /shop/bathroom, /shop/cold-water,
+// /shop/shower-sets — used by the main nav's DEFAULT_CATEGORIES) don't
+// correspond to any real WooCommerce category slug (those are all Hebrew,
+// e.g. "ברזי-מטבח-waterfall"), so matching them against categorySlugs
+// verbatim always failed — "kitchen" for /shop/kitchen never appears in a
+// real Hebrew slug. Match by keyword instead so it survives the exact slug
+// text changing in wp-admin.
+const CATEGORY_KEYWORDS: Record<string, string[]> = {
+  kitchen: ["מטבח"],
+  bathroom: ["רחצה", "אמבט"],
+  "cold-water": ["קרים"],
+  "shower-sets": ["פינוק", "מקלחת"],
+  "pampering-sets": ["פינוק", "מקלחת"],
+};
+
 export default function ShopPage() {
   const { category } = useParams<{ category?: string }>();
   // The Navbar search box was never wired to anything — it just tracked its
@@ -71,11 +86,21 @@ export default function ShopPage() {
   }, [category, meta]);
 
   const filtered = useMemo(() => {
-    let list = meta
-      ? allProducts.filter((p) => p.category === meta.key)
-      : category
-      ? allProducts.filter((p) => p.categorySlugs?.includes(category))
-      : allProducts;
+    let list = allProducts;
+    if (category) {
+      const keywords = CATEGORY_KEYWORDS[category];
+      if (keywords) {
+        // Legacy English route (kitchen/bathroom/cold-water/shower-sets) —
+        // match any of the product's real category slugs by keyword.
+        list = allProducts.filter((p) =>
+          p.categorySlugs?.some((slug) => keywords.some((k) => slug.includes(k)))
+        );
+      } else {
+        // Real WooCommerce category/series slug (from nav or the series
+        // page), already decoded — match it verbatim.
+        list = allProducts.filter((p) => p.categorySlugs?.includes(category));
+      }
+    }
 
     if (searchQuery) {
       const q = searchQuery.toLowerCase();

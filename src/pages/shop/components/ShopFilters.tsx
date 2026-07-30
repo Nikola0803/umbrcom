@@ -43,12 +43,8 @@ export default function ShopFilters({
                     ? "ring-2 ring-[#1a1a1a] ring-offset-2 scale-110"
                     : "ring-1 ring-[#ddd] hover:ring-[#1a1a1a] hover:scale-105"
                 }`}
+                style={{ background: cf.swatch }}
               >
-                <img
-                  src={cf.image}
-                  alt={cf.label}
-                  className="w-full h-full object-cover"
-                />
                 {active && (
                   <span className="absolute inset-0 flex items-center justify-center bg-black/25">
                     <span className="w-5 h-5 rounded-full bg-[#1a1a1a] flex items-center justify-center">

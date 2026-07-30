@@ -124,9 +124,15 @@ function GalleryCarousel({ images, name }: { images: string[]; name: string }) {
   };
 
   return (
-    <div className="w-full">
-      {/* Carousel row */}
-      <div className="flex items-end justify-center gap-4 px-4 py-10" style={{ minHeight: 340 }}>
+    <div className="w-full max-w-full overflow-hidden">
+      {/* Carousel row — overflow-x-auto (not just justify-center with no
+          overflow handling): with 3+ images at 180-260px each + gap-4, this
+          row is wider than any mobile viewport. Left unconstrained, that's a
+          silent horizontal overflow sitting directly above the tabs section
+          — a well-known cause of "vertical scroll gets stuck" on mobile,
+          since the browser captures the touch-drag as a failed horizontal
+          pan instead of passing it up to scroll the page. */}
+      <div className="flex items-end justify-start sm:justify-center gap-4 px-4 py-10 overflow-x-auto touch-pan-x" style={{ minHeight: 340, scrollbarWidth: "thin" }}>
         {images.map((img, i) => (
           <button
             key={i}

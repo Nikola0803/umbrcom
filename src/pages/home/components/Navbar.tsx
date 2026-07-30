@@ -35,13 +35,14 @@ const DEFAULT_WHATSAPP = "97236208197";
 
 const MOBILE_NAV = DEFAULT_CATEGORIES;
 
-// Added back per Nik's follow-up: 4 extra buttons alongside the 5-item
-// main nav — All Categories / Customer Service / Series / Special Offers.
+// Row 2 nav links — matches the client's reference screenshot exactly:
+// מבצעים · מועדון לקוחות · שירות לקוחות (plain links), then a separate
+// white "כל הקטגוריות" pill button furthest right. No category text link
+// row (kitchen/bathroom/etc.) — the reference doesn't show one.
 const EXTRA_NAV_LINKS = [
-  { label: "כל הקטגוריות", path: "/shop" },
-  { label: "שירות לקוחות", path: "/customer-service" },
-  { label: "סדרות", path: "/series" },
   { label: "מבצעים", path: "/shop" },
+  { label: "מועדון לקוחות", path: "/my-account" },
+  { label: "שירות לקוחות", path: "/customer-service" },
 ];
 
 // Reference layout (client WhatsApp screenshot): icon cluster fixed left,
@@ -58,11 +59,6 @@ export default function Navbar() {
   const { totalCount, openCart } = useCart();
   const brand = useBrand();
   const { setBrandKey: setBrand } = useBrandContext();
-
-  // Item 35: main navigation is a fixed 5-item list (not sourced from
-  // WordPress) — "nothing else for now" per Nik. Left as const so a future
-  // round can reintroduce live categories without touching markup.
-  const categories = DEFAULT_CATEGORIES;
 
   // ── Brand-driven header theme ──
   const dark = brand.key === "waterfall";
@@ -210,31 +206,31 @@ export default function Navbar() {
               </div>
             </div>
 
-            {/* RIGHT — main navigation (item 35: 5 category links) plus the
-                4 extra buttons Nik asked to add back: All Categories /
-                Customer Service / Series / Special Offers. */}
+            {/* RIGHT — מבצעים · מועדון לקוחות · שירות לקוחות, then the white
+                "כל הקטגוריות" pill button furthest right — matches the
+                client's reference screenshot 1:1. */}
             <div dir="ltr" className="flex items-center gap-6">
-              {categories.map((cat) => (
-                <Link
-                  key={cat.path}
-                  to={cat.path}
-                  className="text-sm font-medium hover:opacity-70 transition-opacity cursor-pointer whitespace-nowrap"
-                  style={{ color: isActive(cat.path) ? NAV_INK : SUB_INK, fontWeight: isActive(cat.path) ? 700 : 500 }}
-                >
-                  {cat.label}
-                </Link>
-              ))}
-              <span className="h-4 w-px" style={{ backgroundColor: HAIRLINE }} />
               {EXTRA_NAV_LINKS.map((l, i) => (
                 <Link
                   key={`${l.path}-${i}`}
                   to={l.path}
-                  className="text-sm font-medium hover:opacity-70 transition-opacity cursor-pointer whitespace-nowrap"
+                  className="text-sm font-medium hover:opacity-70 transition-opacity cursor-pointer whitespace-nowrap flex items-center gap-1.5"
                   style={{ color: isActive(l.path) ? NAV_INK : SUB_INK, fontWeight: isActive(l.path) ? 700 : 500 }}
                 >
+                  {l.label === "מבצעים" && <i className="ri-price-tag-3-line text-[15px]"></i>}
+                  {l.label === "מועדון לקוחות" && <i className="ri-headphone-line text-[15px]"></i>}
+                  {l.label === "שירות לקוחות" && <i className="ri-star-line text-[15px]"></i>}
                   {l.label}
                 </Link>
               ))}
+              <span className="h-4 w-px" style={{ backgroundColor: HAIRLINE }} />
+              <Link
+                to="/shop"
+                className="flex items-center gap-2 bg-white text-[#111] text-sm font-semibold rounded-full px-5 h-10 whitespace-nowrap hover:opacity-90 transition-opacity cursor-pointer"
+              >
+                כל הקטגוריות
+                <i className="ri-grid-fill text-[15px]"></i>
+              </Link>
             </div>
           </div>
         </div>

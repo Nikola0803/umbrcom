@@ -259,16 +259,17 @@ export const allProducts: Product[] = [
   },
 ];
 
-// Fixed the same broken-image bug as the live catalog (see useLiveProducts.ts):
-// these pointed at umbrcom.co.il, which is the React SPA's own domain since
-// the WordPress move to admin.umbrcom.co.il — every one of these was
-// resolving to index.html instead of an image, hence the broken-image /
-// question-mark icons in the shop color filter.
-export const colorFilters = [
-  { label: 'ניקל מוברש', value: 'ניקל מוברש' as ProductColor, image: 'https://admin.umbrcom.co.il/wp-content/uploads/2026/03/2-1.png' },
-  { label: 'זהב מוברש', value: 'זהב מוברש' as ProductColor, image: 'https://admin.umbrcom.co.il/wp-content/uploads/2026/03/3-1.png' },
-  { label: 'רוז גולד', value: 'רוז גולד' as ProductColor, image: 'https://admin.umbrcom.co.il/wp-content/uploads/2026/03/1-1.png' },
-  { label: 'שחור', value: 'שחור' as ProductColor, image: 'https://admin.umbrcom.co.il/wp-content/uploads/2026/03/4-1.png' },
-  { label: 'זהב', value: 'זהב' as ProductColor, image: 'https://admin.umbrcom.co.il/wp-content/uploads/2026/03/3-1.png' },
-  { label: 'כרום', value: 'כרום' as ProductColor, image: 'https://admin.umbrcom.co.il/wp-content/uploads/2026/03/2-1.png' },
+// Previous fix only patched the domain (umbrcom.co.il → admin.umbrcom.co.il)
+// but the PATH was also wrong — those files live under /2026/07/ in the real
+// media library, not /2026/03/, so every one of these still 404'd (broken
+// image / question-mark icon). Rather than guess another filename that could
+// be renamed or deleted later, these are now solid CSS swatches (gradients
+// for the two-tone metallic finishes) — they can never 404.
+export const colorFilters: { label: string; value: ProductColor; swatch: string }[] = [
+  { label: 'ניקל מוברש', value: 'ניקל מוברש' as ProductColor, swatch: 'linear-gradient(135deg, #d8d4cc 0%, #a8a29a 50%, #8a857c 100%)' },
+  { label: 'זהב מוברש', value: 'זהב מוברש' as ProductColor, swatch: 'linear-gradient(135deg, #e8c887 0%, #c9a35c 50%, #a9843f 100%)' },
+  { label: 'רוז גולד', value: 'רוז גולד' as ProductColor, swatch: 'linear-gradient(135deg, #eecfc4 0%, #d9a89a 50%, #c48a78 100%)' },
+  { label: 'שחור', value: 'שחור' as ProductColor, swatch: 'linear-gradient(135deg, #3a3a3a 0%, #111111 100%)' },
+  { label: 'זהב', value: 'זהב' as ProductColor, swatch: 'linear-gradient(135deg, #f5d98a 0%, #d4af37 50%, #a9832a 100%)' },
+  { label: 'כרום', value: 'כרום' as ProductColor, swatch: 'linear-gradient(135deg, #f2f2f2 0%, #c7c7c7 50%, #9a9a9a 100%)' },
 ];

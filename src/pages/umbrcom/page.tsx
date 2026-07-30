@@ -191,15 +191,16 @@ function StaticUmbrcom() {
       </section>
 
       {/* ── TikTok template — shared with the Waterfall homepage (item 20).
-          Real videos supplied by Ben, from @umbrcomisrarl. ── */}
+          Real videos supplied by Nik — direct .mp4 downloads from
+          @umbrcomisrarl (no TikTok API available), not TikTok video IDs. ── */}
       <TikTokSection
         brandName="UMBRCOM"
         handle="umbrcomisrarl"
         accent={UMBRCOM_COLOR}
         videos={[
-          { id: "7663435911702629640", caption: "צפו בסרטון שלנו ב-TikTok" },
-          { id: "7663435758354582802", caption: "צפו בסרטון שלנו ב-TikTok" },
-          { id: "7663434776338058503", caption: "צפו בסרטון שלנו ב-TikTok" },
+          { src: "https://admin.umbrcom.co.il/wp-content/uploads/2026/07/ssstik.io_@umbrcomisrarl_1785443508435.mp4", caption: "צפו בסרטון שלנו ב-TikTok" },
+          { src: "https://admin.umbrcom.co.il/wp-content/uploads/2026/07/ssstik.io_@umbrcomisrarl_1785443538815.mp4", caption: "צפו בסרטון שלנו ב-TikTok" },
+          { src: "https://admin.umbrcom.co.il/wp-content/uploads/2026/07/ssstik.io_@umbrcomisrarl_1785443520718.mp4", caption: "צפו בסרטון שלנו ב-TikTok" },
         ]}
       />
     </>

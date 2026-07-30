@@ -119,30 +119,33 @@ export default function Footer() {
     <footer className="bg-[#0f0f0f]/95 backdrop-blur-sm rounded-t-3xl border-t border-white/5 overflow-hidden">
       {/* Main columns */}
       <div className="max-w-7xl mx-auto px-6 sm:px-10 pt-12 pb-10 grid grid-cols-2 sm:grid-cols-4 gap-8 sm:gap-10">
-        {/* Col 1: Brand — items-end (not items-start): Tailwind's
-            items-start/items-end compile to physical flex-start/flex-end,
-            which don't flip for dir="rtl" on their own, so items-start was
-            quietly left-aligning this whole column (logo, address, social
-            icons) instead of hugging the right edge like the rest of the
-            RTL layout. */}
-        <div className="flex flex-col items-end gap-6">
-          <Link to="/">
-            <img src={logoUrl} alt="UMBRCOM" className="h-16 object-contain brightness-0 invert opacity-90" />
-          </Link>
+        {/* Col 1: Brand — align-items (items-end/items-start) has proven
+            unreliable for RTL cross-axis alignment throughout this codebase;
+            justify-content has not. Each row below is its own full-width
+            flex row using justify-end (main axis) instead of relying on the
+            parent's align-items (cross axis) to push things right. */}
+        <div dir="rtl" className="flex flex-col gap-6 w-full">
+          <div className="flex justify-end w-full">
+            <Link to="/">
+              <img src={logoUrl} alt="UMBRCOM" className="h-16 object-contain brightness-0 invert opacity-90" />
+            </Link>
+          </div>
           {/* Item 22: contact info — icons moved to the left of the text
               per Nik's follow-up (were on the right). */}
-          <div className="text-right sm:text-right space-y-1.5">
-            <p className="text-sm text-[#999] flex items-center gap-2 justify-end">
-              <i className="ri-map-pin-line text-[#666]"></i>
-              {address}
-            </p>
-            <a href={`tel:+972${phone.replace(/^0/, "")}`} className="text-sm text-[#999] hover:text-white transition-colors flex items-center gap-2 justify-end">
-              <i className="ri-phone-line text-[#666]"></i>
-              {phone}
-            </a>
+          <div className="flex justify-end w-full">
+            <div className="text-right space-y-1.5">
+              <p className="text-sm text-[#999] flex items-center gap-2 justify-end">
+                <i className="ri-map-pin-line text-[#666]"></i>
+                {address}
+              </p>
+              <a href={`tel:+972${phone.replace(/^0/, "")}`} className="text-sm text-[#999] hover:text-white transition-colors flex items-center gap-2 justify-end">
+                <i className="ri-phone-line text-[#666]"></i>
+                {phone}
+              </a>
+            </div>
           </div>
           {/* Social icons */}
-          <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center justify-end gap-3 flex-wrap w-full">
             {socialLinks.map((s) => (
               <a
                 key={s.label}
