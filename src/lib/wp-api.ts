@@ -527,3 +527,30 @@ export async function fetchOrderStatus(orderId: string | number, orderKey: strin
     `/umbrcom/v1/pelecard/status?order_id=${encodeURIComponent(String(orderId))}&order_key=${encodeURIComponent(orderKey)}`
   );
 }
+
+/* ────────────────────────────────────────────────────────────────────────
+ * iCredit checkout — /umbrcom/v1/icredit/*  (added alongside Pelecard,
+ * mirrors its shape exactly so the checkout page can pick either gateway)
+ * ──────────────────────────────────────────────────────────────────────── */
+
+/** Creates the WooCommerce order server-side and returns the iCredit
+ *  hosted payment page URL to redirect the shopper to. */
+export async function createIcreditCheckout(payload: CheckoutPayload) {
+  return postJSON<CheckoutSession>("/umbrcom/v1/icredit/checkout", payload);
+}
+
+/** Called from /checkout/result?gateway=icredit — re-runs the same
+ *  server-side SaleDetails pull the IPN uses, so it's safe to call even if
+ *  iCredit's redirect didn't carry any useful params. */
+export async function confirmIcreditPayment(payload: {
+  order_id: string | number;
+  order_key: string;
+}) {
+  return postJSON<OrderResult>("/umbrcom/v1/icredit/confirm", payload);
+}
+
+export async function fetchIcreditOrderStatus(orderId: string | number, orderKey: string) {
+  return getJSON<OrderResult>(
+    `/umbrcom/v1/icredit/status?order_id=${encodeURIComponent(String(orderId))}&order_key=${encodeURIComponent(orderKey)}`
+  );
+}

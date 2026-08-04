@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import PageLayout from "../../components/feature/PageLayout";
-import { confirmPelecardPayment, fetchOrderStatus, OrderResult } from "@/lib/wp-api";
+import { confirmPelecardPayment, fetchOrderStatus, confirmIcreditPayment, OrderResult } from "@/lib/wp-api";
 import { trackPurchase } from "@/lib/analytics";
 import { trackMetaPurchase } from "@/lib/metaPixel";
 
@@ -27,6 +27,11 @@ export default function CheckoutResultPage() {
 
     const orderId = params.get("order_id") ?? "";
     const orderKey = params.get("order_key") ?? "";
+    // iCredit's checkout builds this URL itself with &gateway=icredit — see
+    // class-icredit.php. Absence of the param means Pelecard (its RedirectURL
+    // never carried one), keeping old bookmarked/in-flight Pelecard links
+    // working exactly as before.
+    const gateway = params.get("gateway") === "icredit" ? "icredit" : "pelecard";
     const transactionId = params.get("PelecardTransactionId") ?? "";
     const statusCode = params.get("PelecardStatusCode") ?? "";
     const confirmationKey = params.get("ConfirmationKey") ?? "";
@@ -38,10 +43,13 @@ export default function CheckoutResultPage() {
     }
 
     (async () => {
-      // With Pelecard params → confirm; without (e.g. page refresh, or the
-      // server-side notify already handled it) → just read order status.
+      // iCredit never appends useful params to its own RedirectURL (see
+      // class-icredit.php), so it always goes through the plain status/
+      // confirm pull — there's nothing from the URL to "confirm" with.
       const res =
-        transactionId || statusCode
+        gateway === "icredit"
+          ? await confirmIcreditPayment({ order_id: orderId, order_key: orderKey })
+          : transactionId || statusCode
           ? await confirmPelecardPayment({
               order_id: orderId,
               order_key: orderKey,

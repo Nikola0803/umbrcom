@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import PageLayout from "../../components/feature/PageLayout";
 import { useCart, type CartItem } from "@/context/CartContext";
-import { createPelecardCheckout, isWpConfigured } from "@/lib/wp-api";
+import { createPelecardCheckout, createIcreditCheckout, isWpConfigured } from "@/lib/wp-api";
 import { trackBeginCheckout } from "@/lib/analytics";
 import { trackMetaInitiateCheckout, trackMetaPurchase } from "@/lib/metaPixel";
 
@@ -57,6 +57,10 @@ export default function CheckoutPage() {
     address: "", city: "", zip: "", notes: "",
     invoiceName: "", companyRegNumber: "", israeliId: "",
   });
+  // iCredit added alongside Pelecard (not replacing it) — shopper picks
+  // either. Defaults to iCredit since that's the newly-configured gateway;
+  // easy to flip if Pelecard should stay the default instead.
+  const [gateway, setGateway] = useState<"icredit" | "pelecard">("icredit");
   const [ordered, setOrdered] = useState(false);
   // Item 13: snapshot of the cart at the moment of order placement, since
   // clearCart() empties `items` right after — the confirmation screen needs
@@ -121,7 +125,7 @@ export default function CheckoutPage() {
     setPayError(null);
 
     const [firstName, ...rest] = [details.firstName, details.lastName];
-    const session = await createPelecardCheckout({
+    const checkoutPayload = {
       items: items.map(({ product, qty }) => ({ id: Number(product.id), quantity: qty })),
       customer: {
         first_name: firstName,
@@ -137,7 +141,11 @@ export default function CheckoutPage() {
         israeli_id: requiresIsraeliId ? details.israeliId : undefined,
       },
       shipping_method: shipping as "delivery" | "pickup",
-    });
+    };
+    const session =
+      gateway === "icredit"
+        ? await createIcreditCheckout(checkoutPayload)
+        : await createPelecardCheckout(checkoutPayload);
 
     if (!session || "error" in session) {
       setPayError(session && "error" in session ? session.error : "שגיאה ביצירת ההזמנה. נסו שוב.");
@@ -145,7 +153,7 @@ export default function CheckoutPage() {
       return;
     }
 
-    // Off to Pelecard's PCI-compliant hosted payment page. It redirects
+    // Off to the gateway's PCI-compliant hosted payment page. It redirects
     // back to /checkout/result when done.
     window.location.href = session.redirect_url;
   };
@@ -464,15 +472,37 @@ export default function CheckoutPage() {
                   })}
                 </div>
 
-                {/* Item 30 — PlaCard/Pelecard payment selection, also on this
-                    same step (no separate payment page). */}
+                {/* Item 30 — payment gateway selection, also on this same
+                    step (no separate payment page). iCredit added alongside
+                    Pelecard — shopper picks either. */}
                 <hr className="border-[#ede9e1]" />
                 <h3 className="text-sm font-semibold text-[#1a1410] text-right">תשלום</h3>
+                <div className="space-y-2">
+                  {(
+                    [
+                      { id: "icredit" as const, label: "iCredit" },
+                      { id: "pelecard" as const, label: "Pelecard" },
+                    ]
+                  ).map((g) => (
+                    <label
+                      key={g.id}
+                      className={`flex items-center justify-end gap-3 border rounded-xl p-4 cursor-pointer transition-colors ${
+                        gateway === g.id ? "border-[#3ab4f2] bg-[#fafcff]" : "border-[#ede9e1] hover:border-[#d4e8f8]"
+                      }`}
+                    >
+                      <span className="text-sm font-semibold text-[#1a1410]">תשלום מאובטח באמצעות {g.label}</span>
+                      <i className="ri-bank-card-line text-xl text-[#3ab4f2]"></i>
+                      <input
+                        type="radio"
+                        name="gateway"
+                        checked={gateway === g.id}
+                        onChange={() => setGateway(g.id)}
+                        className="w-4 h-4 accent-[#3ab4f2] cursor-pointer"
+                      />
+                    </label>
+                  ))}
+                </div>
                 <div className="bg-[#fafcff] border border-[#d4e8f8] rounded-xl p-5 text-right space-y-3">
-                  <div className="flex items-center gap-2 justify-end">
-                    <p className="text-sm font-semibold text-[#1a1410]">תשלום מאובטח באמצעות Pelecard</p>
-                    <i className="ri-bank-card-line text-xl text-[#3ab4f2]"></i>
-                  </div>
                   <p className="text-xs text-[#6a5e52] leading-relaxed">
                     לאחר לחיצה על "אישור ומעבר לתשלום" תוזנו פרטי כרטיס האשראי כאן, מאובטח בתקן PCI-DSS —
                     פרטי הכרטיס אינם נשמרים באתר.
