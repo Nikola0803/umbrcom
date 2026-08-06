@@ -238,34 +238,22 @@ export default function Navbar() {
                 "כל הקטגוריות" pill button furthest right — matches the
                 client's reference screenshot 1:1. */}
             <div dir="ltr" className="flex items-center gap-6">
-              {EXTRA_NAV_LINKS.map((l, i) =>
-                // "סדרות": this is now a byte-for-byte copy of the mobile
-                // drawer's actual /series element — same href, same icon
-                // (ri-collage-line), same label, same classes. Not a
-                // reskinned "שירות לקוחות" link — that link is gone from
-                // this row, replaced outright by this one, verbatim.
-                l.label === "סדרות" ? (
-                  <Link
-                    key={`${l.path}-${i}`}
-                    to="/series"
-                    className="relative flex items-center px-8 py-3 text-xs text-gray-600 hover:text-[#1a1a1a] border-b border-gray-100"
-                  >
-                    <i className="ri-collage-line text-sm absolute right-8 top-1/2 -translate-y-1/2" style={{ color: "rgb(17, 17, 17)" }}></i>
-                    <span className="w-full text-right pr-6">סדרות</span>
-                  </Link>
-                ) : (
-                  <Link
-                    key={`${l.path}-${i}`}
-                    to={l.path}
-                    className="text-sm font-medium hover:opacity-70 transition-opacity cursor-pointer whitespace-nowrap flex items-center gap-1.5"
-                    style={{ color: isActive(l.path) ? NAV_INK : SUB_INK, fontWeight: isActive(l.path) ? 700 : 500 }}
-                  >
-                    {l.label === "מבצעים" && <i className="ri-price-tag-3-line text-[15px]"></i>}
-                    {l.label === "מועדון לקוחות" && <i className="ri-vip-crown-line text-[15px]"></i>}
-                    {l.label}
-                  </Link>
-                )
-              )}
+              {/* All three links share one style now — "סדרות" no longer
+                  has its own px-8/border-b/absolute-icon treatment, just
+                  the same inline icon+text pattern as its neighbors. */}
+              {EXTRA_NAV_LINKS.map((l, i) => (
+                <Link
+                  key={`${l.path}-${i}`}
+                  to={l.path}
+                  className="text-sm font-medium hover:opacity-70 transition-opacity cursor-pointer whitespace-nowrap flex items-center gap-1.5"
+                  style={{ color: isActive(l.path) ? NAV_INK : SUB_INK, fontWeight: isActive(l.path) ? 700 : 500 }}
+                >
+                  {l.label === "מבצעים" && <i className="ri-price-tag-3-line text-[15px]"></i>}
+                  {l.label === "מועדון לקוחות" && <i className="ri-vip-crown-line text-[15px]"></i>}
+                  {l.label === "סדרות" && <i className="ri-collage-line text-[15px]"></i>}
+                  {l.label}
+                </Link>
+              ))}
               <span className="h-4 w-px" style={{ backgroundColor: HAIRLINE }} />
 
               {/* "כל הקטגוריות" (items 35-36): less-rounded pill that flips
