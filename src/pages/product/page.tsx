@@ -14,6 +14,33 @@ import { seriesCodeOf } from "@/lib/series";
 import { productPath } from "@/lib/productUrl";
 import { youtubeEmbedUrl } from "@/lib/youtube";
 
+// Breadcrumb category — same keyword-matching approach as the shop page's
+// CATEGORY_KEYWORDS (the /shop/:category routes are legacy English slugs
+// that never appear verbatim in the real Hebrew WooCommerce categorySlugs,
+// so match by keyword instead). Was missing here entirely, which is why
+// the breadcrumb only ever showed בית / חנות / [product name].
+const BREADCRUMB_CATEGORY_KEYWORDS: Record<string, string[]> = {
+  kitchen: ["מטבח"],
+  bathroom: ["רחצה", "אמבט"],
+  "cold-water": ["קרים"],
+  "shower-sets": ["פינוק", "מקלחת"],
+};
+const BREADCRUMB_CATEGORY_LABELS: Record<string, string> = {
+  kitchen: "ברזי מטבח",
+  bathroom: "ברזי כיור רחצה",
+  "cold-water": "ברזי מים קרים",
+  "shower-sets": "ערכות פינוק",
+};
+function breadcrumbCategoryOf(categorySlugs?: string[]): { path: string; label: string } | null {
+  if (!categorySlugs?.length) return null;
+  for (const [slug, keywords] of Object.entries(BREADCRUMB_CATEGORY_KEYWORDS)) {
+    if (categorySlugs.some((s) => keywords.some((k) => s.includes(k)))) {
+      return { path: `/shop/${slug}`, label: BREADCRUMB_CATEGORY_LABELS[slug] };
+    }
+  }
+  return null;
+}
+
 type LiveProduct = Product & {
   images?: string[];
   regularPrice?: number;
@@ -307,6 +334,18 @@ export default function ProductPage() {
           <Link to="/" className="hover:text-[#1a1a1a] transition-colors cursor-pointer">בית</Link>
           <i className="ri-arrow-left-s-line"></i>
           <Link to="/shop" className="hover:text-[#1a1a1a] transition-colors cursor-pointer">חנות</Link>
+          {(() => {
+            const cat = breadcrumbCategoryOf(product.categorySlugs);
+            if (!cat) return null;
+            return (
+              <>
+                <i className="ri-arrow-left-s-line"></i>
+                <Link to={cat.path} className="hover:text-[#1a1a1a] transition-colors cursor-pointer whitespace-nowrap">
+                  {cat.label}
+                </Link>
+              </>
+            );
+          })()}
           <i className="ri-arrow-left-s-line"></i>
           <span className="text-[#1a1410] font-medium line-clamp-1">{product.name}</span>
         </div>
