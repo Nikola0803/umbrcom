@@ -274,7 +274,7 @@ export default function CheckoutPage() {
               <>
               {/* ── Login / Register option ── */}
               <div className="bg-[#fafcff] rounded-2xl border border-[#d4e8f8] p-5 sm:p-6 text-right" dir="rtl">
-                <div className="flex items-center gap-3 mb-3 flex-row-reverse">
+                <div className="flex items-center gap-3 mb-3">
                   <i className="ri-user-3-line text-[#3ab4f2] text-xl"></i>
                   <p className="text-sm font-semibold text-[#1a1410]">
                     יש לכם חשבון? התחברו לבצוע מהיר יותר
@@ -401,7 +401,7 @@ export default function CheckoutPage() {
                 {/* Item 21 — create a user account with the order details */}
                 {!loggedInAs && (
                   <div className="rounded-xl border border-[#d4e8f8] bg-[#fafcff] p-4">
-                    <label className="flex items-center justify-end gap-3 cursor-pointer select-none">
+                    <label className="flex items-center justify-start gap-3 cursor-pointer select-none">
                       <span className="text-sm font-medium text-[#1a1410]">
                         צרו לי חשבון עם פרטי ההזמנה
                         <span className="block text-[11px] font-normal text-[#9a8a7a] mt-0.5">
@@ -470,7 +470,7 @@ export default function CheckoutPage() {
                     page). iCredit is the only gateway — Pelecard removed. */}
                 <hr className="border-[#ede9e1]" />
                 <h3 className="text-sm font-semibold text-[#1a1410] text-right">תשלום</h3>
-                <div className="flex items-center justify-end gap-3 border border-[#3ab4f2] bg-[#fafcff] rounded-xl p-4">
+                <div className="flex items-center justify-start gap-3 border border-[#3ab4f2] bg-[#fafcff] rounded-xl p-4">
                   <span className="text-sm font-semibold text-[#1a1410]">תשלום מאובטח באמצעות iCredit</span>
                   <i className="ri-bank-card-line text-xl text-[#3ab4f2]"></i>
                 </div>
@@ -479,11 +479,11 @@ export default function CheckoutPage() {
                     לאחר לחיצה על "אישור ומעבר לתשלום" תוזנו פרטי כרטיס האשראי כאן, מאובטח בתקן PCI-DSS —
                     פרטי הכרטיס אינם נשמרים באתר.
                   </p>
-                  <div className="flex items-center gap-2 text-xs text-[#9a8a7a] justify-end pt-1">
+                  <div className="flex items-center gap-2 text-xs text-[#9a8a7a] justify-start pt-1">
                     <i className="ri-lock-line text-[#1a1a1a]"></i>
                     תשלום מאובטח ב-SSL — הפרטים מוצפנים
                   </div>
-                  <div className="flex items-center justify-end gap-2 pt-1">
+                  <div className="flex items-center justify-start gap-2 pt-1">
                     {["Visa", "Mastercard", "Amex", "Isracard"].map((c) => (
                       <span key={c} className="text-[10px] font-medium text-[#999] border border-[#ede9e1] rounded px-2 py-0.5">{c}</span>
                     ))}
@@ -493,7 +493,7 @@ export default function CheckoutPage() {
                 {/* Items 32-33 — Terms & Conditions checkbox with a direct,
                     clickable link to the Terms page (and Privacy Policy). */}
                 <hr className="border-[#ede9e1]" />
-                <label className="flex items-start justify-end gap-3 cursor-pointer select-none">
+                <label className="flex items-start justify-start gap-3 cursor-pointer select-none">
                   <span className="text-sm text-[#1a1410] leading-relaxed">
                     קראתי ואני מסכים/ה ל<Link to="/terms" target="_blank" className="text-[#3ab4f2] underline hover:text-[#2da0d8]">תנאי השימוש</Link>
                     {" "}ול<Link to="/privacy" target="_blank" className="text-[#3ab4f2] underline hover:text-[#2da0d8]">מדיניות הפרטיות</Link>
@@ -561,7 +561,7 @@ export default function CheckoutPage() {
                 </p>
 
                 {payError && (
-                  <div className="flex items-center gap-2 justify-end text-xs font-semibold text-[#b3261e] bg-[#fdf0ef] border border-[#f3cfcc] rounded-xl px-4 py-3">
+                  <div className="flex items-center gap-2 justify-start text-xs font-semibold text-[#b3261e] bg-[#fdf0ef] border border-[#f3cfcc] rounded-xl px-4 py-3">
                     <span>{payError}</span>
                     <i className="ri-error-warning-line text-base"></i>
                   </div>
@@ -624,7 +624,7 @@ export default function CheckoutPage() {
               </div>
 
               {totalPrice >= FREE_SHIPPING_THRESHOLD && (
-                <p className="mt-3 text-xs text-[#2d7a3a] text-right flex items-center justify-end gap-1.5">
+                <p className="mt-3 text-xs text-[#2d7a3a] text-right flex items-center justify-start gap-1.5">
                   <i className="ri-truck-line"></i> זכאי למשלוח חינם!
                 </p>
               )}
