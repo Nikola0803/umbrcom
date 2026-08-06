@@ -544,7 +544,12 @@ export default function ProductPage() {
               attempt on this element instead of passing it up to scroll the
               page — which matches "scrolling stops when reaching this
               section" exactly. */}
-          <div className="flex justify-start gap-0 mb-8 border-b border-[#ede9e1] overflow-x-auto" style={{ scrollbarWidth: "thin" }}>
+          {/* `overflow-x: auto` alone can make the browser auto-compute
+              overflow-y as "auto" too (a real CSS quirk when only one axis
+              is set explicitly), which is what was spawning that stray
+              vertical scrollbar/drag-handle next to the tabs. Setting
+              overflow-y-hidden explicitly stops that. */}
+          <div className="flex justify-start gap-0 mb-8 border-b border-[#ede9e1] overflow-x-auto overflow-y-hidden" style={{ scrollbarWidth: "thin" }}>
             {(
               [
                 { key: "desc", label: "תיאור המוצר" },
