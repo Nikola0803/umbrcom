@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import PageLayout from "../../components/feature/PageLayout";
 import { useCart, type CartItem } from "@/context/CartContext";
-import { createPelecardCheckout, createIcreditCheckout, isWpConfigured } from "@/lib/wp-api";
+import { createIcreditCheckout, isWpConfigured } from "@/lib/wp-api";
 import { trackBeginCheckout } from "@/lib/analytics";
 import { trackMetaInitiateCheckout, trackMetaPurchase } from "@/lib/metaPixel";
 
@@ -57,10 +57,7 @@ export default function CheckoutPage() {
     address: "", city: "", zip: "", notes: "",
     invoiceName: "", companyRegNumber: "", israeliId: "",
   });
-  // iCredit added alongside Pelecard (not replacing it) — shopper picks
-  // either. Defaults to iCredit since that's the newly-configured gateway;
-  // easy to flip if Pelecard should stay the default instead.
-  const [gateway, setGateway] = useState<"icredit" | "pelecard">("icredit");
+  // Pelecard removed entirely per Nik — iCredit is the only gateway now.
   const [ordered, setOrdered] = useState(false);
   // Item 13: snapshot of the cart at the moment of order placement, since
   // clearCart() empties `items` right after — the confirmation screen needs
@@ -142,10 +139,7 @@ export default function CheckoutPage() {
       },
       shipping_method: shipping as "delivery" | "pickup",
     };
-    const session =
-      gateway === "icredit"
-        ? await createIcreditCheckout(checkoutPayload)
-        : await createPelecardCheckout(checkoutPayload);
+    const session = await createIcreditCheckout(checkoutPayload);
 
     if (!session || "error" in session) {
       setPayError(session && "error" in session ? session.error : "שגיאה ביצירת ההזמנה. נסו שוב.");
@@ -472,35 +466,13 @@ export default function CheckoutPage() {
                   })}
                 </div>
 
-                {/* Item 30 — payment gateway selection, also on this same
-                    step (no separate payment page). iCredit added alongside
-                    Pelecard — shopper picks either. */}
+                {/* Item 30 — payment, on this same step (no separate payment
+                    page). iCredit is the only gateway — Pelecard removed. */}
                 <hr className="border-[#ede9e1]" />
                 <h3 className="text-sm font-semibold text-[#1a1410] text-right">תשלום</h3>
-                <div className="space-y-2">
-                  {(
-                    [
-                      { id: "icredit" as const, label: "iCredit" },
-                      { id: "pelecard" as const, label: "Pelecard" },
-                    ]
-                  ).map((g) => (
-                    <label
-                      key={g.id}
-                      className={`flex items-center justify-end gap-3 border rounded-xl p-4 cursor-pointer transition-colors ${
-                        gateway === g.id ? "border-[#3ab4f2] bg-[#fafcff]" : "border-[#ede9e1] hover:border-[#d4e8f8]"
-                      }`}
-                    >
-                      <span className="text-sm font-semibold text-[#1a1410]">תשלום מאובטח באמצעות {g.label}</span>
-                      <i className="ri-bank-card-line text-xl text-[#3ab4f2]"></i>
-                      <input
-                        type="radio"
-                        name="gateway"
-                        checked={gateway === g.id}
-                        onChange={() => setGateway(g.id)}
-                        className="w-4 h-4 accent-[#3ab4f2] cursor-pointer"
-                      />
-                    </label>
-                  ))}
+                <div className="flex items-center justify-end gap-3 border border-[#3ab4f2] bg-[#fafcff] rounded-xl p-4">
+                  <span className="text-sm font-semibold text-[#1a1410]">תשלום מאובטח באמצעות iCredit</span>
+                  <i className="ri-bank-card-line text-xl text-[#3ab4f2]"></i>
                 </div>
                 <div className="bg-[#fafcff] border border-[#d4e8f8] rounded-xl p-5 text-right space-y-3">
                   <p className="text-xs text-[#6a5e52] leading-relaxed">
@@ -570,7 +542,6 @@ export default function CheckoutPage() {
                 <div className="divide-y divide-[#ede9e1]">
                   {items.map(({ product, qty }) => (
                     <div key={product.id} className="flex items-center justify-between gap-3 py-3">
-                      <span className="text-sm font-semibold text-[#1a1410]">₪{(product.price * qty).toLocaleString("he-IL")}</span>
                       <div className="flex items-center gap-3">
                         <div className="text-right">
                           <p className="text-sm text-[#1a1410] leading-snug line-clamp-1">{product.name}</p>
@@ -578,6 +549,7 @@ export default function CheckoutPage() {
                         </div>
                         <img src={product.image} alt={product.name} className="w-12 h-12 object-contain bg-white rounded-lg p-1" />
                       </div>
+                      <span className="text-sm font-semibold text-[#1a1410]">₪{(product.price * qty).toLocaleString("he-IL")}</span>
                     </div>
                   ))}
                 </div>
@@ -626,28 +598,28 @@ export default function CheckoutPage() {
               <div className="space-y-3 mb-4">
                 {items.map(({ product, qty }) => (
                   <div key={product.id} className="flex items-center justify-between gap-2 text-sm">
-                    <span className="font-medium text-[#1a1410]">₪{(product.price * qty).toLocaleString("he-IL")}</span>
                     <div className="flex items-center gap-2">
-                      <span className="text-[#6a5e52] line-clamp-1 max-w-[120px] text-right">{product.name}</span>
-                      <span className="text-[10px] text-white bg-[#1a1a1a] rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0">{qty}</span>
                       <img src={product.image} alt="" className="w-10 h-10 object-contain bg-white rounded-lg p-1 flex-shrink-0" />
+                      <span className="text-[10px] text-white bg-[#1a1a1a] rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0">{qty}</span>
+                      <span className="text-[#6a5e52] line-clamp-1 max-w-[120px] text-right">{product.name}</span>
                     </div>
+                    <span className="font-medium text-[#1a1410]">₪{(product.price * qty).toLocaleString("he-IL")}</span>
                   </div>
                 ))}
               </div>
 
               <div className="border-t border-[#ede9e1] pt-4 space-y-2">
                 <div className="flex justify-between text-sm text-[#6a5e52]">
-                  <span>₪{totalPrice.toLocaleString("he-IL")}</span>
                   <span>סכום מוצרים</span>
+                  <span>₪{totalPrice.toLocaleString("he-IL")}</span>
                 </div>
                 <div className="flex justify-between text-sm text-[#6a5e52]">
-                  <span>{shippingCost === 0 ? "חינם" : `₪${shippingCost}`}</span>
                   <span>משלוח</span>
+                  <span>{shippingCost === 0 ? "חינם" : `₪${shippingCost}`}</span>
                 </div>
                 <div className="flex justify-between text-base font-bold text-[#1a1410] pt-2 border-t border-[#ede9e1]">
-                  <span>₪{total.toLocaleString("he-IL")}</span>
                   <span>סה״כ</span>
+                  <span>₪{total.toLocaleString("he-IL")}</span>
                 </div>
               </div>
 
