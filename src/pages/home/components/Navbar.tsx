@@ -248,10 +248,14 @@ export default function Navbar() {
                   className="text-sm font-medium hover:opacity-70 transition-opacity cursor-pointer whitespace-nowrap flex items-center gap-1.5"
                   style={{ color: isActive(l.path) ? NAV_INK : SUB_INK, fontWeight: isActive(l.path) ? 700 : 500 }}
                 >
+                  {/* Text before icon: the row is pinned dir="ltr" (see
+                      note above), so DOM order = physical left-to-right —
+                      putting the label first and the icon last renders
+                      the icon on the right side of the text. */}
+                  {l.label}
                   {l.label === "מבצעים" && <i className="ri-price-tag-3-line text-[15px]"></i>}
                   {l.label === "מועדון לקוחות" && <i className="ri-vip-crown-line text-[15px]"></i>}
                   {l.label === "סדרות" && <i className="ri-collage-line text-[15px]"></i>}
-                  {l.label}
                 </Link>
               ))}
               <span className="h-4 w-px" style={{ backgroundColor: HAIRLINE }} />

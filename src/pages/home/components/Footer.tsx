@@ -138,16 +138,16 @@ export default function Footer() {
                 text-align just packs inline content to the right, same as
                 the sibling columns' plain text links). */}
             <p className="text-sm text-[#999]">
-              <i className="ri-building-4-line text-[#666] ms-2"></i>
+              <i className="ri-building-4-line text-[#666] me-2"></i>
               <span className="text-[#777]">מרלוג:</span> {warehouseAddress}
             </p>
             {/* Offices (משרדים) */}
             <p className="text-sm text-[#999]">
-              <i className="ri-map-pin-line text-[#666] ms-2"></i>
+              <i className="ri-map-pin-line text-[#666] me-2"></i>
               <span className="text-[#777]">משרדים:</span> {address}
             </p>
             <a href={`tel:+972${phone.replace(/^0/, "")}`} className="text-sm text-[#999] hover:text-white transition-colors">
-              <i className="ri-phone-line text-[#666] ms-2"></i>
+              <i className="ri-phone-line text-[#666] me-2"></i>
               {phone}
             </a>
           </div>
