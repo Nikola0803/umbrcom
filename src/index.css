@@ -44,6 +44,19 @@
   }
 }
 
+/* iOS Safari auto-zooms the whole page on focus for any text input whose
+   font-size computes under 16px — most inputs on this site use Tailwind's
+   text-sm/text-xs (14px/12px), so tapping into almost any field on iPhone
+   zoomed in. Forcing 16px on all form controls below the md breakpoint
+   (where this only happens — desktop is unaffected either way) stops the
+   zoom without touching the visual size on desktop or disabling the
+   user's own pinch-zoom. */
+@media (max-width: 767px) {
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+}
+
 @layer utilities {
   .animate-fade-up {
     animation: fadeUp 0.7s ease both;

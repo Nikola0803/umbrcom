@@ -212,26 +212,36 @@ export default function Navbar() {
 
             {/* LEFT — search */}
             <div className="flex-1 max-w-[520px]">
-              <div dir="rtl" className="flex items-center rounded-full h-11 px-4 gap-2" style={{ backgroundColor: SURFACE }}>
+              {/* Wrapped in a real <form> — relying only on onKeyDown
+                  "Enter" is unreliable on mobile virtual keyboards (many
+                  Android IMEs never fire a proper keydown for the
+                  Search/Go action key). A form's onSubmit fires reliably
+                  from that action key on every platform. */}
+              <form
+                onSubmit={(e) => { e.preventDefault(); submitSearch(); }}
+                dir="rtl"
+                className="flex items-center rounded-full h-11 px-4 gap-2"
+                style={{ backgroundColor: SURFACE }}
+              >
                 <i className={`ri-search-line text-base flex-shrink-0 ${dark ? "text-white/50" : "text-black/35"}`}></i>
                 <input
-                  type="text"
+                  type="search"
+                  enterKeyHint="search"
                   value={searchVal}
                   onChange={(e) => setSearchVal(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter") submitSearch(); }}
                   placeholder="חיפוש מוצר, מותג או קטגוריה..."
                   className={`flex-1 text-sm text-right outline-none bg-transparent ${dark ? "placeholder-white/50 text-white" : "placeholder-[#999] text-[#111]"}`}
                   dir="rtl"
                 />
                 <button
-                  onClick={submitSearch}
+                  type="submit"
                   className="w-8 h-8 -ml-1 flex-shrink-0 rounded-full flex items-center justify-center transition-colors cursor-pointer"
                   style={{ backgroundColor: NAV_INK }}
                   aria-label="חיפוש"
                 >
                   <i className={`ri-search-line text-sm ${dark ? "text-[#111]" : "text-white"}`}></i>
                 </button>
-              </div>
+              </form>
             </div>
 
             {/* RIGHT — מבצעים · מועדון לקוחות · שירות לקוחות, then the white
@@ -339,26 +349,33 @@ export default function Navbar() {
 
         {/* ══ Compact mobile search row ══ */}
         <div dir="rtl" className="md:hidden w-full px-4 pb-3" style={{ backgroundColor: NAV_BG }}>
-          <div className="flex items-center rounded-full h-10 px-4 gap-2" style={{ backgroundColor: SURFACE }}>
+          {/* Real <form> here too — same reason as the desktop search box:
+              onKeyDown "Enter" alone doesn't reliably fire on mobile
+              keyboards, but a form's onSubmit does. */}
+          <form
+            onSubmit={(e) => { e.preventDefault(); submitSearch(); }}
+            className="flex items-center rounded-full h-10 px-4 gap-2"
+            style={{ backgroundColor: SURFACE }}
+          >
             <i className={`ri-search-line text-base flex-shrink-0 ${dark ? "text-white/50" : "text-black/35"}`}></i>
             <input
-              type="text"
+              type="search"
+              enterKeyHint="search"
               value={searchVal}
               onChange={(e) => setSearchVal(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") submitSearch(); }}
               placeholder="חיפוש מוצר..."
               className={`flex-1 text-sm text-right outline-none bg-transparent ${dark ? "placeholder-white/50 text-white" : "placeholder-[#999] text-[#111]"}`}
               dir="rtl"
             />
             <button
-              onClick={submitSearch}
+              type="submit"
               className="w-7 h-7 flex-shrink-0 rounded-full flex items-center justify-center cursor-pointer"
               style={{ backgroundColor: NAV_INK }}
               aria-label="חיפוש"
             >
               <i className={`ri-search-line text-xs ${dark ? "text-[#111]" : "text-white"}`}></i>
             </button>
-          </div>
+          </form>
         </div>
       </header>
 
