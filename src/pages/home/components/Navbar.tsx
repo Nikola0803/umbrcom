@@ -244,14 +244,17 @@ export default function Navbar() {
                 // before text, bottom hairline — instead of the plain
                 // pill-link style the other two rows-2 links use.
                 l.label === "שירות לקוחות" ? (
+                  // 1:1 copy of the mobile drawer's list-item markup
+                  // (icon absolute at right-8, text pr-6) — needs an
+                  // explicit width for the absolute icon to sit correctly
+                  // outside of the drawer's full-width rows.
                   <Link
                     key={`${l.path}-${i}`}
                     to={l.path}
-                    className="relative flex items-center gap-1.5 px-4 py-2 text-xs text-gray-600 hover:text-[#1a1a1a] border-b border-gray-100 transition-colors whitespace-nowrap"
-                    style={{ color: isActive(l.path) ? NAV_INK : undefined }}
+                    className="relative flex items-center w-40 px-8 py-3 text-xs text-gray-600 hover:text-[#1a1a1a] border-b border-gray-100"
                   >
-                    <i className="ri-star-line text-sm"></i>
-                    <span>שירות לקוחות</span>
+                    <i className="ri-star-line text-sm absolute right-8 top-1/2 -translate-y-1/2" style={{ color: "rgb(17, 17, 17)" }}></i>
+                    <span className="w-full text-right pr-6">שירות לקוחות</span>
                   </Link>
                 ) : (
                   <Link
