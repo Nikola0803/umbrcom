@@ -21,7 +21,7 @@ const STEPS: { key: Step; label: string }[] = [
 // Item 26: free shipping threshold — ₪249+, otherwise ₪29.5.
 const FREE_SHIPPING_THRESHOLD = 249;
 const STANDARD_SHIPPING_FEE = 29.5;
-const STORE_ADDRESS = "דוד סהרוב 18, ראשון לציון";
+const STORE_ADDRESS = "דוד סחרוב 18, ראשון לציון\nבתיאום מראש בלבד.";
 
 // Item 28: only these two options — the old "Fast Shipping" tier is gone.
 const SHIPPING_OPTIONS = [
@@ -456,7 +456,7 @@ export default function CheckoutPage() {
                         </div>
                         <div className="flex-1 text-right">
                           <p className="text-sm font-semibold text-[#1a1410]">{opt.label}</p>
-                          <p className="text-xs text-[#9a8a7a]">{opt.sub}</p>
+                          <p className="text-xs text-[#9a8a7a] whitespace-pre-line">{opt.sub}</p>
                         </div>
                         <span className="text-sm font-semibold text-[#1a1410] whitespace-nowrap">
                           {price === 0 ? "חינם" : `₪${price}`}
@@ -494,17 +494,17 @@ export default function CheckoutPage() {
                     clickable link to the Terms page (and Privacy Policy). */}
                 <hr className="border-[#ede9e1]" />
                 <label className="flex items-start justify-start gap-3 cursor-pointer select-none">
-                  <span className="text-sm text-[#1a1410] leading-relaxed">
-                    קראתי ואני מסכים/ה ל<Link to="/terms" target="_blank" className="text-[#3ab4f2] underline hover:text-[#2da0d8]">תנאי השימוש</Link>
-                    {" "}ול<Link to="/privacy" target="_blank" className="text-[#3ab4f2] underline hover:text-[#2da0d8]">מדיניות הפרטיות</Link>
-                    <span className="text-[#c0392b]"> *</span>
-                  </span>
                   <input
                     type="checkbox"
                     checked={acceptedTerms}
                     onChange={(e) => setAcceptedTerms(e.target.checked)}
                     className="w-4 h-4 mt-0.5 accent-[#3ab4f2] cursor-pointer flex-shrink-0"
                   />
+                  <span className="text-sm text-[#1a1410] leading-relaxed">
+                    קראתי ואני מסכים/ה ל<Link to="/terms" target="_blank" className="text-[#3ab4f2] underline hover:text-[#2da0d8]">תנאי השימוש</Link>
+                    {" "}ול<Link to="/privacy" target="_blank" className="text-[#3ab4f2] underline hover:text-[#2da0d8]">מדיניות הפרטיות</Link>
+                    <span className="text-[#c0392b]"> *</span>
+                  </span>
                 </label>
 
                 <button
