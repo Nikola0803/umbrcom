@@ -121,41 +121,40 @@ export default function Footer() {
     <footer className="bg-[#0f0f0f]/95 backdrop-blur-sm rounded-t-3xl border-t border-white/5 overflow-hidden">
       {/* Main columns */}
       <div className="max-w-7xl mx-auto px-6 sm:px-10 pt-12 pb-10 grid grid-cols-2 sm:grid-cols-4 gap-8 sm:gap-10">
-        {/* Col 1: Brand — justify-content flex-end (previous attempt) turned
-            out to NOT reliably right-align here either (confirmed against
-            the live rendered HTML). Switched to `me-auto` (margin-inline-
-            end: auto), a CSS logical property that unambiguously follows
-            `direction` regardless of flex-axis behavior — each row is a
-            block-level, content-width (`w-fit`) element whose end-margin
-            auto-fills, pushing it to the start side (right, in RTL). */}
-        <div dir="rtl" className="flex flex-col gap-6 w-full items-end">
-          <Link to="/" className="block w-fit ml-auto mr-0">
+        {/* Col 1: Brand — every flex/margin-auto trick attempted here
+            (justify-end, me-auto, ml-auto+items-end) kept looking
+            different from cols 2-4 even when technically flush right, per
+            Nik. Rebuilt to use the EXACT same mechanism as the other
+            three columns below: a plain `text-right` block with normal
+            (non-flex) inline/block children — no flex rows, no auto
+            margins, nothing column-1-specific. */}
+        <div dir="rtl" className="text-right space-y-6">
+          <Link to="/" className="inline-block">
             <img src={logoUrl} alt="UMBRCOM" className="h-16 object-contain brightness-0 invert opacity-90" />
           </Link>
-          {/* Item 22/40: contact info — icons moved to the left of the text
-              per Nik's follow-up (were on the right). Logical `me-auto`
-              didn't actually push this right in the live browser, so this
-              uses a plain physical `ml-auto` (margin-left: auto) instead —
-              unambiguous regardless of direction resolution — plus
-              `items-end` on the parent flex column as a second guarantee. */}
-          <div className="w-fit ml-auto mr-0 text-right space-y-1.5">
-            {/* Warehouse (מרלוג) — above the offices line, per Nik. */}
-            <p className="text-sm text-[#999] flex items-center gap-2 justify-end">
-              <i className="ri-building-4-line text-[#666]"></i>
-              <span><span className="text-[#777]">מרלוג:</span> {warehouseAddress}</span>
+          <div className="space-y-1.5">
+            {/* Warehouse (מרלוג) — above the offices line, per Nik. Icon is
+                the first element so it lands at the visual right (RTL
+                text-align just packs inline content to the right, same as
+                the sibling columns' plain text links). */}
+            <p className="text-sm text-[#999]">
+              <i className="ri-building-4-line text-[#666] ms-2"></i>
+              <span className="text-[#777]">מרלוג:</span> {warehouseAddress}
             </p>
             {/* Offices (משרדים) */}
-            <p className="text-sm text-[#999] flex items-center gap-2 justify-end">
-              <i className="ri-map-pin-line text-[#666]"></i>
-              <span><span className="text-[#777]">משרדים:</span> {address}</span>
+            <p className="text-sm text-[#999]">
+              <i className="ri-map-pin-line text-[#666] ms-2"></i>
+              <span className="text-[#777]">משרדים:</span> {address}
             </p>
-            <a href={`tel:+972${phone.replace(/^0/, "")}`} className="text-sm text-[#999] hover:text-white transition-colors flex items-center gap-2 justify-end">
-              <i className="ri-phone-line text-[#666]"></i>
+            <a href={`tel:+972${phone.replace(/^0/, "")}`} className="text-sm text-[#999] hover:text-white transition-colors">
+              <i className="ri-phone-line text-[#666] ms-2"></i>
               {phone}
             </a>
           </div>
-          {/* Social icons */}
-          <div className="w-fit ml-auto mr-0 flex items-center gap-3 flex-wrap">
+          {/* Social icons — the only row that legitimately needs flex (a
+              horizontal row of buttons), so it keeps justify-end, but
+              dropped the w-fit/ml-auto wrapper entirely. */}
+          <div className="flex items-center gap-3 flex-wrap justify-end">
             {socialLinks.map((s) => (
               <a
                 key={s.label}
