@@ -1,9 +1,12 @@
-import CmsPage from "../../components/feature/CmsPage";
 import LegalContent from "./components/LegalContent";
-// Real terms & conditions copied from the old website (item 10).
+// Real terms & conditions, provided directly by Nik. Bypasses CmsPage —
+// WordPress already had its own short auto-created page at the "terms"
+// slug, which always took priority over this content, so it never
+// actually appeared on the live site regardless of frontend rebuilds.
+// This is now the only source for this page.
 import termsHtml from "./content/terms.html?raw";
 
-function StaticTerms() {
+export default function TermsPage() {
   return (
     <>
       <div className="w-full bg-[#0f0f0f] py-10" dir="rtl">
@@ -12,8 +15,4 @@ function StaticTerms() {
       <LegalContent html={termsHtml} />
     </>
   );
-}
-
-export default function TermsPage() {
-  return <CmsPage slug="terms" fallback={<StaticTerms />} />;
 }

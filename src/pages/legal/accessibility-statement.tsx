@@ -1,9 +1,12 @@
-import CmsPage from "../../components/feature/CmsPage";
 import LegalContent from "./components/LegalContent";
-// Real accessibility statement copied from the old website (item 12).
+// Real accessibility statement, provided directly by Nik. Bypasses
+// CmsPage — WordPress already had its own short auto-created page at the
+// "accessibility-statement" slug (with a different, outdated contact
+// email), which always took priority over this content. This is now the
+// only source for this page.
 import accessibilityHtml from "./content/accessibility.html?raw";
 
-function StaticAccessibilityStatement() {
+export default function AccessibilityStatementPage() {
   return (
     <section className="w-full bg-white min-h-[70vh]" dir="rtl">
       <div className="max-w-3xl mx-auto text-right px-6 pt-16">
@@ -14,8 +17,4 @@ function StaticAccessibilityStatement() {
       <LegalContent html={accessibilityHtml} />
     </section>
   );
-}
-
-export default function AccessibilityStatementPage() {
-  return <CmsPage slug="accessibility-statement" fallback={<StaticAccessibilityStatement />} />;
 }

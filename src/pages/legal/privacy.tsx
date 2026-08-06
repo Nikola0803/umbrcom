@@ -1,9 +1,15 @@
-import CmsPage from "../../components/feature/CmsPage";
 import LegalContent from "./components/LegalContent";
-// Real privacy policy copied from the old website (item 11).
+// Real privacy policy, provided directly by Nik. Always rendered as-is —
+// this page used to go through CmsPage, which checks WordPress for a
+// "privacy" page FIRST and only falls back to this content if WP has
+// nothing. WordPress already had a short, generic auto-created page at
+// that slug, so this real content never actually showed no matter how
+// many times the frontend was rebuilt. Bypassing CmsPage entirely here
+// so this is the only thing that ever renders — no dependency on
+// wp-admin content for this page anymore.
 import privacyHtml from "./content/privacy.html?raw";
 
-function StaticPrivacy() {
+export default function PrivacyPage() {
   return (
     <>
       <div className="w-full bg-[#0f0f0f] py-10" dir="rtl">
@@ -12,8 +18,4 @@ function StaticPrivacy() {
       <LegalContent html={privacyHtml} />
     </>
   );
-}
-
-export default function PrivacyPage() {
-  return <CmsPage slug="privacy" fallback={<StaticPrivacy />} />;
 }
