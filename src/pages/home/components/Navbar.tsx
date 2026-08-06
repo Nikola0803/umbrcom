@@ -42,7 +42,7 @@ const MOBILE_NAV = DEFAULT_CATEGORIES;
 const EXTRA_NAV_LINKS = [
   { label: "מבצעים", path: "/shop" },
   { label: "מועדון לקוחות", path: "/my-account" },
-  { label: "שירות לקוחות", path: "/customer-service" },
+  { label: "סדרות", path: "/series" },
 ];
 
 // Reference layout (client WhatsApp screenshot): icon cluster fixed left,
@@ -239,17 +239,19 @@ export default function Navbar() {
                 client's reference screenshot 1:1. */}
             <div dir="ltr" className="flex items-center gap-6">
               {EXTRA_NAV_LINKS.map((l, i) =>
-                // "שירות לקוחות": literal, exact copy of the mobile
-                // drawer's /series item markup/classes — nothing added,
-                // nothing swapped. Only the href, icon and label change.
-                l.label === "שירות לקוחות" ? (
+                // "סדרות": this is now a byte-for-byte copy of the mobile
+                // drawer's actual /series element — same href, same icon
+                // (ri-collage-line), same label, same classes. Not a
+                // reskinned "שירות לקוחות" link — that link is gone from
+                // this row, replaced outright by this one, verbatim.
+                l.label === "סדרות" ? (
                   <Link
                     key={`${l.path}-${i}`}
-                    to={l.path}
+                    to="/series"
                     className="relative flex items-center px-8 py-3 text-xs text-gray-600 hover:text-[#1a1a1a] border-b border-gray-100"
                   >
-                    <i className="ri-headphone-line text-sm absolute right-8 top-1/2 -translate-y-1/2" style={{ color: "rgb(17, 17, 17)" }}></i>
-                    <span className="w-full text-right pr-6">שירות לקוחות</span>
+                    <i className="ri-collage-line text-sm absolute right-8 top-1/2 -translate-y-1/2" style={{ color: "rgb(17, 17, 17)" }}></i>
+                    <span className="w-full text-right pr-6">סדרות</span>
                   </Link>
                 ) : (
                   <Link
