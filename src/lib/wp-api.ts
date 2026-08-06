@@ -554,3 +554,44 @@ export async function fetchIcreditOrderStatus(orderId: string | number, orderKey
     `/umbrcom/v1/icredit/status?order_id=${encodeURIComponent(String(orderId))}&order_key=${encodeURIComponent(orderKey)}`
   );
 }
+
+/* ────────────────────────────────────────────────────────────────────────
+ * Product reviews — /umbrcom/v1/reviews  (new REST class, backed by
+ * WooCommerce's native comment-based product reviews — same mechanism
+ * wp-admin's own Reviews screen and any WooCommerce theme use, just
+ * exposed as a plain REST route so the headless frontend can read/write
+ * it without needing wc/v3 API keys).
+ * ──────────────────────────────────────────────────────────────────────── */
+
+export interface ProductReview {
+  id: number;
+  author: string;
+  rating: number; // 1-5
+  content: string;
+  date: string; // ISO
+}
+
+export interface ReviewsResponse {
+  reviews: ProductReview[];
+  average: number;
+  count: number;
+}
+
+export async function fetchProductReviews(productId: number | string) {
+  return getJSON<ReviewsResponse>(`/umbrcom/v1/reviews?product_id=${encodeURIComponent(String(productId))}`);
+}
+
+export interface SubmitReviewPayload {
+  product_id: number | string;
+  name: string;
+  email: string;
+  rating: number; // 1-5
+  content: string;
+}
+
+/** Reviews go to moderation by default (comment_approved = 0), matching
+ *  standard WooCommerce/WordPress behavior — they won't appear in
+ *  fetchProductReviews until approved in wp-admin. */
+export async function submitProductReview(payload: SubmitReviewPayload) {
+  return postJSON<{ status: "pending" | "approved" }>("/umbrcom/v1/reviews", payload);
+}

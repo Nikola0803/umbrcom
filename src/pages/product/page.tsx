@@ -5,6 +5,7 @@ import { allProducts as mockProducts, Product } from "../../mocks/products";
 import { useLiveProducts } from "@/hooks/useLiveProducts";
 import ProductCard from "../shop/components/ProductCard";
 import ModelViewer3D from "./components/ModelViewer3D";
+import ReviewsTab from "./components/ReviewsTab";
 import { useCart } from "@/context/CartContext";
 import { useBrand } from "@/hooks/useBrand";
 import { fetchProductById, fetchProductBySku, fetchProductBySlug, isWpConfigured } from "@/lib/wp-api";
@@ -244,7 +245,7 @@ export default function ProductPage() {
 
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
-  const [activeTab, setActiveTab] = useState<"desc" | "specs" | "video" | "ai" | "package" | "3d">("desc");
+  const [activeTab, setActiveTab] = useState<"desc" | "specs" | "video" | "ai" | "package" | "3d" | "reviews">("desc");
   const [activeImage, setActiveImage] = useState(0);
 
   // These were originally placed after the early returns below — a real
@@ -397,7 +398,7 @@ export default function ProductPage() {
                 {/* Item 8: stronger, on-brand title treatment — semibold +
                     tight tracking reads as premium/confident rather than
                     the previous thin font-light weight. */}
-                <h1 className="font-serif text-3xl sm:text-[2.75rem] font-semibold tracking-tight text-[#1a1410] leading-[1.15]">
+                <h1 className="font-serif text-2xl sm:text-3xl font-semibold tracking-tight text-[#1a1410] leading-[1.2]">
                   {product.name}
                 </h1>
                 {/* Stars */}
@@ -599,6 +600,7 @@ export default function ProductPage() {
                   ? [{ key: "package", label: "תכולת האריזה" }]
                   : []),
                 { key: "3d", label: "תצוגה תלת-מימדית" },
+                { key: "reviews", label: "ביקורות" },
               ] as { key: typeof activeTab; label: string }[]
             ).map((t) => (
               <button
@@ -613,6 +615,7 @@ export default function ProductPage() {
                 {t.key === "3d" && <i className="ri-box-3-line text-xs"></i>}
                 {t.key === "video" && <i className="ri-youtube-line text-xs"></i>}
                 {t.key === "ai" && <i className="ri-sparkling-2-line text-xs"></i>}
+                {t.key === "reviews" && <i className="ri-star-line text-xs"></i>}
                 {t.label}
               </button>
             ))}
@@ -746,6 +749,10 @@ export default function ProductPage() {
                   modelUsdzUrl={product.model3dUsdzUrl}
                 />
               </div>
+            )}
+
+            {activeTab === "reviews" && (
+              <ReviewsTab productId={product.id} productName={product.name} />
             )}
           </div>
         </div>
