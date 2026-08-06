@@ -126,13 +126,17 @@ export default function Footer() {
             `direction` regardless of flex-axis behavior — each row is a
             block-level, content-width (`w-fit`) element whose end-margin
             auto-fills, pushing it to the start side (right, in RTL). */}
-        <div dir="rtl" className="flex flex-col gap-6 w-full">
-          <Link to="/" className="block w-fit me-auto">
+        <div dir="rtl" className="flex flex-col gap-6 w-full items-end">
+          <Link to="/" className="block w-fit ml-auto mr-0">
             <img src={logoUrl} alt="UMBRCOM" className="h-16 object-contain brightness-0 invert opacity-90" />
           </Link>
-          {/* Item 22: contact info — icons moved to the left of the text
-              per Nik's follow-up (were on the right). */}
-          <div className="w-fit me-auto text-right space-y-1.5">
+          {/* Item 22/40: contact info — icons moved to the left of the text
+              per Nik's follow-up (were on the right). Logical `me-auto`
+              didn't actually push this right in the live browser, so this
+              uses a plain physical `ml-auto` (margin-left: auto) instead —
+              unambiguous regardless of direction resolution — plus
+              `items-end` on the parent flex column as a second guarantee. */}
+          <div className="w-fit ml-auto mr-0 text-right space-y-1.5">
             <p className="text-sm text-[#999] flex items-center gap-2 justify-end">
               <i className="ri-map-pin-line text-[#666]"></i>
               {address}
@@ -143,7 +147,7 @@ export default function Footer() {
             </a>
           </div>
           {/* Social icons */}
-          <div className="w-fit me-auto flex items-center gap-3 flex-wrap">
+          <div className="w-fit ml-auto mr-0 flex items-center gap-3 flex-wrap">
             {socialLinks.map((s) => (
               <a
                 key={s.label}

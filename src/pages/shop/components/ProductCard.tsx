@@ -118,8 +118,15 @@ export default function ProductCard({ product }: ProductCardProps) {
           {product.name}
         </h3>
 
-        {/* Price row */}
-        <div className="flex items-center justify-end gap-2">
+        {/* Price row — SKU pinned to the far right (item 38), prices grouped
+            next to it. `me-auto` (margin-inline-end: auto) absorbs the
+            leftover space after the SKU on its end (left) side in RTL,
+            which keeps the SKU itself flush at the start (right) and
+            pushes the price elements away to its left. */}
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] text-[#aaa] tracking-wide me-auto">
+            {product.sku}
+          </span>
           <span className="text-[12px] text-[#bbb] line-through">
             ₪{originalPrice.toLocaleString("he-IL")}
           </span>

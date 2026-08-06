@@ -20,9 +20,16 @@ export default function ShopFilters({
 }: ShopFiltersProps) {
   return (
     <div className="flex flex-col items-end gap-5 py-6 border-b border-[#ede9e1] mb-2">
-      <div className="flex items-center justify-between w-full">
-        {/* Color filters */}
-        <div className="flex items-center gap-3 flex-wrap">
+      {/* Item 41: on mobile/small screens this stacks — type/sort row on
+          top, color swatches below it — both flush right (`order` classes
+          flip the visual stacking without touching the DOM/markup order;
+          `self-end` keeps each row pinned right while stacked). From `sm`
+          up it goes back to the original side-by-side row. */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full gap-4 sm:gap-0">
+        {/* Color filters — square swatches now, matching the finish
+            swatches used on product cards (rounded-[3px], not full
+            circles) instead of the old big circular buttons. */}
+        <div className="order-2 sm:order-1 self-end sm:self-auto flex items-center gap-3 flex-wrap justify-end">
           {colorFilters.map((cf) => {
             const active = selectedColors.includes(cf.value);
             return (
@@ -38,7 +45,7 @@ export default function ShopFilters({
                 role="checkbox"
                 aria-checked={active}
                 aria-label={cf.label}
-                className={`relative w-12 h-12 rounded-full overflow-hidden transition-all duration-200 cursor-pointer ${
+                className={`relative w-10 h-10 rounded-[6px] overflow-hidden transition-all duration-200 cursor-pointer ${
                   active
                     ? "ring-2 ring-[#1a1a1a] ring-offset-2 scale-110"
                     : "ring-1 ring-[#ddd] hover:ring-[#1a1a1a] hover:scale-105"
@@ -47,7 +54,7 @@ export default function ShopFilters({
               >
                 {active && (
                   <span className="absolute inset-0 flex items-center justify-center bg-black/25">
-                    <span className="w-5 h-5 rounded-full bg-[#1a1a1a] flex items-center justify-center">
+                    <span className="w-5 h-5 rounded-[3px] bg-[#1a1a1a] flex items-center justify-center">
                       <i className="ri-check-line text-white text-xs"></i>
                     </span>
                   </span>
@@ -58,7 +65,7 @@ export default function ShopFilters({
         </div>
 
         {/* Type filter + sort — item 16 adds standard WooCommerce sorting */}
-        <div className="flex items-center gap-3">
+        <div className="order-1 sm:order-2 self-end sm:self-auto flex items-center gap-3">
           <div className="relative">
             <select
               value={sort}

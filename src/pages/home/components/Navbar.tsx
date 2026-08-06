@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import { useBrand } from "@/hooks/useBrand";
@@ -53,6 +53,8 @@ const EXTRA_NAV_LINKS = [
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
+  const [desktopCategoriesOpen, setDesktopCategoriesOpen] = useState(false);
+  const desktopCategoriesRef = useRef<HTMLDivElement>(null);
   const [searchVal, setSearchVal] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
@@ -82,7 +84,19 @@ export default function Navbar() {
     });
   }, []);
 
-  useEffect(() => { setMobileOpen(false); }, [location.pathname]);
+  useEffect(() => { setMobileOpen(false); setDesktopCategoriesOpen(false); }, [location.pathname]);
+
+  // Close the desktop categories dropdown on any click outside it.
+  useEffect(() => {
+    if (!desktopCategoriesOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (desktopCategoriesRef.current && !desktopCategoriesRef.current.contains(e.target as Node)) {
+        setDesktopCategoriesOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, [desktopCategoriesOpen]);
 
   const isActive = (path: string) =>
     path === "/" ? location.pathname === "/" : location.pathname.startsWith(path);
@@ -224,27 +238,67 @@ export default function Navbar() {
                 "כל הקטגוריות" pill button furthest right — matches the
                 client's reference screenshot 1:1. */}
             <div dir="ltr" className="flex items-center gap-6">
-              {EXTRA_NAV_LINKS.map((l, i) => (
-                <Link
-                  key={`${l.path}-${i}`}
-                  to={l.path}
-                  className="text-sm font-medium hover:opacity-70 transition-opacity cursor-pointer whitespace-nowrap flex items-center gap-1.5"
-                  style={{ color: isActive(l.path) ? NAV_INK : SUB_INK, fontWeight: isActive(l.path) ? 700 : 500 }}
-                >
-                  {l.label === "מבצעים" && <i className="ri-price-tag-3-line text-[15px]"></i>}
-                  {l.label === "מועדון לקוחות" && <i className="ri-headphone-line text-[15px]"></i>}
-                  {l.label === "שירות לקוחות" && <i className="ri-star-line text-[15px]"></i>}
-                  {l.label}
-                </Link>
-              ))}
+              {EXTRA_NAV_LINKS.map((l, i) =>
+                // "שירות לקוחות" (item 37): styled to match the mobile
+                // drawer's list-item design 1:1 — text-xs gray-600, icon
+                // before text, bottom hairline — instead of the plain
+                // pill-link style the other two rows-2 links use.
+                l.label === "שירות לקוחות" ? (
+                  <Link
+                    key={`${l.path}-${i}`}
+                    to={l.path}
+                    className="relative flex items-center gap-1.5 px-4 py-2 text-xs text-gray-600 hover:text-[#1a1a1a] border-b border-gray-100 transition-colors whitespace-nowrap"
+                    style={{ color: isActive(l.path) ? NAV_INK : undefined }}
+                  >
+                    <i className="ri-star-line text-sm"></i>
+                    <span>שירות לקוחות</span>
+                  </Link>
+                ) : (
+                  <Link
+                    key={`${l.path}-${i}`}
+                    to={l.path}
+                    className="text-sm font-medium hover:opacity-70 transition-opacity cursor-pointer whitespace-nowrap flex items-center gap-1.5"
+                    style={{ color: isActive(l.path) ? NAV_INK : SUB_INK, fontWeight: isActive(l.path) ? 700 : 500 }}
+                  >
+                    {l.label === "מבצעים" && <i className="ri-price-tag-3-line text-[15px]"></i>}
+                    {l.label === "מועדון לקוחות" && <i className="ri-headphone-line text-[15px]"></i>}
+                    {l.label}
+                  </Link>
+                )
+              )}
               <span className="h-4 w-px" style={{ backgroundColor: HAIRLINE }} />
-              <Link
-                to="/shop"
-                className="flex items-center gap-2 bg-white text-[#111] text-sm font-semibold rounded-full px-5 h-10 whitespace-nowrap hover:opacity-90 transition-opacity cursor-pointer"
-              >
-                כל הקטגוריות
-                <i className="ri-grid-fill text-[15px]"></i>
-              </Link>
+
+              {/* "כל הקטגוריות" (items 35-36): black pill (not white),
+                  less-rounded corners, always white text regardless of
+                  header state — and now a real toggle that opens the same
+                  5 categories the mobile drawer shows, instead of a plain
+                  link to /shop. */}
+              <div className="relative" ref={desktopCategoriesRef}>
+                <button
+                  onClick={() => setDesktopCategoriesOpen((v) => !v)}
+                  className="flex items-center gap-2 bg-black text-white text-sm font-semibold rounded-lg px-5 h-10 whitespace-nowrap hover:opacity-90 transition-opacity cursor-pointer"
+                >
+                  כל הקטגוריות
+                  <i className={`ri-grid-fill text-[15px] transition-transform ${desktopCategoriesOpen ? "rotate-90" : ""}`}></i>
+                </button>
+                {desktopCategoriesOpen && (
+                  <div
+                    dir="rtl"
+                    className="absolute top-full left-0 mt-2 w-60 bg-white rounded-xl shadow-lg border border-black/5 py-2 z-50"
+                  >
+                    {DEFAULT_CATEGORIES.map((c) => (
+                      <Link
+                        key={c.path}
+                        to={c.path}
+                        onClick={() => setDesktopCategoriesOpen(false)}
+                        className="block px-5 py-2.5 text-sm text-[#333] text-right hover:bg-[#f5f5f5] hover:text-[#1a1a1a] transition-colors"
+                      >
+                        {c.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
