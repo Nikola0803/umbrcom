@@ -18,9 +18,9 @@ const STEPS: { key: Step; label: string }[] = [
   { key: "confirm", label: "אישור הזמנה" },
 ];
 
-// Item 26: free shipping threshold.
-const FREE_SHIPPING_THRESHOLD = 250;
-const STANDARD_SHIPPING_FEE = 28;
+// Item 26: free shipping threshold — ₪249+, otherwise ₪29.5.
+const FREE_SHIPPING_THRESHOLD = 249;
+const STANDARD_SHIPPING_FEE = 29.5;
 const STORE_ADDRESS = "דוד סהרוב 18, ראשון לציון";
 
 // Item 28: only these two options — the old "Fast Shipping" tier is gone.
@@ -28,7 +28,7 @@ const SHIPPING_OPTIONS = [
   {
     id: "delivery",
     label: "משלוח עד הבית",
-    sub: `חינם בהזמנות מעל ₪${FREE_SHIPPING_THRESHOLD} · אחרת ₪${STANDARD_SHIPPING_FEE}`,
+    sub: `חינם בהזמנות מעל ₪${FREE_SHIPPING_THRESHOLD}`,
   },
   {
     id: "pickup",
@@ -620,7 +620,7 @@ export default function CheckoutPage() {
 
           {/* ── Right: order summary ── */}
           <div className="space-y-4">
-            <div className="bg-white rounded-2xl border border-[#ede9e1] p-5 sticky top-28">
+            <div className="bg-white rounded-2xl border border-[#ede9e1] p-5 sticky top-44">
               <h3 className="font-serif text-lg font-light text-[#1a1410] text-right mb-4">סיכום הזמנה</h3>
 
               <div className="space-y-3 mb-4">

@@ -1,3 +1,4 @@
+import PageLayout from "../../components/feature/PageLayout";
 import LegalContent from "./components/LegalContent";
 // Real privacy policy, provided directly by Nik. Always rendered as-is —
 // this page used to go through CmsPage, which checks WordPress for a
@@ -11,11 +12,11 @@ import privacyHtml from "./content/privacy.html?raw";
 
 export default function PrivacyPage() {
   return (
-    <>
+    <PageLayout>
       <div className="w-full bg-[#0f0f0f] py-10" dir="rtl">
         <h1 className="text-3xl font-light text-white text-right px-6 max-w-3xl mx-auto">מדיניות פרטיות</h1>
       </div>
       <LegalContent html={privacyHtml} />
-    </>
+    </PageLayout>
   );
 }
