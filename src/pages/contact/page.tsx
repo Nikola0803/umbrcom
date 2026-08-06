@@ -9,6 +9,18 @@ function StaticContactHeader() {
     { icon: "ri-phone-line", label: "טלפון", value: "03-620-8197", href: "tel:036208197" },
     { icon: "ri-whatsapp-line", label: "וואטסאפ", value: "03-620-8197", href: "https://wa.me/972036208197" },
     { icon: "ri-mail-line", label: "אימייל", value: "office@umbrcom.co.il", href: "mailto:office@umbrcom.co.il" },
+    {
+      icon: "ri-building-4-line",
+      label: "מרלוג",
+      value: "מרלוג - השיקמה 1, אזור תעשייה",
+      href: "https://waze.com/ul?q=" + encodeURIComponent("מרלוג - השיקמה 1, אזור תעשייה"),
+    },
+    {
+      icon: "ri-map-pin-line",
+      label: "משרדים",
+      value: "דוד סחרוב 18, ראשון לציון",
+      href: "https://waze.com/ul?q=" + encodeURIComponent("דוד סחרוב 18, ראשון לציון"),
+    },
   ];
   return (
     <>
@@ -37,7 +49,16 @@ function StaticContactHeader() {
             </div>
             <div className="text-right">
               <p className="text-xs text-[#bbb] tracking-wider uppercase mb-0.5">{item.label}</p>
-              <p className="text-sm font-medium text-[#0d0d0d] group-hover:text-[#1a1a1a] transition-colors" dir="ltr">{item.value}</p>
+              {/* Phone/whatsapp/email stay LTR (digits/latin); the two
+                  address entries are Hebrew text, so they need dir="rtl"
+                  or the bidi algorithm renders them oddly inside an
+                  explicitly-LTR box. */}
+              <p
+                className="text-sm font-medium text-[#0d0d0d] group-hover:text-[#1a1a1a] transition-colors"
+                dir={item.label === "מרלוג" || item.label === "משרדים" ? "rtl" : "ltr"}
+              >
+                {item.value}
+              </p>
             </div>
           </a>
         ))}

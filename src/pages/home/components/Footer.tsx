@@ -17,7 +17,8 @@ const DEFAULT_WATERFALL_LOGO_URL =
 // follow-up (סחרוב, not סהרוב). This is intentionally NOT overridden by
 // wp-admin Site Settings (see below) — the live settings.contact.address
 // had a stale/different address, which is why this kept drifting.
-const DEFAULT_ADDRESS = "דוד סחרוב 18, ראשון לציון";
+const DEFAULT_ADDRESS = "דוד סחרוב 18, ראשון לציון"; // משרדים (offices)
+const DEFAULT_WAREHOUSE_ADDRESS = "מרלוג - השיקמה 1, אזור תעשייה"; // מרלוג (warehouse) — sits above the offices line
 const DEFAULT_PHONE = "03-620-8197";
 
 const SOCIAL_ICON: Record<string, string> = {
@@ -94,6 +95,7 @@ export default function Footer() {
   const [phone, setPhone] = useState(DEFAULT_PHONE);
   // Fixed — not wp-admin-driven, see note below.
   const address = DEFAULT_ADDRESS;
+  const warehouseAddress = DEFAULT_WAREHOUSE_ADDRESS;
 
   useEffect(() => {
     fetchSettings().then((settings) => {
@@ -137,9 +139,15 @@ export default function Footer() {
               unambiguous regardless of direction resolution — plus
               `items-end` on the parent flex column as a second guarantee. */}
           <div className="w-fit ml-auto mr-0 text-right space-y-1.5">
+            {/* Warehouse (מרלוג) — above the offices line, per Nik. */}
+            <p className="text-sm text-[#999] flex items-center gap-2 justify-end">
+              <i className="ri-building-4-line text-[#666]"></i>
+              <span><span className="text-[#777]">מרלוג:</span> {warehouseAddress}</span>
+            </p>
+            {/* Offices (משרדים) */}
             <p className="text-sm text-[#999] flex items-center gap-2 justify-end">
               <i className="ri-map-pin-line text-[#666]"></i>
-              {address}
+              <span><span className="text-[#777]">משרדים:</span> {address}</span>
             </p>
             <a href={`tel:+972${phone.replace(/^0/, "")}`} className="text-sm text-[#999] hover:text-white transition-colors flex items-center gap-2 justify-end">
               <i className="ri-phone-line text-[#666]"></i>

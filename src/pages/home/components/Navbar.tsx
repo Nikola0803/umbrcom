@@ -268,15 +268,18 @@ export default function Navbar() {
               )}
               <span className="h-4 w-px" style={{ backgroundColor: HAIRLINE }} />
 
-              {/* "כל הקטגוריות" (items 35-36): black pill (not white),
-                  less-rounded corners, always white text regardless of
-                  header state — and now a real toggle that opens the same
-                  5 categories the mobile drawer shows, instead of a plain
-                  link to /shop. */}
+              {/* "כל הקטגוריות" (items 35-36): less-rounded pill that flips
+                  color with the header so it's never invisible — black bg
+                  / white text on the white (UMBRCOM) header, white bg /
+                  black text on the black (Waterfall) header — plus a real
+                  toggle that opens the same 5 categories the mobile drawer
+                  shows, instead of a plain link to /shop. */}
               <div className="relative" ref={desktopCategoriesRef}>
                 <button
                   onClick={() => setDesktopCategoriesOpen((v) => !v)}
-                  className="flex items-center gap-2 bg-black text-white text-sm font-semibold rounded-lg px-5 h-10 whitespace-nowrap hover:opacity-90 transition-opacity cursor-pointer"
+                  className={`flex items-center gap-2 text-sm font-semibold rounded-lg px-5 h-10 whitespace-nowrap hover:opacity-90 transition-opacity cursor-pointer ${
+                    dark ? "bg-white text-black" : "bg-black text-white"
+                  }`}
                 >
                   כל הקטגוריות
                   <i className={`ri-grid-fill text-[15px] transition-transform ${desktopCategoriesOpen ? "rotate-90" : ""}`}></i>
