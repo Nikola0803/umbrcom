@@ -238,37 +238,31 @@ export default function Navbar() {
                 "כל הקטגוריות" pill button furthest right — matches the
                 client's reference screenshot 1:1. */}
             <div dir="ltr" className="flex items-center gap-6">
-              {EXTRA_NAV_LINKS.map((l, i) =>
-                // "שירות לקוחות" (item 37): styled to match the mobile
-                // drawer's list-item design 1:1 — text-xs gray-600, icon
-                // before text, bottom hairline — instead of the plain
-                // pill-link style the other two rows-2 links use.
-                l.label === "שירות לקוחות" ? (
-                  // Same colors/size/border as the mobile drawer's item,
-                  // but plain icon-then-text (no absolute box) so it sits
-                  // on the same visual side as its row neighbors instead
-                  // of flipping to the opposite end.
-                  <Link
-                    key={`${l.path}-${i}`}
-                    to={l.path}
-                    className="relative flex items-center gap-1.5 py-3 text-xs text-gray-600 hover:text-[#1a1a1a] border-b border-gray-100 whitespace-nowrap"
-                  >
-                    <i className="ri-star-line text-sm"></i>
-                    <span>שירות לקוחות</span>
-                  </Link>
-                ) : (
-                  <Link
-                    key={`${l.path}-${i}`}
-                    to={l.path}
-                    className="text-sm font-medium hover:opacity-70 transition-opacity cursor-pointer whitespace-nowrap flex items-center gap-1.5"
-                    style={{ color: isActive(l.path) ? NAV_INK : SUB_INK, fontWeight: isActive(l.path) ? 700 : 500 }}
-                  >
-                    {l.label === "מבצעים" && <i className="ri-price-tag-3-line text-[15px]"></i>}
-                    {l.label === "מועדון לקוחות" && <i className="ri-headphone-line text-[15px]"></i>}
-                    {l.label}
-                  </Link>
-                )
-              )}
+              {/* All three row-2 links now render through the exact same
+                  branch — no more special-cased styling for "שירות
+                  לקוחות" (that leftover mobile-drawer look — text-xs,
+                  gray-600, border-b — was the actual bug people kept
+                  flagging). Byte-for-byte identical classes/style logic
+                  across all three, only the icon differs. */}
+              {EXTRA_NAV_LINKS.map((l, i) => (
+                <Link
+                  key={`${l.path}-${i}`}
+                  to={l.path}
+                  className="text-sm font-medium hover:opacity-70 transition-opacity cursor-pointer whitespace-nowrap flex items-center gap-1.5"
+                  style={{ color: isActive(l.path) ? NAV_INK : SUB_INK, fontWeight: isActive(l.path) ? 700 : 500 }}
+                >
+                  {/* Icons were mismatched — "מועדון לקוחות" (loyalty
+                      club) had the headphone/support icon, while "שירות
+                      לקוחות" (customer service) had a star. Swapped so
+                      support gets the headphone (matches the mobile
+                      drawer's icon for this same link) and the club gets
+                      a membership-style icon instead. */}
+                  {l.label === "מבצעים" && <i className="ri-price-tag-3-line text-[15px]"></i>}
+                  {l.label === "מועדון לקוחות" && <i className="ri-vip-crown-line text-[15px]"></i>}
+                  {l.label === "שירות לקוחות" && <i className="ri-headphone-line text-[15px]"></i>}
+                  {l.label}
+                </Link>
+              ))}
               <span className="h-4 w-px" style={{ backgroundColor: HAIRLINE }} />
 
               {/* "כל הקטגוריות" (items 35-36): less-rounded pill that flips
