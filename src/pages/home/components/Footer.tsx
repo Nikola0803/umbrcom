@@ -18,7 +18,7 @@ const DEFAULT_WATERFALL_LOGO_URL =
 // wp-admin Site Settings (see below) — the live settings.contact.address
 // had a stale/different address, which is why this kept drifting.
 const DEFAULT_ADDRESS = "דוד סחרוב 18, ראשון לציון"; // משרדים (offices)
-const DEFAULT_WAREHOUSE_ADDRESS = "מרלוג - השיקמה 1, אזור תעשייה"; // מרלוג (warehouse) — sits above the offices line
+const DEFAULT_WAREHOUSE_ADDRESS = "השיקמה 1, אזור"; // מרלוג (warehouse) — label already says "מרלוג:", no need to repeat it in the value
 const DEFAULT_PHONE = "03-620-8197";
 
 const SOCIAL_ICON: Record<string, string> = {
@@ -146,8 +146,20 @@ export default function Footer() {
               <i className="ri-map-pin-line text-[#666] me-2"></i>
               <span className="text-[#777]">משרדים:</span> {address}
             </p>
-            <a href={`tel:+972${phone.replace(/^0/, "")}`} className="text-sm text-[#999] hover:text-white transition-colors">
-              <i className="ri-phone-line text-[#666] me-2"></i>
+            {/* Unicode bidi quirk: with the digit run sitting directly next
+                to the icon (no Hebrew character between them), the browser
+                reorders them and the phone number jumps to the right of
+                the icon instead of after it. A small `inline-flex` here
+                sidesteps bidi text-reordering entirely (ordering becomes a
+                DOM/flex concern, not a text-direction one) without
+                reintroducing the column-wide flex/margin issue from
+                before — this is just one atomic inline element within the
+                otherwise plain text-right block. */}
+            <a
+              href={`tel:+972${phone.replace(/^0/, "")}`}
+              className="inline-flex items-center gap-2 text-sm text-[#999] hover:text-white transition-colors"
+            >
+              <i className="ri-phone-line text-[#666]"></i>
               {phone}
             </a>
           </div>
