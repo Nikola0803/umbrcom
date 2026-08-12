@@ -15,6 +15,12 @@ function StaticBusinessHeader() {
             Waterfall — B2B
           </p>
           <h1 className="font-serif text-4xl font-light text-[#1a1410] mb-4">מחלקת עסקים</h1>
+          {/* Waterfall is Umbrcom's product brand, not a separate legal
+              entity — spelled out here since this section leads with the
+              brand name above the fold. */}
+          <p className="text-xs text-[#9a8a7a] -mt-2 mb-4">
+            Waterfall הינו מותג מוצרים של אמברקום בע&quot;מ, ח.פ. 517044038
+          </p>
           <div className="w-12 h-px bg-[#1a1a1a]/20 mr-0 mb-6" />
           <p className="text-base text-[#5a4e42] leading-relaxed max-w-xl">
             שותפים עסקיים, קבלנים, מעצבי פנים ויזמי נדל"ן — אנחנו מציעים מחירים מיוחדים,

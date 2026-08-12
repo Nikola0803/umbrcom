@@ -6,6 +6,12 @@ import ContactForm from "./components/ContactForm";
  *  WordPress isn't configured at all. */
 function StaticContactHeader() {
   const tiles = [
+    {
+      icon: "ri-briefcase-4-line",
+      label: "העסק",
+      value: 'אמברקום בע"מ · ח.פ. 517044038',
+      href: "/terms",
+    },
     { icon: "ri-phone-line", label: "טלפון", value: "03-620-8197", href: "tel:036208197" },
     { icon: "ri-whatsapp-line", label: "וואטסאפ", value: "03-620-8197", href: "https://wa.me/972036208197" },
     { icon: "ri-mail-line", label: "אימייל", value: "office@umbrcom.co.il", href: "mailto:office@umbrcom.co.il" },
@@ -55,7 +61,7 @@ function StaticContactHeader() {
                   explicitly-LTR box. */}
               <p
                 className="text-sm font-medium text-[#0d0d0d] group-hover:text-[#1a1a1a] transition-colors"
-                dir={item.label === "מרלוג" || item.label === "משרדים" ? "rtl" : "ltr"}
+                dir={item.label === "מרלוג" || item.label === "משרדים" || item.label === "העסק" ? "rtl" : "ltr"}
               >
                 {item.value}
               </p>

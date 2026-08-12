@@ -206,14 +206,26 @@ export default function Footer() {
 
       {/* Bottom bar */}
       <div className="max-w-7xl mx-auto px-6 sm:px-10 py-6 flex items-center justify-between flex-wrap gap-4">
-        <Link to="/" className="cursor-pointer opacity-60 hover:opacity-100 transition-opacity">
-          <img src={waterfallLogoUrl} alt="Waterfall" className="h-7 object-contain brightness-0 invert" />
-        </Link>
+        <div className="flex flex-col items-start gap-1">
+          <Link to="/" className="cursor-pointer opacity-60 hover:opacity-100 transition-opacity">
+            <img src={waterfallLogoUrl} alt="Waterfall" className="h-7 object-contain brightness-0 invert" />
+          </Link>
+          {/* Waterfall is a product brand sold BY אמברקום בע"מ, not a
+              separate operating business — this line is intentionally
+              always rendered here regardless of which brand theme
+              (useBrand) is currently selected, so the legal operator of
+              this domain is never ambiguous to a visitor or reviewer. */}
+          <span className="text-[#555] text-[10px]">מותג של אמברקום בע&quot;מ</span>
+        </div>
         <p className="text-[#555] text-xs">
           ט.ל.ח | כל התמונות והסרטונים באתר להמחשה בלבד.
         </p>
+        {/* Legal identity strip — company name + registration number,
+            always visible regardless of selected brand (useBrand). Google
+            Ads' Misrepresentation review looks for this exact info to be
+            unambiguous, so it's kept independent of any brand theming. */}
         <p className="text-[#555] text-xs">
-          © כל הזכויות שמורות לאמברקום בע&quot;מ
+          © כל הזכויות שמורות לאמברקום בע&quot;מ | ח.פ. 517044038
         </p>
       </div>
     </footer>

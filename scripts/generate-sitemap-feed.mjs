@@ -172,4 +172,16 @@ async function main() {
   );
 }
 
-main();
+// Only auto-run when this file is executed directly (`node
+// scripts/generate-sitemap-feed.mjs`, or the "prebuild" npm hook) — NOT
+// when scripts/prerender.mjs imports fetchAllProducts/productPath/etc.
+// below, which would otherwise re-run this whole script a second time as
+// an unwanted side effect of the import.
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main();
+}
+
+// Reused by scripts/prerender.mjs so both scripts crawl the exact same set
+// of routes/products — one source of truth instead of two lists drifting
+// apart over time.
+export { fetchAllProducts, productPath, STATIC_ROUTES, CATEGORY_ROUTES };
