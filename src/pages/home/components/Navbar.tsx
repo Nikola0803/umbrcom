@@ -1,9 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import { useBrand } from "@/hooks/useBrand";
 import { useBrandContext } from "@/context/BrandContext";
 import { fetchSettings } from "@/lib/wp-api";
+import { useLiveProducts } from "@/hooks/useLiveProducts";
+import { productPath } from "@/lib/productUrl";
 
 // Brand assets (July 2026, per Nik):
 //  - Waterfall wordmark — settings-overridable (brand.waterfall_logo),
@@ -56,11 +58,51 @@ export default function Navbar() {
   const [desktopCategoriesOpen, setDesktopCategoriesOpen] = useState(false);
   const desktopCategoriesRef = useRef<HTMLDivElement>(null);
   const [searchVal, setSearchVal] = useState("");
+  // Item — live "as you type" search suggestions. Only one of the desktop/
+  // mobile search boxes is ever visibly interactable at a given viewport
+  // (the other is display:none via the md: breakpoint), so one shared
+  // open/closed flag is enough for both.
+  const [searchOpen, setSearchOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { totalCount, openCart } = useCart();
   const brand = useBrand();
   const { setBrandKey: setBrand } = useBrandContext();
+  const { products: liveProducts } = useLiveProducts();
+
+  const searchSuggestions = useMemo(() => {
+    const q = searchVal.trim().toLowerCase();
+    if (!q) return [];
+    return liveProducts
+      .filter((p) =>
+        p.name.toLowerCase().includes(q) ||
+        p.sku.toLowerCase().includes(q) ||
+        p.color.toLowerCase().includes(q)
+      )
+      .slice(0, 6);
+  }, [searchVal, liveProducts]);
+
+  const goToSuggestion = (product: (typeof liveProducts)[number]) => {
+    setSearchVal("");
+    setSearchOpen(false);
+    setMobileOpen(false);
+    navigate(productPath(product));
+  };
+
+  // Close the suggestions dropdown on outside click. The desktop and
+  // mobile search boxes are two separate DOM subtrees (only one is
+  // visible at a given viewport via md:), so this checks for either via
+  // a shared data attribute rather than a single ref.
+  useEffect(() => {
+    if (!searchOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (!(e.target as HTMLElement).closest?.("[data-search-wrap]")) {
+        setSearchOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, [searchOpen]);
 
   // ── Brand-driven header theme ──
   const dark = brand.key === "waterfall";
@@ -84,7 +126,7 @@ export default function Navbar() {
     });
   }, []);
 
-  useEffect(() => { setMobileOpen(false); setDesktopCategoriesOpen(false); }, [location.pathname]);
+  useEffect(() => { setMobileOpen(false); setDesktopCategoriesOpen(false); setSearchOpen(false); }, [location.pathname]);
 
   // Close the desktop categories dropdown on any click outside it.
   useEffect(() => {
@@ -111,6 +153,7 @@ export default function Navbar() {
     if (!q) return;
     navigate(`/shop?search=${encodeURIComponent(q)}`);
     setMobileOpen(false);
+    setSearchOpen(false);
   };
 
   return (
@@ -211,7 +254,7 @@ export default function Navbar() {
           <div dir="ltr" className="max-w-7xl mx-auto flex items-center justify-between gap-6">
 
             {/* LEFT — search */}
-            <div className="flex-1 max-w-[520px]">
+            <div className="flex-1 max-w-[520px] relative" data-search-wrap>
               {/* Wrapped in a real <form> — relying only on onKeyDown
                   "Enter" is unreliable on mobile virtual keyboards (many
                   Android IMEs never fire a proper keydown for the
@@ -228,7 +271,8 @@ export default function Navbar() {
                   type="search"
                   enterKeyHint="search"
                   value={searchVal}
-                  onChange={(e) => setSearchVal(e.target.value)}
+                  onChange={(e) => { setSearchVal(e.target.value); setSearchOpen(true); }}
+                  onFocus={() => setSearchOpen(true)}
                   placeholder="חיפוש מוצר, מותג או קטגוריה..."
                   className={`flex-1 text-sm text-right outline-none bg-transparent ${dark ? "placeholder-white/50 text-white" : "placeholder-[#999] text-[#111]"}`}
                   dir="rtl"
@@ -242,6 +286,41 @@ export default function Navbar() {
                   <i className={`ri-search-line text-sm ${dark ? "text-[#111]" : "text-white"}`}></i>
                 </button>
               </form>
+
+              {/* Live "as you type" suggestions — was missing entirely
+                  before; the search bar only ever navigated on submit. */}
+              {searchOpen && searchVal.trim() && (
+                <div
+                  dir="rtl"
+                  className="absolute top-full right-0 left-0 mt-2 bg-white rounded-2xl shadow-lg border border-black/5 py-2 z-50 max-h-[70vh] overflow-y-auto"
+                >
+                  {searchSuggestions.length > 0 ? (
+                    searchSuggestions.map((p) => (
+                      <button
+                        key={p.id}
+                        onClick={() => goToSuggestion(p)}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-[#f5f5f5] transition-colors text-right cursor-pointer"
+                      >
+                        <img src={p.image} alt="" className="w-10 h-10 object-contain bg-white rounded-lg border border-[#eee] p-1 flex-shrink-0" />
+                        <span className="flex-1 min-w-0">
+                          <span className="block text-sm text-[#1a1410] line-clamp-1">{p.name}</span>
+                          <span className="block text-xs text-[#999]">₪{p.price.toLocaleString("he-IL")}</span>
+                        </span>
+                      </button>
+                    ))
+                  ) : (
+                    <p className="px-4 py-3 text-sm text-[#999] text-right">אין תוצאות עבור &quot;{searchVal.trim()}&quot;</p>
+                  )}
+                  {searchSuggestions.length > 0 && (
+                    <button
+                      onClick={submitSearch}
+                      className="w-full text-right px-4 py-2.5 text-xs font-semibold text-[#3ab4f2] hover:bg-[#f5f5f5] transition-colors cursor-pointer border-t border-[#f0f0f0] mt-1"
+                    >
+                      כל התוצאות עבור &quot;{searchVal.trim()}&quot; ←
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* RIGHT — מבצעים · מועדון לקוחות · שירות לקוחות, then the white
@@ -348,7 +427,7 @@ export default function Navbar() {
         </div>
 
         {/* ══ Compact mobile search row ══ */}
-        <div dir="rtl" className="md:hidden w-full px-4 pb-3" style={{ backgroundColor: NAV_BG }}>
+        <div dir="rtl" className="md:hidden w-full px-4 pb-3 relative" style={{ backgroundColor: NAV_BG }} data-search-wrap>
           {/* Real <form> here too — same reason as the desktop search box:
               onKeyDown "Enter" alone doesn't reliably fire on mobile
               keyboards, but a form's onSubmit does. */}
@@ -362,7 +441,8 @@ export default function Navbar() {
               type="search"
               enterKeyHint="search"
               value={searchVal}
-              onChange={(e) => setSearchVal(e.target.value)}
+              onChange={(e) => { setSearchVal(e.target.value); setSearchOpen(true); }}
+              onFocus={() => setSearchOpen(true)}
               placeholder="חיפוש מוצר..."
               className={`flex-1 text-sm text-right outline-none bg-transparent ${dark ? "placeholder-white/50 text-white" : "placeholder-[#999] text-[#111]"}`}
               dir="rtl"
@@ -376,6 +456,37 @@ export default function Navbar() {
               <i className={`ri-search-line text-xs ${dark ? "text-[#111]" : "text-white"}`}></i>
             </button>
           </form>
+
+          {/* Live "as you type" suggestions — mobile variant. */}
+          {searchOpen && searchVal.trim() && (
+            <div className="absolute top-full right-4 left-4 mt-2 bg-white rounded-2xl shadow-lg border border-black/5 py-2 z-50 max-h-[60vh] overflow-y-auto">
+              {searchSuggestions.length > 0 ? (
+                searchSuggestions.map((p) => (
+                  <button
+                    key={p.id}
+                    onClick={() => goToSuggestion(p)}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-[#f5f5f5] transition-colors text-right cursor-pointer"
+                  >
+                    <img src={p.image} alt="" className="w-10 h-10 object-contain bg-white rounded-lg border border-[#eee] p-1 flex-shrink-0" />
+                    <span className="flex-1 min-w-0">
+                      <span className="block text-sm text-[#1a1410] line-clamp-1">{p.name}</span>
+                      <span className="block text-xs text-[#999]">₪{p.price.toLocaleString("he-IL")}</span>
+                    </span>
+                  </button>
+                ))
+              ) : (
+                <p className="px-4 py-3 text-sm text-[#999] text-right">אין תוצאות עבור &quot;{searchVal.trim()}&quot;</p>
+              )}
+              {searchSuggestions.length > 0 && (
+                <button
+                  onClick={submitSearch}
+                  className="w-full text-right px-4 py-2.5 text-xs font-semibold text-[#3ab4f2] hover:bg-[#f5f5f5] transition-colors cursor-pointer border-t border-[#f0f0f0] mt-1"
+                >
+                  כל התוצאות עבור &quot;{searchVal.trim()}&quot; ←
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </header>
 

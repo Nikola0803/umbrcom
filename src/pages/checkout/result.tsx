@@ -1,9 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import PageLayout from "../../components/feature/PageLayout";
-import { fetchOrderStatus, confirmIcreditPayment, OrderResult } from "@/lib/wp-api";
+import { confirmIcreditPayment, fetchIcreditOrderStatus, OrderResult } from "@/lib/wp-api";
 import { trackPurchase } from "@/lib/analytics";
 import { trackMetaPurchase } from "@/lib/metaPixel";
+
+const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+
+// iCredit settles the sale asynchronously — the very first check right
+// after the browser redirect can land a beat before SaleDetails reflects
+// the charge. The backend re-attempts the SaleDetails pull on every call
+// (see class-icredit.php's "self-healing" status/confirm endpoints), so we
+// poll a few times before showing the failure screen instead of giving up
+// after a single check. ~15.5s total across 5 retries.
+const POLL_DELAYS_MS = [1500, 2000, 3000, 4000, 5000];
 
 /**
  * /checkout/result — iCredit is the only gateway now (Pelecard removed).
@@ -30,7 +40,16 @@ export default function CheckoutResultPage() {
     }
 
     (async () => {
-      const res = await confirmIcreditPayment({ order_id: orderId, order_key: orderKey });
+      let res: OrderResult | { error: string } | null = await confirmIcreditPayment({
+        order_id: orderId,
+        order_key: orderKey,
+      });
+
+      for (const delay of POLL_DELAYS_MS) {
+        if (!res || "error" in res || res.status !== "pending") break;
+        await sleep(delay);
+        res = await fetchIcreditOrderStatus(orderId, orderKey);
+      }
 
       if (!res || "error" in res) {
         setState("error");
