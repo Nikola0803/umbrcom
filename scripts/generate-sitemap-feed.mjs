@@ -37,6 +37,20 @@ const CATEGORY_ROUTES = [
   "/shop/kitchen", "/shop/bathroom", "/shop/cold-water", "/shop/shower-sets",
 ];
 
+// Sitemap/feed <loc>/<link> values must be valid URIs per RFC 3986 (ASCII
+// only, non-ASCII percent-encoded) — Google's sitemap spec calls this out
+// explicitly. Product slugs here are Hebrew, and every single one of them
+// was being written into sitemap.xml/feed.xml as RAW unescaped UTF-8
+// characters (e.g. a literal "מבית-waterfall" inside <loc>...</loc>)
+// instead of percent-encoded. That's not a valid URI, which is a very
+// plausible reason Google fails to crawl/index a chunk of product pages
+// via the sitemap even though the XML itself parses fine. encodeURI()
+// percent-encodes non-ASCII characters while leaving "/" and other
+// URI-structural characters alone, unlike encodeURIComponent().
+function toAbsoluteUrl(path) {
+  return SITE_URL + encodeURI(path);
+}
+
 function xmlEscape(s) {
   return String(s ?? "")
     .replace(/&/g, "&amp;")
@@ -92,7 +106,7 @@ function buildSitemap(products) {
   const entries = urls
     .map(
       (path) => `  <url>
-    <loc>${xmlEscape(SITE_URL + path)}</loc>
+    <loc>${xmlEscape(toAbsoluteUrl(path))}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>${path === "/" ? "daily" : path.startsWith("/product/") ? "weekly" : "monthly"}</changefreq>
     <priority>${path === "/" ? "1.0" : path.startsWith("/product/") ? "0.7" : "0.5"}</priority>
@@ -119,7 +133,7 @@ function buildFeed(products) {
       const regularPrice = p.prices?.regular_price ? minorUnitToNumber(p.prices.regular_price, minorUnit) : price;
       const salePrice = p.prices?.sale_price ? minorUnitToNumber(p.prices.sale_price, minorUnit) : null;
       const image = p.images?.[0]?.src ?? "";
-      const link = `${SITE_URL}${productPath(p)}`;
+      const link = toAbsoluteUrl(productPath(p));
       const availability = (p.is_in_stock ?? true) ? "in stock" : "out of stock";
       const description = (p.short_description || p.description || p.name || "")
         .replace(/<[^>]+>/g, "")

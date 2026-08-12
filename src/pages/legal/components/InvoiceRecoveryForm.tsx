@@ -1,25 +1,114 @@
+import { useState } from "react";
+
+// Compliance fix (Aug 2026): this form previously had `onSubmit={(e) =>
+// e.preventDefault()}` with no fields wired to state — it promised to
+// resend an invoice while sending nothing anywhere. Same fix pattern as
+// CancellationForm.tsx / BusinessForm.tsx / WarrantyForm.tsx: real POST
+// endpoint if one gets configured, mailto fallback until then.
+const INVOICE_RECOVERY_FORM_URL = "";
+const FALLBACK_EMAIL = "office@umbrcom.co.il";
+
+const inputCls =
+  "w-full px-4 py-3 rounded-xl border border-[#ede9e1] text-sm text-left text-[#1a1410] bg-white placeholder-[#bbb] focus:outline-none focus:border-[#1a1a1a] transition-colors";
+
 /** The functional invoice-recovery form. Kept as a fixed React component;
  *  the header/intro is CMS-editable (legal/invoice-recovery.tsx). */
 export default function InvoiceRecoveryForm() {
+  const [form, setForm] = useState({ orderNumber: "", orderEmail: "", sendToEmail: "" });
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      if (INVOICE_RECOVERY_FORM_URL) {
+        const body = new URLSearchParams({
+          order_number: form.orderNumber,
+          order_email: form.orderEmail,
+          send_to_email: form.sendToEmail,
+        });
+        const res = await fetch(INVOICE_RECOVERY_FORM_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: body.toString(),
+        });
+        setStatus(res.ok ? "success" : "error");
+      } else {
+        const subject = encodeURIComponent(`בקשה לשליחת חשבונית — הזמנה ${form.orderNumber || "לא צוינה"}`);
+        const body = encodeURIComponent(
+          `מספר הזמנה: ${form.orderNumber}\nאימייל שבו הוזמן: ${form.orderEmail}\nלשלוח את החשבונית אל: ${form.sendToEmail}`
+        );
+        window.location.href = `mailto:${FALLBACK_EMAIL}?subject=${subject}&body=${body}`;
+        setStatus("success");
+      }
+    } catch {
+      setStatus("error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="max-w-lg mx-auto px-6 pb-16 text-right" dir="rtl">
-      <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-        <div>
-          <label className="block text-xs font-semibold text-[#1a1410] mb-1.5">מספר הזמנה</label>
-          <input type="text" placeholder="ORD-2025-001" dir="ltr" className="w-full px-4 py-3 rounded-xl border border-[#ede9e1] text-sm text-left text-[#1a1410] bg-white placeholder-[#bbb] focus:outline-none focus:border-[#1a1a1a] transition-colors" />
+      {status === "success" ? (
+        <div className="py-8 text-right bg-white border border-[#ede9e1] rounded-2xl p-6">
+          <div className="w-14 h-14 rounded-full bg-[#111] flex items-center justify-center mb-4">
+            <i className="ri-check-line text-2xl text-white"></i>
+          </div>
+          <p className="text-lg font-semibold text-[#1a1410]">הבקשה נשלחה</p>
+          <p className="text-sm text-[#888] mt-1.5">נשלח את החשבונית לאימייל שציינתם בהקדם.</p>
         </div>
-        <div>
-          <label className="block text-xs font-semibold text-[#1a1410] mb-1.5">אימייל שבו הוזמן</label>
-          <input type="email" placeholder="example@email.com" dir="ltr" className="w-full px-4 py-3 rounded-xl border border-[#ede9e1] text-sm text-left text-[#1a1410] bg-white placeholder-[#bbb] focus:outline-none focus:border-[#1a1a1a] transition-colors" />
-        </div>
-        <div>
-          <label className="block text-xs font-semibold text-[#1a1410] mb-1.5">לאיזה אימייל לשלוח?</label>
-          <input type="email" placeholder="example@email.com" dir="ltr" className="w-full px-4 py-3 rounded-xl border border-[#ede9e1] text-sm text-left text-[#1a1410] bg-white placeholder-[#bbb] focus:outline-none focus:border-[#1a1a1a] transition-colors" />
-        </div>
-        <button type="submit" className="w-full bg-[#1a1a1a] hover:bg-[#333] text-white text-sm font-semibold tracking-widest py-4 rounded-xl transition-colors cursor-pointer mt-2">
-          שלחו חשבונית
-        </button>
-      </form>
+      ) : (
+        <form className="space-y-4" onSubmit={handleSubmit}>
+          <div>
+            <label className="block text-xs font-semibold text-[#1a1410] mb-1.5">מספר הזמנה</label>
+            <input
+              type="text"
+              required
+              dir="ltr"
+              value={form.orderNumber}
+              onChange={(e) => setForm({ ...form, orderNumber: e.target.value })}
+              placeholder="ORD-2025-001"
+              className={inputCls}
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-[#1a1410] mb-1.5">אימייל שבו הוזמן</label>
+            <input
+              type="email"
+              required
+              dir="ltr"
+              value={form.orderEmail}
+              onChange={(e) => setForm({ ...form, orderEmail: e.target.value })}
+              placeholder="example@email.com"
+              className={inputCls}
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-[#1a1410] mb-1.5">לאיזה אימייל לשלוח?</label>
+            <input
+              type="email"
+              required
+              dir="ltr"
+              value={form.sendToEmail}
+              onChange={(e) => setForm({ ...form, sendToEmail: e.target.value })}
+              placeholder="example@email.com"
+              className={inputCls}
+            />
+          </div>
+          {status === "error" && (
+            <p className="text-red-500 text-xs">אירעה שגיאה בשליחה. אנא נסו שוב או פנו אלינו בטלפון.</p>
+          )}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-[#1a1a1a] hover:bg-[#333] text-white text-sm font-semibold tracking-widest py-4 rounded-xl transition-colors cursor-pointer mt-2 disabled:opacity-40"
+          >
+            {loading ? "שולח..." : "שלחו חשבונית"}
+          </button>
+        </form>
+      )}
 
       <div className="mt-8 p-4 bg-white rounded-xl border border-[#ede9e1] text-xs text-[#9a8a7a] leading-relaxed text-right">
         לא מצאתם? צרו איתנו קשר ב-

@@ -146,7 +146,17 @@ async function main() {
       // fetch that resolves and paints in a microtask right at the wire.
       await new Promise((r) => setTimeout(r, 400));
       const html = await page.content();
-      const outPath = route === "/" ? join(OUT_DIR, "index.html") : join(OUT_DIR, route.slice(1), "index.html");
+      // Write "<route>.html" as a FLAT file, not "<route>/index.html". A
+      // real directory named e.g. "umbrcom/" makes nginx auto-issue a 301
+      // to add a trailing slash the moment a request hits "/umbrcom" (any
+      // URI resolving to a real directory triggers this, independent of
+      // try_files) — confirmed live on umbrcom.co.il, an extra redirect
+      // hop crawlers don't need and that also risks a client-side
+      // route-matching mismatch after the slash gets added. A flat file
+      // avoids nginx ever seeing "/umbrcom" as a directory at all — see
+      // nginx location block requirements noted in package.json's
+      // "postbuild" comment / deploy notes for the matching try_files line.
+      const outPath = route === "/" ? join(OUT_DIR, "index.html") : join(OUT_DIR, `${route.slice(1)}.html`);
       await mkdir(dirname(outPath), { recursive: true });
       await writeFile(outPath, html, "utf8");
       ok += 1;
