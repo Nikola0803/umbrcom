@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-
-const CONTACT_FORM_URL = "https://readdy.ai/api/form/d70o48eth28qd804cuu0";
+import { sendUmbrcomForm } from "@/lib/wflSubmit";
 
 /** The functional contact form + map. Kept as a fixed React component —
  *  Page Builder edits content, not form behavior — while the banner and
- *  contact-method tiles around it are CMS-editable (see contact/page.tsx). */
+ *  contact-method tiles around it are CMS-editable (see contact/page.tsx).
+ *  Submits into the shared WFL Micro CRM plugin (Umbrcom Submissions inbox)
+ *  — replaces the old readdy.ai template form endpoint, which pointed at a
+ *  demo account nobody here has access to. */
 export default function ContactForm() {
   const [form, setForm] = useState({ name: "", email: "", message: "", consent: false });
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
@@ -16,19 +18,13 @@ export default function ContactForm() {
     e.preventDefault();
     if (!form.consent || charCount > 500) return;
     setLoading(true);
-    try {
-      const body = new URLSearchParams({ name: form.name, email: form.email, message: form.message });
-      const res = await fetch(CONTACT_FORM_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: body.toString(),
-      });
-      setStatus(res.ok ? "success" : "error");
-    } catch {
-      setStatus("error");
-    } finally {
-      setLoading(false);
-    }
+    const { ok } = await sendUmbrcomForm("Umbrcom Contact Form", {
+      "שם מלא": form.name,
+      "אימייל": form.email,
+      "הודעה": form.message,
+    });
+    setStatus(ok ? "success" : "error");
+    setLoading(false);
   };
 
   return (
@@ -48,7 +44,7 @@ export default function ContactForm() {
               <p className="text-sm text-[#888] mt-2">הודעתכם נשלחה. ניצור עמכם קשר בהקדם.</p>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} data-readdy-form className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label className="block text-xs font-medium tracking-wider text-[#666] uppercase mb-2">
                   שם מלא <span className="text-[#1a1a1a]">*</span>

@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { sendUmbrcomForm } from "@/lib/wflSubmit";
 
-const FORM_URL = "https://readdy.ai/api/form/d70o0or2m2156g4s70hg";
-
+// Submits into the shared WFL Micro CRM plugin (Umbrcom Submissions inbox)
+// — replaces the old readdy.ai template form endpoint.
 export default function NewsletterSection() {
   const [email, setEmail] = useState("");
   const [consent, setConsent] = useState(false);
@@ -11,22 +12,12 @@ export default function NewsletterSection() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!email) return;
+    if (!email || !consent) return;
     setLoading(true);
-    try {
-      const body = new URLSearchParams({ email });
-      const res = await fetch(FORM_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: body.toString(),
-      });
-      setStatus(res.ok ? "success" : "error");
-      if (res.ok) setEmail("");
-    } catch {
-      setStatus("error");
-    } finally {
-      setLoading(false);
-    }
+    const { ok } = await sendUmbrcomForm("Umbrcom Newsletter Signup", { "אימייל": email });
+    setStatus(ok ? "success" : "error");
+    if (ok) setEmail("");
+    setLoading(false);
   };
 
   return (
@@ -58,7 +49,6 @@ export default function NewsletterSection() {
         ) : (
           <form
             onSubmit={handleSubmit}
-            data-readdy-form
             className="flex items-stretch max-w-md mx-auto"
           >
             <input

@@ -1,15 +1,14 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { sendUmbrcomForm } from "@/lib/wflSubmit";
 
 // Compliance fix (Aug 2026): this form previously had `onSubmit={(e) =>
 // e.preventDefault()}` with zero fields wired to state — it promised "לאחר
 // הרישום תקבלו אישור במייל" (you'll get a confirmation email after
-// registering) while capturing and sending nothing at all. Same fix
-// pattern as CancellationForm.tsx / BusinessForm.tsx: real POST endpoint
-// if one gets configured, mailto fallback until then.
-const WARRANTY_FORM_URL = "";
-const FALLBACK_EMAIL = "office@umbrcom.co.il";
-
+// registering) while capturing and sending nothing at all. Now submits
+// into the shared WFL Micro CRM plugin (Umbrcom Submissions inbox) —
+// replaces the mailto: fallback that stood in until a real endpoint
+// existed.
 const inputCls =
   "w-full px-4 py-3 rounded-xl border border-[#ede9e1] text-sm text-[#1a1410] bg-white placeholder-[#bbb] focus:outline-none focus:border-[#1a1a1a] transition-colors";
 
@@ -31,34 +30,15 @@ export default function WarrantyForm() {
     e.preventDefault();
     if (!form.consent) return;
     setLoading(true);
-    try {
-      if (WARRANTY_FORM_URL) {
-        const body = new URLSearchParams({
-          fullname: form.fullname,
-          email: form.email,
-          phone: form.phone,
-          sku: form.sku,
-          purchase_date: form.purchaseDate,
-        });
-        const res = await fetch(WARRANTY_FORM_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: body.toString(),
-        });
-        setStatus(res.ok ? "success" : "error");
-      } else {
-        const subject = encodeURIComponent(`הפעלת אחריות — מק"ט ${form.sku || "לא צוין"}`);
-        const body = encodeURIComponent(
-          `שם מלא: ${form.fullname}\nאימייל: ${form.email}\nטלפון: ${form.phone}\nמק"ט / SKU: ${form.sku}\nתאריך רכישה: ${form.purchaseDate}`
-        );
-        window.location.href = `mailto:${FALLBACK_EMAIL}?subject=${subject}&body=${body}`;
-        setStatus("success");
-      }
-    } catch {
-      setStatus("error");
-    } finally {
-      setLoading(false);
-    }
+    const { ok } = await sendUmbrcomForm("Umbrcom Warranty Registration", {
+      "שם מלא": form.fullname,
+      "אימייל": form.email,
+      "טלפון": form.phone,
+      'מק"ט / SKU': form.sku,
+      "תאריך רכישה": form.purchaseDate,
+    });
+    setStatus(ok ? "success" : "error");
+    setLoading(false);
   };
 
   return (

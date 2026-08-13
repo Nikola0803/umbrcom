@@ -1,13 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { sendUmbrcomForm } from "@/lib/wflSubmit";
 
-/** Cancellation-request form (ביטול עסקה) — item 16.
- *  TODO: create a form endpoint (readdy.ai, like the other forms) and paste
- *  its URL below. Until then the form falls back to opening a pre-filled
- *  email to office@umbrcom.co.il so requests still reach the inbox. */
-const CANCELLATION_FORM_URL = "";
-const FALLBACK_EMAIL = "office@umbrcom.co.il";
-
+/** Cancellation-request form (ביטול עסקה) — item 16. Submits into the
+ *  shared WFL Micro CRM plugin (Umbrcom Submissions inbox) — replaces the
+ *  earlier mailto: fallback that was standing in for a real endpoint. */
 const REASONS = [
   "התחרטתי / כבר לא צריך את המוצר",
   "מצאתי מחיר טוב יותר",
@@ -38,37 +35,15 @@ export default function CancellationForm() {
     e.preventDefault();
     if (!form.consent) return;
     setLoading(true);
-    try {
-      if (CANCELLATION_FORM_URL) {
-        const body = new URLSearchParams({
-          fullname: form.fullname,
-          order_number: form.orderNumber,
-          reason: form.reason + (form.reasonDetails ? ` — ${form.reasonDetails}` : ""),
-          phone: form.phone,
-          email: form.email,
-        });
-        const res = await fetch(CANCELLATION_FORM_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: body.toString(),
-        });
-        setStatus(res.ok ? "success" : "error");
-      } else {
-        // No endpoint configured yet — open a pre-filled email instead.
-        const subject = encodeURIComponent(`בקשת ביטול עסקה — הזמנה ${form.orderNumber}`);
-        const body = encodeURIComponent(
-          `שם מלא: ${form.fullname}\nמספר הזמנה: ${form.orderNumber}\nסיבת הביטול: ${form.reason}${
-            form.reasonDetails ? `\nפירוט: ${form.reasonDetails}` : ""
-          }\nטלפון: ${form.phone}\nאימייל: ${form.email}`
-        );
-        window.location.href = `mailto:${FALLBACK_EMAIL}?subject=${subject}&body=${body}`;
-        setStatus("success");
-      }
-    } catch {
-      setStatus("error");
-    } finally {
-      setLoading(false);
-    }
+    const { ok } = await sendUmbrcomForm("Umbrcom Cancellation Request", {
+      "שם מלא": form.fullname,
+      "מספר הזמנה": form.orderNumber,
+      "סיבת הביטול": form.reason + (form.reasonDetails ? ` — ${form.reasonDetails}` : ""),
+      "טלפון": form.phone,
+      "אימייל": form.email,
+    });
+    setStatus(ok ? "success" : "error");
+    setLoading(false);
   };
 
   return (

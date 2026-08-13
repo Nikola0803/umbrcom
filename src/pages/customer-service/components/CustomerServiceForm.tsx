@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-
-const CS_FORM_URL = "https://readdy.ai/api/form/d70o48eth28qd804cuug";
+import { sendUmbrcomForm } from "@/lib/wflSubmit";
 
 /** The functional customer-service form. Kept as a fixed React component;
  *  the header, intro copy, and contact-method tiles are CMS-editable
- *  (customer-service/page.tsx). */
+ *  (customer-service/page.tsx). Submits into the shared WFL Micro CRM
+ *  plugin (Umbrcom Submissions inbox) — replaces the old readdy.ai
+ *  template form endpoint. */
 export default function CustomerServiceForm() {
   const [form, setForm] = useState({ fullname: "", phone: "", email: "", message: "", consent: false });
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
@@ -17,24 +18,14 @@ export default function CustomerServiceForm() {
     if (!form.consent) return;
     if (charCount > 500) return;
     setLoading(true);
-    try {
-      const body = new URLSearchParams({
-        fullname: form.fullname,
-        phone: form.phone,
-        email: form.email,
-        message: form.message,
-      });
-      const res = await fetch(CS_FORM_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: body.toString(),
-      });
-      setStatus(res.ok ? "success" : "error");
-    } catch {
-      setStatus("error");
-    } finally {
-      setLoading(false);
-    }
+    const { ok } = await sendUmbrcomForm("Umbrcom Customer Service", {
+      "שם מלא": form.fullname,
+      "טלפון": form.phone,
+      "אימייל": form.email,
+      "הודעה": form.message,
+    });
+    setStatus(ok ? "success" : "error");
+    setLoading(false);
   };
 
   return (
@@ -44,7 +35,7 @@ export default function CustomerServiceForm() {
           תודה! הודעתך נשלחה. נחזור אליך בהקדם.
         </div>
       ) : (
-        <form onSubmit={handleSubmit} data-readdy-form className="space-y-4 bg-white border border-[#ececec] rounded-2xl p-6 sm:p-8">
+        <form onSubmit={handleSubmit} className="space-y-4 bg-white border border-[#ececec] rounded-2xl p-6 sm:p-8">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1 text-right">שם מלא</label>
             <input

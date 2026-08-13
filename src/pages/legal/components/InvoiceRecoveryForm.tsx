@@ -1,13 +1,11 @@
 import { useState } from "react";
+import { sendUmbrcomForm } from "@/lib/wflSubmit";
 
 // Compliance fix (Aug 2026): this form previously had `onSubmit={(e) =>
 // e.preventDefault()}` with no fields wired to state — it promised to
-// resend an invoice while sending nothing anywhere. Same fix pattern as
-// CancellationForm.tsx / BusinessForm.tsx / WarrantyForm.tsx: real POST
-// endpoint if one gets configured, mailto fallback until then.
-const INVOICE_RECOVERY_FORM_URL = "";
-const FALLBACK_EMAIL = "office@umbrcom.co.il";
-
+// resend an invoice while sending nothing anywhere. Now submits into the
+// shared WFL Micro CRM plugin (Umbrcom Submissions inbox) — replaces the
+// mailto: fallback that stood in until a real endpoint existed.
 const inputCls =
   "w-full px-4 py-3 rounded-xl border border-[#ede9e1] text-sm text-left text-[#1a1410] bg-white placeholder-[#bbb] focus:outline-none focus:border-[#1a1a1a] transition-colors";
 
@@ -21,32 +19,13 @@ export default function InvoiceRecoveryForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    try {
-      if (INVOICE_RECOVERY_FORM_URL) {
-        const body = new URLSearchParams({
-          order_number: form.orderNumber,
-          order_email: form.orderEmail,
-          send_to_email: form.sendToEmail,
-        });
-        const res = await fetch(INVOICE_RECOVERY_FORM_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: body.toString(),
-        });
-        setStatus(res.ok ? "success" : "error");
-      } else {
-        const subject = encodeURIComponent(`בקשה לשליחת חשבונית — הזמנה ${form.orderNumber || "לא צוינה"}`);
-        const body = encodeURIComponent(
-          `מספר הזמנה: ${form.orderNumber}\nאימייל שבו הוזמן: ${form.orderEmail}\nלשלוח את החשבונית אל: ${form.sendToEmail}`
-        );
-        window.location.href = `mailto:${FALLBACK_EMAIL}?subject=${subject}&body=${body}`;
-        setStatus("success");
-      }
-    } catch {
-      setStatus("error");
-    } finally {
-      setLoading(false);
-    }
+    const { ok } = await sendUmbrcomForm("Umbrcom Invoice Recovery", {
+      "מספר הזמנה": form.orderNumber,
+      "אימייל שבו הוזמן": form.orderEmail,
+      "לשלוח את החשבונית אל": form.sendToEmail,
+    });
+    setStatus(ok ? "success" : "error");
+    setLoading(false);
   };
 
   return (

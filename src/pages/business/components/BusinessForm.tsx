@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { sendUmbrcomForm } from "@/lib/wflSubmit";
 
 // Compliance fix (Aug 2026): this form previously had `onSubmit={(e) =>
 // e.preventDefault()}` — no fields were captured, nothing was sent
@@ -7,12 +8,9 @@ import { Link } from "react-router-dom";
 // while silently discarding every submission. That's exactly the kind of
 // thing Google's Shopping/Merchant policy calls out under "persuade
 // customers to... provide information under false or unclear pretexts."
-// Wired to actually go somewhere now, same pattern as CancellationForm.tsx:
-// a real POST endpoint if one gets configured, mailto fallback until then
-// so requests reach a real, monitored inbox either way.
-const BUSINESS_FORM_URL = "";
-const FALLBACK_EMAIL = "office@umbrcom.co.il";
-
+// Now submits into the shared WFL Micro CRM plugin (Umbrcom Submissions
+// inbox) — replaces the mailto: fallback that stood in until a real
+// endpoint existed.
 const inputCls =
   "w-full px-4 py-3 rounded-xl border border-[#ede9e1] text-sm text-right text-[#1a1410] bg-white placeholder-[#bbb] focus:outline-none focus:border-[#1a1a1a] transition-colors";
 
@@ -34,34 +32,15 @@ export default function BusinessForm() {
     e.preventDefault();
     if (!form.consent) return;
     setLoading(true);
-    try {
-      if (BUSINESS_FORM_URL) {
-        const body = new URLSearchParams({
-          company: form.company,
-          contact_name: form.contactName,
-          email: form.email,
-          phone: form.phone,
-          scope: form.scope,
-        });
-        const res = await fetch(BUSINESS_FORM_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: body.toString(),
-        });
-        setStatus(res.ok ? "success" : "error");
-      } else {
-        const subject = encodeURIComponent(`פנייה עסקית — ${form.company || "ללא שם חברה"}`);
-        const body = encodeURIComponent(
-          `שם החברה: ${form.company}\nאיש קשר: ${form.contactName}\nאימייל: ${form.email}\nטלפון: ${form.phone}\nהיקף הצורך המשוער: ${form.scope}`
-        );
-        window.location.href = `mailto:${FALLBACK_EMAIL}?subject=${subject}&body=${body}`;
-        setStatus("success");
-      }
-    } catch {
-      setStatus("error");
-    } finally {
-      setLoading(false);
-    }
+    const { ok } = await sendUmbrcomForm("Umbrcom Business Inquiry", {
+      "שם החברה": form.company,
+      "איש קשר": form.contactName,
+      "אימייל": form.email,
+      "טלפון": form.phone,
+      "היקף הצורך המשוער": form.scope,
+    });
+    setStatus(ok ? "success" : "error");
+    setLoading(false);
   };
 
   return (
