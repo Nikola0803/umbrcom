@@ -245,7 +245,7 @@ export default function ProductPage() {
 
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
-  const [activeTab, setActiveTab] = useState<"desc" | "specs" | "video" | "ai" | "package" | "3d" | "reviews">("desc");
+  const [activeTab, setActiveTab] = useState<"desc" | "specs" | "video" | "ai" | "package" | "shipping" | "3d" | "reviews">("desc");
   const [activeImage, setActiveImage] = useState(0);
 
   // These were originally placed after the early returns below — a real
@@ -599,6 +599,7 @@ export default function ProductPage() {
                 ...(product.packageContents && product.packageContents.length > 0
                   ? [{ key: "package", label: "תכולת האריזה" }]
                   : []),
+                { key: "shipping", label: "משלוח והחזרות" },
                 { key: "3d", label: "תצוגה תלת-מימדית" },
                 { key: "reviews", label: "ביקורות" },
               ] as { key: typeof activeTab; label: string }[]
@@ -615,6 +616,7 @@ export default function ProductPage() {
                 {t.key === "3d" && <i className="ri-box-3-line text-xs"></i>}
                 {t.key === "video" && <i className="ri-youtube-line text-xs"></i>}
                 {t.key === "ai" && <i className="ri-sparkling-2-line text-xs"></i>}
+                {t.key === "shipping" && <i className="ri-truck-line text-xs"></i>}
                 {t.key === "reviews" && <i className="ri-star-line text-xs"></i>}
                 {t.label}
               </button>
@@ -739,6 +741,62 @@ export default function ProductPage() {
                   </ul>
                 )
               ))}
+
+            {activeTab === "shipping" && (
+              <div className="max-w-xl mr-auto" dir="rtl">
+                <div className="bg-[#faf8f4] border border-[#ece7dd] rounded-2xl p-5 space-y-4">
+                  <div className="flex items-start gap-3 border-b border-[#ece7dd] pb-4 last:border-0 last:pb-0">
+                    <span className="shrink-0 mt-0.5 text-[#1a1a1a]">
+                      <i className="ri-truck-line text-lg"></i>
+                    </span>
+                    <div>
+                      <p className="font-bold text-[#1a1410] text-sm">משלוח חינם מ-₪249</p>
+                      <p className="text-[#6a5e52] text-xs mt-0.5">בקנייה מעל 249 ₪ משלוח חינם עד הבית (פרט למוצרים חריגים)</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 border-b border-[#ece7dd] pb-4 last:border-0 last:pb-0">
+                    <span className="shrink-0 mt-0.5 text-[#1a1a1a]">
+                      <i className="ri-truck-line text-lg"></i>
+                    </span>
+                    <div>
+                      <p className="font-bold text-[#1a1410] text-sm">משלוח עד הבית — ₪29.50</p>
+                      <p className="text-[#6a5e52] text-xs mt-0.5">לרוב הכתובות בישראל, כולל עיר הגעה</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 border-b border-[#ece7dd] pb-4 last:border-0 last:pb-0">
+                    <span className="shrink-0 mt-0.5 text-[#1a1a1a]">
+                      <i className="ri-truck-line text-lg"></i>
+                    </span>
+                    <div>
+                      <p className="font-bold text-[#1a1410] text-sm">משלוח חריג (גדול)</p>
+                      <p className="text-[#6a5e52] text-xs mt-0.5">עלול להתעכב עד 10 ימי עסקים</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 border-b border-[#ece7dd] pb-4 last:border-0 last:pb-0">
+                    <span className="shrink-0 mt-0.5 text-[#1a1a1a]">
+                      <i className="ri-shield-check-line text-lg"></i>
+                    </span>
+                    <div>
+                      <p className="font-bold text-[#1a1410] text-sm">איסוף עצמי</p>
+                      <p className="text-[#6a5e52] text-xs mt-0.5">סחרוב 18, ראשון לציון — ימי א׳–ה׳ 10:00–16:00 | ו׳ 08:00–13:30</p>
+                      <p className="text-[#6a5e52] text-xs mt-1">קיימת אופציה לאיסוף מהמרלוג ב השיקמה 1 אזור (בתיאום מראש בלבד)</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 border-b border-[#ece7dd] pb-4 last:border-0 last:pb-0">
+                    <span className="shrink-0 mt-0.5 text-[#1a1a1a]">
+                      <i className="ri-arrow-go-back-line text-lg"></i>
+                    </span>
+                    <div>
+                      <p className="font-bold text-[#1a1410] text-sm">החזרה תוך 14 יום</p>
+                      <p className="text-[#6a5e52] text-xs mt-0.5">לא נעשה במוצר כל שימוש, המוצר באריזתו המקורית</p>
+                    </div>
+                  </div>
+                  <div className="pt-1 text-xs text-[#9a8a7a] leading-relaxed border-t border-[#ece7dd]">
+                    זמן אספקה: <strong className="text-[#6a5e52]">1–7 ימי עסקים</strong> (ממוצע 1–3). ייתכנו עיכובים לישובים מרוחקים.
+                  </div>
+                </div>
+              </div>
+            )}
 
             {activeTab === "3d" && product && (
               <div className="max-w-3xl mr-auto">

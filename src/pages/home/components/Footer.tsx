@@ -146,6 +146,11 @@ export default function Footer() {
               <i className="ri-map-pin-line text-[#666] me-2"></i>
               <span className="text-[#777]">משרדים:</span> {address}
             </p>
+            {/* Opening hours — directly below the offices address, per Nik. */}
+            <p className="text-sm text-[#999] whitespace-pre-line leading-relaxed">
+              <i className="ri-time-line text-[#666] me-2"></i>
+              <span className="text-[#777]">שעות פעילות:</span>{"\n"}א-ה : 10:00-16:00{"\n"}יום ו : 08:00-13:30
+            </p>
             {/* Unicode bidi quirk: with the digit run sitting directly next
                 to the icon (no Hebrew character between them), the browser
                 reorders them and the phone number jumps to the right of
@@ -161,6 +166,17 @@ export default function Footer() {
             >
               <i className="ri-phone-line text-[#666]"></i>
               {phone}
+            </a>
+            {/* Email — same inline-flex treatment as the phone line above,
+                for the same bidi reason (a latin-script address sitting
+                right next to the icon with no Hebrew character between
+                them). */}
+            <a
+              href="mailto:service@umbrcom.co.il"
+              className="inline-flex items-center gap-2 text-sm text-[#999] hover:text-white transition-colors"
+            >
+              <i className="ri-mail-line text-[#666]"></i>
+              service@umbrcom.co.il
             </a>
           </div>
           {/* Social icons — the only row that legitimately needs flex (a
