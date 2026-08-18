@@ -13,7 +13,7 @@
  * is unreachable at build time, so a backend outage never breaks the build.
  */
 import { writeFileSync, mkdirSync } from "node:fs";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { dirname, resolve } from "node:path";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -23,6 +23,13 @@ const PUBLIC_DIR = resolve(__dirname, "../public");
 // the WordPress backend). Override with SITE_URL if this ever changes.
 const SITE_URL = process.env.SITE_URL || "https://umbrcom.co.il";
 const WP_API_URL = process.env.VITE_WP_API_URL || "https://admin.umbrcom.co.il/wp-json";
+
+// Flat per-item shipping price fed to Google/Meta. The store's actual rule
+// (free above 249 ILS) is order-total logic that a per-product feed can't
+// express — that threshold must be configured as a "free shipping over
+// amount" rule in Merchant Center's own Shipping & returns settings, which
+// then overrides this flat rate at checkout once the cart qualifies.
+const SHIPPING_FLAT_RATE = 29.5;
 
 // Mirrors src/router/config.tsx — kept in sync manually since this script
 // runs outside Vite/TS and can't import the route table directly.
@@ -125,6 +132,31 @@ function minorUnitToNumber(price, minorUnit) {
   return Number.isNaN(n) ? 0 : n / Math.pow(10, minorUnit ?? 2);
 }
 
+// Real Google product taxonomy paths (google.com/basepages/producttype/taxonomy.xml).
+// The feed used to hardcode every single item to KITCHEN_FAUCETS regardless of
+// what it actually was — 35 of 65 live products are bathroom/shower/cold-water
+// items, not kitchen faucets, which is exactly the kind of mismatched-category
+// data Merchant Center disapproves items for ("Products aren't accurately
+// represented" / mismatched google_product_category vs. title-image).
+const KITCHEN_FAUCETS = "Home & Garden > Kitchen & Dining > Kitchen Fixtures > Kitchen Sink Accessories > Kitchen & Bar Sink Faucets";
+const BATHROOM_SINK_FAUCETS = "Home & Garden > Bathroom Accessories > Bathroom Sink Accessories > Bathroom Sink Faucets";
+const SHOWER_SETS = "Home & Garden > Bathroom Accessories > Shower Heads & Handheld Showers";
+const GENERIC_BATHROOM_FALLBACK = "Home & Garden > Bathroom Accessories";
+
+// Maps each WooCommerce product category (by Hebrew name substring, matched
+// against the live category names — see the categories dump in scripts/
+// generate-sitemap-feed test run) to the Google category that actually
+// describes it. "סדרת X" collection tags carry no functional signal so
+// they're skipped; only the functional category words below are checked.
+function googleCategoryFor(product) {
+  const names = (product.categories || []).map((c) => c.name).join(" ");
+  if (names.includes("פינוק")) return SHOWER_SETS; // "ערכות פינוק" — pamper/rain-shower sets
+  if (names.includes("מטבח")) return KITCHEN_FAUCETS; // "ברזי מטבח" — kitchen faucets
+  if (names.includes("מים") && names.includes("קרים")) return BATHROOM_SINK_FAUCETS; // "ברזי מים קרים" — cold-water taps
+  if (names.includes("כיור") || names.includes("רחצה")) return BATHROOM_SINK_FAUCETS; // "ברזי כיור רחצה" — bathroom sink faucets
+  return GENERIC_BATHROOM_FALLBACK; // unrecognized category — broad beats wrong
+}
+
 function buildFeed(products) {
   const items = products
     .map((p) => {
@@ -152,7 +184,13 @@ function buildFeed(products) {
       ${salePrice && salePrice < regularPrice ? `<g:sale_price>${salePrice.toFixed(2)} ILS</g:sale_price>` : ""}
       <g:brand>Waterfall</g:brand>
       <g:condition>new</g:condition>
-      <g:google_product_category>Home &amp; Garden &gt; Kitchen &amp; Dining &gt; Kitchen Fixtures &gt; Kitchen Sink Accessories &gt; Kitchen &amp; Bar Sink Faucets</g:google_product_category>
+      <g:identifier_exists>false</g:identifier_exists>
+      <g:google_product_category>${xmlEscape(googleCategoryFor(p))}</g:google_product_category>
+      <g:shipping>
+        <g:country>IL</g:country>
+        <g:service>Standard</g:service>
+        <g:price>${SHIPPING_FLAT_RATE.toFixed(2)} ILS</g:price>
+      </g:shipping>
     </item>`;
     })
     .join("\n");
@@ -190,8 +228,12 @@ async function main() {
 // scripts/generate-sitemap-feed.mjs`, or the "prebuild" npm hook) — NOT
 // when scripts/prerender.mjs imports fetchAllProducts/productPath/etc.
 // below, which would otherwise re-run this whole script a second time as
-// an unwanted side effect of the import.
-if (import.meta.url === `file://${process.argv[1]}`) {
+// an unwanted side effect of the import. Compared via pathToFileURL (not a
+// raw string concat) because on Windows process.argv[1] is a backslash
+// path ("C:\...") while import.meta.url is a "file:///C:/..." URL with
+// forward slashes and percent-encoding — a naive `file://${argv[1]}`
+// never matches there, so main() silently never ran on Windows.
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   main();
 }
 
